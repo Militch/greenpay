@@ -12,6 +12,7 @@ public class InterfaceDTO {
     private String interfaceName;
     private String payTypeCode;
     private Boolean status;
+    private Integer scenarios;
     private Integer interfaceType;
     private String interfaceImpl;
     private LocalDateTime createdAt;

@@ -46,12 +46,15 @@ public class OPenAPISecurityFilter implements Filter {
         allowedPaths = new String[]{
                 "/v1/helper/wx/callback/code($|/$)",
                 "/v1/cashiers/pay/wx/order($|/$)",
+                "/v1/cashiers/qr/orders/.+($|/$)",
                 "/v1/invoices/.+?/callback($|/$)",
                 "/v1/cashiers/pages($|/$)",
                 "/v1/cashiers/flow($|/$)",
                 "/v1/cashiers/flow($|/$)",
                 "/.+?\\.css$",
                 "/.+?\\.png$",
+                "/.+?\\.jpg$",
+                "/v1/helper/qr/builder($|/$)"
         };
     }
 

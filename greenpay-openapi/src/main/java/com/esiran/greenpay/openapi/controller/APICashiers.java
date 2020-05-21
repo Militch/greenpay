@@ -46,6 +46,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -88,11 +91,39 @@ public class APICashiers {
         Merchant merchant = OpenAPISecurityUtils.getSubject();
         String productCode = inputDTO.getChannel();
         PayOrder payOrder = cashierService.createCashierByInput(productCode, inputDTO, merchant);
-        return null;
+        String orderNo = payOrder.getOrder().getOrderNo();
+        return String.format("redirect:/v1/cashiers/qr/orders/%s",orderNo);
+    }
+    @GetMapping("/qr/orders/{orderNo}")
+    public String qrOrder(
+            HttpServletResponse response,
+            @PathVariable String orderNo,
+            ModelMap modelMap) throws Exception {
+        Order order = orderService.getOneByOrderNo(orderNo);
+        OrderDetail orderDetail = orderDetailService.getOneByOrderNo(orderNo);
+        if (order == null || orderDetail == null) {
+            response.setStatus(404);
+            return null;
+        }
+        Interface ins = interfaceService.getById(orderDetail.getPayInterfaceId());
+        String qrCodeUrl = "http://www.baidu.com";
+        if (ins.getScenarios() == 4){
+            String redirectUrl = String.format("%s/v1/cashiers/pay/wx/order?orderNo=%s",
+                    webHostname, orderNo);
+            qrCodeUrl =  String.format("redirect:/v1/helper/wx/openid");
+        }else if(ins.getScenarios() == 5){
+
+        }
+        String qrCodeImgUrl = String.format(
+                "/v1/helper/qr/builder?codeUrl=%s&style=w300h300",
+                URLEncoder.encode(qrCodeUrl, "UTF-8"));
+        modelMap.addAttribute("qrCodeImgUrl",qrCodeImgUrl);
+//        return String.format("cashier/%s","qr_pc");
+        return "cashier/qr_pc";
     }
     @GetMapping("/qr/proxy/{orderNo}")
     public String qrProxy(@PathVariable String orderNo){
-
+        return "";
     }
     @RequestMapping
     public String create(@Valid CashierInputDTO inputDTO, HttpServletRequest request) throws Exception {
