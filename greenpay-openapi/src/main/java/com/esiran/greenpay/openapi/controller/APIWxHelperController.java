@@ -122,7 +122,6 @@ public class APIWxHelperController {
 
     @GetMapping("/openid")
     public String openId(
-            HttpServletRequest request,
             @Valid WxOPenIdInputDTO wxOPenIdInputDTO,
             HttpServletResponse response) {
         Merchant merchant = OpenAPISecurityUtils.getSubject();
