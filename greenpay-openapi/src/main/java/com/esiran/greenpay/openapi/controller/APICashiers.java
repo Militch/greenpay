@@ -107,7 +107,7 @@ public class APICashiers {
         }
         Interface ins = interfaceService.getById(orderDetail.getPayInterfaceId());
         String qrCodeUrl = "http://www.baidu.com";
-        if (ins.getScenarios() == 4){
+        if (ins.getScenarios() == 1){
             String redirectUrl = String.format("%s/v1/cashiers/pay/wx/order?orderNo=%s",
                     webHostname, orderNo);
             qrCodeUrl =  String.format("redirect:/v1/helper/wx/openid");
