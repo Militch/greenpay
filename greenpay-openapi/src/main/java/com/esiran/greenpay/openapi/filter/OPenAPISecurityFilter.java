@@ -44,9 +44,11 @@ public class OPenAPISecurityFilter implements Filter {
         this.merchantService = merchantService;
         this.apiConfigService = apiConfigService;
         allowedPaths = new String[]{
+                "/v1/helper/wx/openid($|/$)",
                 "/v1/helper/wx/callback/code($|/$)",
                 "/v1/cashiers/pay/wx/order($|/$)",
                 "/v1/cashiers/qr/orders/.+($|/$)",
+                "/v1/cashiers/wx_pub/orders/.+($|/$)",
                 "/v1/invoices/.+?/callback($|/$)",
                 "/v1/cashiers/pages($|/$)",
                 "/v1/cashiers/flow($|/$)",

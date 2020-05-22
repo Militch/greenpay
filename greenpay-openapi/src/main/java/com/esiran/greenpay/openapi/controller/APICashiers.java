@@ -102,7 +102,7 @@ public class APICashiers {
             } catch (Exception e) {
                 throw new APIException("请求支付通道失败","REQUEST_ERROR");
             }
-        }else if (!(scenarios == 5 || scenarios ==6)){
+        } else if (!(scenarios == 5 || scenarios ==6)){
             throw new APIException("支付场景暂不支持该渠道支付","REQUEST_ERROR");
         }
         return String.format("redirect:/v1/cashiers/qr/orders/%s",orderNo);
@@ -127,7 +127,12 @@ public class APICashiers {
                     new TypeToken<Map<String,Object>>(){}.getType());
             qrCodeUrl = (String) credentialMap.get("codeUrl");
         }else if(scenarios == 5){
-            qrCodeUrl = "";
+            String redirectUrl = String.format(
+                    "%s/v1/cashiers/wx_pub/orders/%s",
+                    webHostname, order.getOrderNo());
+            qrCodeUrl = String.format(
+                    "%s/v1/helper/wx/openid?redirectUrl=%s",
+                    webHostname,URLEncoder.encode(redirectUrl,"UTF-8"));
         }else if(scenarios == 6){
             qrCodeUrl = "";
         }
@@ -136,10 +141,77 @@ public class APICashiers {
             return null;
         }
         String qrCodeImgUrl = String.format(
-                "/v1/helper/qr/builder?codeUrl=%s&style=w300h300",
+                "/v1/helper/qr/builder?codeUrl=%s&style=w260h260",
                 URLEncoder.encode(qrCodeUrl, "UTF-8"));
         modelMap.addAttribute("qrCodeImgUrl",qrCodeImgUrl);
         return "cashier/qr_pc";
+    }
+
+    @GetMapping("/wx_pub/orders/{orderNo}")
+    public String wxPubOrders(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            ModelMap modelMap,
+            @RequestParam String openId,
+            @PathVariable String orderNo){
+        Order order = orderService.getOneByOrderNo(orderNo);
+        OrderDetail orderDetail = orderDetailService.getOneByOrderNo(orderNo);
+        if (order == null || orderDetail == null || order.getStatus() != 1 ){
+            response.setStatus(404);
+            return null;
+        }
+        Interface ins = interfaceService.getById(orderDetail.getPayInterfaceId());
+        Integer scenarios = ins.getScenarios();
+        if (scenarios != 5){
+            response.setStatus(404);
+            return null;
+        }
+        Map<String,Object> upstreamExtra = new LinkedHashMap<>();
+        upstreamExtra.put("openId",openId);
+        String upstreamExtraJson = gson.toJson(upstreamExtra);
+        orderDetail.setUpstreamExtra(upstreamExtraJson);
+        orderDetailService.updateById(orderDetail);
+        String notifyReceiveUrl = String.format(
+                "%s/v1/invoices/%s/callback",
+                webHostname,order.getOrderNo());
+        PayOrder payOrder = new PayOrder();
+        payOrder.setOrder(order);
+        payOrder.setOrderDetail(orderDetail);
+        payOrder.setNotifyReceiveUrl(notifyReceiveUrl);
+        Map<String,Object> results;
+        try {
+            Plugin<PayOrder> payOrderPlugin = pluginLoader.loadForClassPath(ins.getInterfaceImpl());
+            PayOrderFlow payOrderFlow = new PayOrderFlow(payOrder);
+            payOrderPlugin.apply(payOrderFlow);
+            payOrderFlow.execDependent("create");
+            results = payOrderFlow.getResults();
+            orderDetailService.updatePayCredentialByOrderNo(orderNo,results);
+        } catch (Exception e) {
+            response.setStatus(404);
+            return null;
+        }
+        String wxMpAppId = "wx2aeda339f56138bf";
+        String wxMpSecret = "731787f51247a33c4ff210cd613dd780";
+        WxMpDefaultConfigImpl config = new WxMpDefaultConfigImpl();
+        config.setAppId(wxMpAppId);
+        config.setSecret(wxMpSecret);
+        WxMpService wxMpService = new WxMpServiceImpl();
+        wxMpService.setWxMpConfigStorage(config);
+        String currentUrl = request.getRequestURL().append("?")
+                .append(request.getQueryString()).toString();
+        WxJsapiSignature wxConfig;
+        try {
+            wxConfig = wxMpService.createJsapiSignature(currentUrl);
+        } catch (WxErrorException e) {
+            e.printStackTrace();
+            response.setStatus(404);
+            return null;
+        }
+        modelMap.put("order", order);
+        modelMap.put("orderAmountDisplay", NumberUtil.amountFen2Yuan(order.getAmount()));
+        modelMap.put("payAttr",results);
+        modelMap.put("wxConfig",wxConfig);
+        return "cashier/wx_jsapi";
     }
 
     @RequestMapping("/pc/orders")
@@ -147,8 +219,10 @@ public class APICashiers {
         Merchant merchant = OpenAPISecurityUtils.getSubject();
         String productCode = inputDTO.getChannel();
         PayOrder payOrder = cashierService.createCashierByInput(productCode, inputDTO, merchant);
-        ApiConfig apiConfig = apiConfigService.getOneByMerchantId(merchant.getId());
-        if (scenarios == 1){
+        String orderNo = payOrder.getOrder().getOrderNo();
+        Interface ins = interfaceService.getById(payOrder.getOrderDetail().getPayInterfaceId());
+        Integer scenarios = ins.getScenarios();
+        if (scenarios == 2){
             PayOrderFlow payOrderFlow = new PayOrderFlow(payOrder);
             try {
                 Plugin<PayOrder> payOrderPlugin =
@@ -160,29 +234,89 @@ public class APICashiers {
             } catch (Exception e) {
                 throw new APIException("请求支付通道失败","REQUEST_ERROR");
             }
-        }else if (!(scenarios == 5 || scenarios ==6)){
+        }else {
             throw new APIException("支付场景暂不支持该渠道支付","REQUEST_ERROR");
         }
         return null;
     }
 
-    @GetMapping("/pages")
-    public String cashiersPages(
-            HttpServletResponse response,
-            ModelMap modelMap,
-            @RequestParam String orderNo){
-        OrderDTO order = orderService.getByOrderNo(orderNo);
-        if (order == null || order.getStatus() != 1) {
-            response.setStatus(404);
-            return null;
+    @RequestMapping("/h5/orders")
+    public String createH5Order(@Valid CashierInputDTO inputDTO, HttpServletRequest request) throws Exception {
+        Merchant merchant = OpenAPISecurityUtils.getSubject();
+        String productCode = inputDTO.getChannel();
+        PayOrder payOrder = cashierService.createCashierByInput(productCode, inputDTO, merchant);
+        String orderNo = payOrder.getOrder().getOrderNo();
+        Interface ins = interfaceService.getById(payOrder.getOrderDetail().getPayInterfaceId());
+        Integer scenarios = ins.getScenarios();
+        if (scenarios == 3){
+            PayOrderFlow payOrderFlow = new PayOrderFlow(payOrder);
+            try {
+                Plugin<PayOrder> payOrderPlugin =
+                        pluginLoader.loadForClassPath(ins.getInterfaceImpl());
+                payOrderPlugin.apply(payOrderFlow);
+                payOrderFlow.execDependent("create");
+                Map<String,Object> results = payOrderFlow.getResults();
+                orderDetailService.updatePayCredentialByOrderNo(orderNo,results);
+            } catch (Exception e) {
+                throw new APIException("请求支付通道失败","REQUEST_ERROR");
+            }
+        } else {
+            throw new APIException("支付场景暂不支持该渠道支付","REQUEST_ERROR");
         }
-        String productCode = order.getPayProductCode();
-        if (productCode == null || productCode.length() == 0) {
-            response.setStatus(404);
-            return null;
+        return null;
+    }
+
+    @RequestMapping("/wx_pub/orders")
+    public String createWxPubOrder(@Valid CashierInputDTO inputDTO, HttpServletRequest request) throws Exception {
+        Merchant merchant = OpenAPISecurityUtils.getSubject();
+        String productCode = inputDTO.getChannel();
+        PayOrder payOrder = cashierService.createCashierByInput(productCode, inputDTO, merchant);
+        String orderNo = payOrder.getOrder().getOrderNo();
+        Interface ins = interfaceService.getById(payOrder.getOrderDetail().getPayInterfaceId());
+        Integer scenarios = ins.getScenarios();
+        if (scenarios == 5){
+            PayOrderFlow payOrderFlow = new PayOrderFlow(payOrder);
+            try {
+                Plugin<PayOrder> payOrderPlugin =
+                        pluginLoader.loadForClassPath(ins.getInterfaceImpl());
+                payOrderPlugin.apply(payOrderFlow);
+                payOrderFlow.execDependent("create");
+                Map<String,Object> results = payOrderFlow.getResults();
+                orderDetailService.updatePayCredentialByOrderNo(orderNo,results);
+            } catch (Exception e) {
+                throw new APIException("请求支付通道失败","REQUEST_ERROR");
+            }
+        }else {
+            throw new APIException("支付场景暂不支持该渠道支付","REQUEST_ERROR");
         }
-        modelMap.put("order",order);
-        return String.format("cashier/%s",productCode);
+        return null;
+    }
+
+
+    @RequestMapping("/ali_pub/orders")
+    public String createAliPubOrder(@Valid CashierInputDTO inputDTO, HttpServletRequest request) throws Exception {
+        Merchant merchant = OpenAPISecurityUtils.getSubject();
+        String productCode = inputDTO.getChannel();
+        PayOrder payOrder = cashierService.createCashierByInput(productCode, inputDTO, merchant);
+        String orderNo = payOrder.getOrder().getOrderNo();
+        Interface ins = interfaceService.getById(payOrder.getOrderDetail().getPayInterfaceId());
+        Integer scenarios = ins.getScenarios();
+        if (scenarios == 6){
+            PayOrderFlow payOrderFlow = new PayOrderFlow(payOrder);
+            try {
+                Plugin<PayOrder> payOrderPlugin =
+                        pluginLoader.loadForClassPath(ins.getInterfaceImpl());
+                payOrderPlugin.apply(payOrderFlow);
+                payOrderFlow.execDependent("create");
+                Map<String,Object> results = payOrderFlow.getResults();
+                orderDetailService.updatePayCredentialByOrderNo(orderNo,results);
+            } catch (Exception e) {
+                throw new APIException("请求支付通道失败","REQUEST_ERROR");
+            }
+        }else {
+            throw new APIException("支付场景暂不支持该渠道支付","REQUEST_ERROR");
+        }
+        return null;
     }
     @PostMapping("/pages")
     @ResponseBody
@@ -231,7 +365,7 @@ public class APICashiers {
         return out;
     }
 
-    @GetMapping("/pay/wx/order")
+    @GetMapping("/pages/wx/order")
     public String payOrder(
             @RequestParam String orderNo,
             @RequestParam String openId,
