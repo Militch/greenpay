@@ -7,6 +7,7 @@ import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.sign.*;
 import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
+import com.esiran.greenpay.common.util.ResUtil;
 import com.esiran.greenpay.common.util.UrlSafeB64;
 import com.esiran.greenpay.merchant.entity.ApiConfig;
 import com.esiran.greenpay.merchant.entity.Merchant;
@@ -26,6 +27,7 @@ import com.esiran.greenpay.pay.service.IProductService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.chanjar.weixin.common.bean.WxJsapiSignature;
+import me.chanjar.weixin.common.error.WxError;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.api.impl.WxMpServiceImpl;
@@ -86,6 +88,7 @@ public class APICashiers {
     public String createQrPage(@Valid CashierInputDTO inputDTO) throws Exception {
         Merchant merchant = OpenAPISecurityUtils.getSubject();
         String productCode = inputDTO.getChannel();
+
         PayOrder payOrder = cashierService.createCashierByInput(productCode, inputDTO, merchant);
         String orderNo = payOrder.getOrder().getOrderNo();
         Interface ins = interfaceService.getById(payOrder.getOrderDetail().getPayInterfaceId());
@@ -144,6 +147,7 @@ public class APICashiers {
                 "/v1/helper/qr/builder?codeUrl=%s&style=w260h260",
                 URLEncoder.encode(qrCodeUrl, "UTF-8"));
         modelMap.addAttribute("qrCodeImgUrl",qrCodeImgUrl);
+        modelMap.addAttribute("style","wechat");
         return "cashier/qr_pc";
     }
 
@@ -188,6 +192,7 @@ public class APICashiers {
             orderDetailService.updatePayCredentialByOrderNo(orderNo,results);
         } catch (Exception e) {
             response.setStatus(404);
+            ResUtil.printAlert(response,"下单失败");
             return null;
         }
         String wxMpAppId = "wx2aeda339f56138bf";
@@ -204,7 +209,16 @@ public class APICashiers {
             wxConfig = wxMpService.createJsapiSignature(currentUrl);
         } catch (WxErrorException e) {
             e.printStackTrace();
-            response.setStatus(404);
+            WxError error = e.getError();
+            if (error == null){
+                ResUtil.printAlert(response,"未知错误，请联系管理员");
+                return null;
+            }
+            response.setStatus(403);
+            int code = error.getErrorCode();
+            if (code == 40164){
+                ResUtil.printAlert(response,"请配置微信公众号IP白名单");
+            }
             return null;
         }
         modelMap.put("order", order);
