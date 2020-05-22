@@ -124,11 +124,15 @@ public class APICashiers {
         Interface ins = interfaceService.getById(orderDetail.getPayInterfaceId());
         Integer scenarios = ins.getScenarios();
         String qrCodeUrl = null;
+        String style = scenarios == 5?"wechat":scenarios == 6?"alipay":null;
         if (scenarios == 1){
             String payCredential = orderDetail.getPayCredential();
             Map<String,Object> credentialMap = gson.fromJson(payCredential,
                     new TypeToken<Map<String,Object>>(){}.getType());
             qrCodeUrl = (String) credentialMap.get("codeUrl");
+            String prodCode = order.getPayProductCode();
+            style = prodCode.startsWith("wx_") ? "wechat":
+                    prodCode.startsWith("ali_") ? "alipay": null;
         }else if(scenarios == 5){
             String redirectUrl = String.format(
                     "%s/v1/cashiers/wx_pub/orders/%s",
@@ -146,8 +150,8 @@ public class APICashiers {
         String qrCodeImgUrl = String.format(
                 "/v1/helper/qr/builder?codeUrl=%s&style=w260h260",
                 URLEncoder.encode(qrCodeUrl, "UTF-8"));
+        modelMap.addAttribute("style",style);
         modelMap.addAttribute("qrCodeImgUrl",qrCodeImgUrl);
-        modelMap.addAttribute("style","wechat");
         return "cashier/qr_pc";
     }
 
