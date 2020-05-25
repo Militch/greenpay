@@ -12,6 +12,8 @@ import java.util.Date;
 @Data
 public class CartogramDTO {
 
+    private String name;
+
     private Date time;
 
     private Integer count;

@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -418,7 +419,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         b = new BigDecimal(upSevenSucAmount);
         String format3 = p.percentBigDecimal(a, b);
 
-        data.put("va2", format3);
+        data.put("val2", format3);
         statistics.add(data);
 
 
@@ -452,18 +453,56 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         //--end
 
         data = new HashMap<>();
-        List<CartogramDTO> hourDatas = orderService.hourData();
-        data.put("name", "24小时");
+        List<CartogramDTO> hourDatas = orderService.hourData4amount();
+        List<CartogramDTO> hours = new ArrayList<>();
+        List<String> collect = hourDatas.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
+        for (int i = 0; i < 24; i++) {
+            String hs = String.valueOf(i);
+            if (collect.contains(hs)) {
+                continue;
+            }
+
+            CartogramDTO cartogramDTO = new CartogramDTO();
+            cartogramDTO.setName(hs);
+            cartogramDTO.setAmount(0l);
+            hours.add(cartogramDTO);
+        }
+        hourDatas.addAll(hours);
+        data.put("name", "24小时总额");
         data.put("val", hourDatas);
-        map.put("24hour", data);
+        map.put("24hour4amount", data);
         //--end
+
+        data = new HashMap<>();
+        hourDatas = orderService.hourData4count();
+        hours = new ArrayList<>();
+        collect = hourDatas.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
+        for (int i = 0; i < 24; i++) {
+            String hs = String.valueOf(i);
+            if (collect.contains(hs)) {
+                continue;
+            }
+
+            CartogramDTO cartogramDTO = new CartogramDTO();
+            cartogramDTO.setName(hs);
+            cartogramDTO.setCount(0);
+            hours.add(cartogramDTO);
+        }
+        hourDatas.addAll(hours);
+        data.put("name", "24小时总数");
+        data.put("val", hourDatas);
+        map.put("24hour4count", data);
 
         data = new ManagedMap<>();
         List<CartogramPayStatusVo> payStatusVos = orderService.PayStatuss();
+        int count = orderService.count();
         data.put("name", "转化率");
         data.put("val", payStatusVos);
+        data.put("count", count);
         map.put("precent", data);
         //--end
+
+
 //        HomeDateVo homeData = new HomeDateVo();
 //        homeData.setMerchantUserInteger(merchantUerIntger);
 //        homeData.setOrderTotal(orderTotal);

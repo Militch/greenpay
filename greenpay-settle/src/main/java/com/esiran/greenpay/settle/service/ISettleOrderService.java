@@ -40,4 +40,5 @@ public interface ISettleOrderService extends IService<SettleOrder> {
     public HashMap<String,Object> findHomeDate();
 
     StatisticDTO sevenDaycartogram();
+
 }

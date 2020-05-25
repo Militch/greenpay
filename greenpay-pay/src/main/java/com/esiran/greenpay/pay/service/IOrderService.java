@@ -59,5 +59,9 @@ public interface IOrderService extends IService<Order> {
 
         List<CartogramDTO> hourData();
 
+        List<CartogramDTO> hourData4amount();
+
+        List<CartogramDTO> hourData4count();
+
         List<CartogramPayStatusVo> PayStatuss();
 }

@@ -186,6 +186,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
 
     @Override
+    public List<CartogramDTO> hourData4amount() {
+        return this.baseMapper.hourData4amount();
+    }
+
+    @Override
+    public List<CartogramDTO> hourData4count() {
+        return this.baseMapper.hourData4count();
+    }
+
+    @Override
     public List<CartogramPayStatusVo> PayStatuss() {
         return this.baseMapper.PayStatuss();
     }
