@@ -128,7 +128,7 @@ public interface OrderMapper extends BaseMapper<Order> {
             "\t\t\t SUM(amount) as amount\n" +
             "\t\t\t \n" +
             "FROM pay_order\n" +
-            "WHERE  DATE_SUB(CURDATE(),INTERVAL 7 day) <=date(created_at)\n" +
+            "WHERE  DATE_SUB(CURDATE(),INTERVAL 6 day) <=date(created_at)\n" +
             "GROUP BY name;")
     List<CartogramDTO> sevenDayAllCount();
 
@@ -136,7 +136,7 @@ public interface OrderMapper extends BaseMapper<Order> {
             " COUNT(*) AS count,\n" +
             " SUM(amount) as amount\n" +
             "FROM pay_order\n" +
-            "WHERE  DATE_SUB(CURDATE(),INTERVAL 7 day) <=date(created_at) AND IF(status = 3 OR status = 2, 1, 0)\n" +
+            "WHERE  DATE_SUB(CURDATE(),INTERVAL 6 day) <=date(created_at) AND IF(status = 3 OR status = 2, 1, 0)\n" +
             "GROUP BY name;")
     List<CartogramDTO> sevenDayAllAmount();
 
@@ -145,7 +145,7 @@ public interface OrderMapper extends BaseMapper<Order> {
             "       COUNT(*) AS count,\n" +
             "\t\t\t SUM(amount) as amount\n" +
             "FROM pay_order\n" +
-            "WHERE  DATE_SUB(CURDATE(),INTERVAL 14 day) <=date(created_at)\n" +
+            "WHERE  DATE_SUB(CURDATE(),INTERVAL 13 day) <=date(created_at)\n" +
             "GROUP BY name;")
     List<CartogramDTO> upSevenDayAllCount();
 
@@ -154,7 +154,7 @@ public interface OrderMapper extends BaseMapper<Order> {
             "\t\t\t SUM(amount) as amount\n" +
             "\t\t\t \n" +
             "FROM pay_order\n" +
-            "WHERE  DATE_SUB(CURDATE(),INTERVAL 14 day) <=date(created_at) AND IF(status = 3 OR status = 2, 1, 0)\n" +
+            "WHERE  DATE_SUB(CURDATE(),INTERVAL 13 day) <=date(created_at) AND IF(status = 3 OR status = 2, 1, 0)\n" +
             "GROUP BY name;")
     List<CartogramDTO> upSevenDayAllAmount();
 

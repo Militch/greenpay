@@ -40,6 +40,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -515,13 +517,41 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         return map;
     }
 
+
+    private void addTime(List<CartogramDTO> cartograms){
+
+        SimpleDateFormat sdf = new SimpleDateFormat("YMMdd");
+
+        List<String> collect = cartograms.stream().map(time -> time.getName()).collect(Collectors.toList());
+        List<CartogramDTO> times = new ArrayList<>();
+        Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。
+
+//        cal.setTime(new Date());
+        for (int i = 0; i < 6; i++) {
+            cal.add(Calendar.DATE,-1);//取当前日期的前一天.
+            String format = sdf.format(cal.getTime());
+            if (collect.contains(format)) {
+                continue;
+            }
+            CartogramDTO cartogramDTO = new CartogramDTO();
+            cartogramDTO.setName(format);
+            cartogramDTO.setCount(0);
+            cartogramDTO.setAmount(0l);
+            times.add(cartogramDTO);
+        }
+        cartograms.addAll(times);
+    }
+
     @Override
     public StatisticDTO sevenDaycartogram(){
         StatisticDTO statisticDTO = new StatisticDTO();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM月-dd日");
+
 
         List<CartogramDTO> cartogram = orderService.sevenDayAllCount();
         List<CartogramDTO> cartogramDTOS = orderService.sevenDayAllAmount();
+
+
+        addTime(cartogram);
 
         for (int i = 0; i < cartogram.size(); i++) {
             CartogramDTO cartogramDTO = cartogram.get(i);
