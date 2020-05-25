@@ -3,21 +3,26 @@ package com.esiran.greenpay.settle.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
 import com.esiran.greenpay.common.util.EncryptUtil;
 import com.esiran.greenpay.common.util.IdWorker;
 import com.esiran.greenpay.common.util.NumberUtil;
+import com.esiran.greenpay.common.util.PercentCount;
+import com.esiran.greenpay.merchant.entity.HomeDateVo;
 import com.esiran.greenpay.merchant.entity.Merchant;
-import com.esiran.greenpay.merchant.entity.PayAccountDTO;
+import com.esiran.greenpay.merchant.entity.SettleAccount;
 import com.esiran.greenpay.merchant.entity.SettleAccountDTO;
+import com.esiran.greenpay.merchant.entity.StatisticDTO;
 import com.esiran.greenpay.merchant.service.IMerchantService;
 import com.esiran.greenpay.merchant.service.IPayAccountService;
 import com.esiran.greenpay.merchant.service.ISettleAccountService;
-import com.esiran.greenpay.pay.entity.OrderQueryDTO;
+import com.esiran.greenpay.pay.entity.CartogramDTO;
+import com.esiran.greenpay.pay.entity.CartogramPayDTO;
+import com.esiran.greenpay.pay.entity.CartogramPayStatusVo;
 import com.esiran.greenpay.pay.entity.ExtractQueryDTO;
 import com.esiran.greenpay.pay.entity.Order;
+import com.esiran.greenpay.pay.service.IOrderService;
 import com.esiran.greenpay.settle.entity.SettleOrder;
 import com.esiran.greenpay.settle.entity.SettleOrderDTO;
 import com.esiran.greenpay.settle.entity.SettleOrderInputDTO;
@@ -27,13 +32,19 @@ import com.esiran.greenpay.settle.service.ISettleOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -52,11 +63,15 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
     private final  IMerchantService iMerchantService;
     private final ISettleAccountService iSettleAccountService;
     private final IdWorker idWorker;
-    public SettleOrderServiceImpl(IPayAccountService payAccountService, IMerchantService iMerchantService, ISettleAccountService iSettleAccountService, IdWorker idWorker) {
+    private final IOrderService orderService;
+    private final ISettleAccountService settleAccountService;
+    public SettleOrderServiceImpl(IPayAccountService payAccountService, IMerchantService iMerchantService, ISettleAccountService iSettleAccountService, IdWorker idWorker, IOrderService orderService, ISettleAccountService settleAccountService) {
         this.payAccountService = payAccountService;
         this.iMerchantService = iMerchantService;
         this.iSettleAccountService = iSettleAccountService;
         this.idWorker = idWorker;
+        this.orderService = orderService;
+        this.settleAccountService = settleAccountService;
     }
 
 
@@ -297,5 +312,225 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         settleOrder.setUpdatedAt(settleOrder.getCreatedAt());
         save(settleOrder);
 
+    }
+
+
+    @Override
+    public List<SettleOrder> selectSettlesToday() {
+        return this.baseMapper.selectSettlesToday(new LambdaQueryWrapper<>());
+    }
+
+    @Override
+    public ArrayList<HashMap<String,Object>> findHomeDate() {
+        HashMap<String, Object> map = new HashMap<>();
+        ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+
+//        //总商户数
+//        Integer merchantUerIntger = getBaseMapper().selectCount(new LambdaQueryWrapper<>());
+//
+//        //订单总数
+//        List<Order> orders = orderService.getBaseMapper().selectList(new LambdaQueryWrapper<>());
+//
+//        //总订单数
+//        Integer orderTotal = orders.size();
+//
+//        //收单总金额
+//        Integer orderMoneyTotal = orders.stream().filter(order -> 3 == order.getStatus()).mapToInt(Order::getAmount).sum();
+
+        //平台结算支出
+//        List<SettleAccount> accounts = settleAccountService.list(new LambdaQueryWrapper<>());
+//        Integer paysettleSum = accounts.stream().filter(settleAccount -> settleAccount.getStatus()).mapToInt(SettleAccount::getSettleFeeAmount).sum();
+
+
+        //昨日当前时间订单数
+        Integer yestdayRealorderData = orderService.yestdayRealorderData();
+        //今日当前时间订单数
+        Integer intradayRealorderData = orderService.intradayRealorderData();
+        //同比昨日
+        String format = percentBigDecimal(new BigDecimal(yestdayRealorderData), new BigDecimal(intradayRealorderData));
+
+
+        //查询当天成功订单总数
+        Integer intradayOrderSucc = orderService.findIntradayOrderSucc();
+        //查询昨天成功订单总数
+        Integer yesterdayOrderSucc = orderService.findYesterdayOrderSucc();
+        Float scc = Float.valueOf(yesterdayOrderSucc);
+        float total = (float) (yestdayRealorderData - intradayRealorderData);
+        float num = Math.round(scc / total * 10000f) / 10000f;
+        //转换率
+        BigDecimal a = new BigDecimal(total);
+        BigDecimal b = new BigDecimal(num);
+        String percent = p.percentBigDecimal(a, b);
+
+
+        //昨日当时时间成交总额
+        Long aLong = orderService.yestdayRealmoneyData();
+        if (aLong == null){
+            aLong = 0L;
+        }
+        //今日当时时间成交总额
+        Long aLong1 = orderService.intradayRealoneyData();
+        if (aLong1 == null){
+            aLong1 = 0L;
+        }
+         a = new BigDecimal(aLong1);
+         b = new BigDecimal(aLong);
+        percent = p.percentBigDecimal(a, b);
+        //同日比
+
+
+
+        //今日收单总数
+        List<Order> todayOrders = orderService.findIntradayOrder();
+        Integer intradayOrder = todayOrders.size();
+//        //今日成交笔数
+//        Long todayOrderSuccessCount = todayOrders.stream().filter(order -> order.getStatus() == 3).mapToInt(Order::getStatus).count();
+//        //今日成交额
+//        Integer todayOrdersAmounts = todayOrders.stream().filter(order -> order.getStatus() == 3).mapToInt(Order::getAmount).sum();
+//
+//        //今日结算支出
+//        List<SettleOrder> settleOrders = selectSettlesToday();
+//
+//        Long settleOrdersToday = settleOrders.stream().filter(settleOrder -> settleOrder.getStatus() == 3).mapToLong(SettleOrder::getSettleAmount).sum();
+//
+
+        map.put("name", "今日收单笔数");
+        map.put("val",String.valueOf(intradayOrder));
+        map.put("type", "1");
+        map = new HashMap<>();
+        map.put("name", "同比昨日");
+        map.put("val",format);
+        map.put("type", "2");
+        list.add(map);
+
+        map = new HashMap<>();
+        map.put("name", "今日成交笔数");
+        map.put("val", String.valueOf(intradayOrderSucc));
+        map.put("type", "3");
+        list.add(map);
+        map = new HashMap<>();
+        map.put("name", "同比昨日");
+        map.put("val",percent);
+        map.put("type", "4");
+        list.add(map);
+
+        //上周成交总额
+        List<CartogramDTO> cartogramDTOS = orderService.upSevenDayCartogram();
+        long upSevenSucAmount = cartogramDTOS.stream().mapToLong(CartogramDTO::getSucamount).sum();
+
+        map = new HashMap<>();
+        map.put("name", "今日成交总额");
+        map.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong1.intValue())));
+        map.put("type", "5");
+        map = new HashMap<>();
+        a= new BigDecimal(aLong1);
+        b = new BigDecimal(upSevenSucAmount);
+        String format3 = p.percentBigDecimal(a, b);
+
+        map.put("name", "同比上周");
+        map.put("val", format3);
+        map.put("type", "6");
+        list.add(map);
+
+
+
+        map = new HashMap<>();
+        map.put("name", "昨日成交总额");
+        map.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong.intValue())));
+        map.put("type", "7");
+        map = new HashMap<>();
+        a= new BigDecimal(aLong);
+        b = new BigDecimal(upSevenSucAmount);
+        percent = p.percentBigDecimal(a, b);
+
+        map.put("name", "同比上周");
+        map.put("val", percent);
+        map.put("type", "8");
+        list.add(map);
+
+        map = new HashMap<>();
+        List<CartogramPayDTO> cartogramPayDTOS = orderService.payOrders();
+        map.put("payOrder", "支付产品排行");
+        map.put("var", cartogramPayDTOS);
+        map.put("type", "8");
+        list.add(map);
+
+        map = new HashMap<>();
+        StatisticDTO statisticDTO = sevenDaycartogram();
+        map.put("name", "一周统计");
+        map.put("val", statisticDTO);
+        map.put("type", "7");
+        list.add(map);
+
+        map = new HashMap<>();
+        List<CartogramDTO> hourDatas = orderService.hourData();
+        map.put("name", "24小时");
+        map.put("val", hourDatas);
+        map.put("type", "8");
+        list.add(map);
+
+        map = new ManagedMap<>();
+        List<CartogramPayStatusVo> payStatusVos = orderService.PayStatuss();
+        map.put("name", "转化率");
+        map.put("val", payStatusVos);
+        map.put("type","9");
+        list.add(map);
+//        HomeDateVo homeData = new HomeDateVo();
+//        homeData.setMerchantUserInteger(merchantUerIntger);
+//        homeData.setOrderTotal(orderTotal);
+//        homeData.setOrderMoneyTotal(NumberUtil.amountFen2Yuan(orderMoneyTotal));
+//        homeData.setPaySettleSum(String.valueOf(paysettleSum));
+//        homeData.setIntradayOrder(intradayOrder);
+//        homeData.setIntradayOrderSucces(todayOrderSuccessCount);
+//        homeData.setIntradayOrderMoneys(NumberUtil.amountFen2Yuan(todayOrdersAmounts));
+//        homeData.setIntradaySettleSucces(String.valueOf(settleOrdersToday));
+
+
+        return list;
+    }
+
+    @Override
+    public StatisticDTO sevenDaycartogram(){
+        StatisticDTO statisticDTO = new StatisticDTO();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM月-dd日");
+        ArrayList<String> strings = new ArrayList<>();
+
+        strings.add("时间");
+        strings.add("收单总额");
+        strings.add("成交单数");
+        strings.add("转化率");
+        strings.add("收单金额");
+        strings.add("成交总额");
+        List<CartogramDTO> cartogram = orderService.sevenDayCartogram();
+        ArrayList<Map<String, Object>> list = new ArrayList<>();
+        for (CartogramDTO cartogramDTO : cartogram) {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("time", simpleDateFormat.format(cartogramDTO.getTime()));
+            //收单总数
+            map.put("incomeCount", cartogramDTO.getCount());
+            //成交单数
+            map.put("paidCount",cartogramDTO.getSucc());
+            Float scc = Float.valueOf(cartogramDTO.getSucc());
+            float total = (float) (cartogramDTO.getCount());
+            BigDecimal a = new BigDecimal(scc);
+            BigDecimal  b = new BigDecimal(total);
+            String percent = p.percentBigDecimal(a, b);
+            map.put("coverRate",percent);
+            //收单金额
+            map.put("totalMoney",cartogramDTO.getAmount() / 100);
+            //成交总额
+            map.put("sucamount", cartogramDTO.getSucamount());
+            list.add(map);
+        }
+        statisticDTO.setColumns(strings);
+        statisticDTO.setRows(list);
+        return statisticDTO;
+    }
+
+    private  PercentCount p = new PercentCount();
+    private String percentBigDecimal(BigDecimal total,BigDecimal num){
+
+        String percent = p.percentBigDecimal(total,num);
+        return percent;
     }
 }

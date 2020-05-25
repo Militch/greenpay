@@ -1,6 +1,7 @@
 package com.esiran.greenpay.pay.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -128,4 +129,64 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return orderPage.convert(OrderDTO::convertOrderEntity);
     }
 
+    @Override
+    public List<Order> findIntradayOrder() {
+        return   baseMapper.findIntradayOrder(new QueryWrapper<>());
+    }
+
+    //查询昨天0点到昨天当前时间总订单数
+    @Override
+    public Integer yestdayRealorderData() {
+        return this.baseMapper.yestdayRealorderData();
+    }
+    //查询今日0点到当前时间总订单数
+    @Override
+    public Integer intradayRealorderData() {
+        return this.baseMapper.intradayRealorderData();
+    }
+    //查询昨天0点到昨天当前时间成交额
+    @Override
+    public Long yestdayRealmoneyData() {
+        return this.baseMapper.yestdayRealmoneyData();
+    }
+    //查询今日0点到当前时间成交额
+    @Override
+    public Long intradayRealoneyData() {
+        return this.baseMapper.intradayRealmoneyData();
+    }
+
+    @Override
+    public Integer findIntradayOrderSucc() {
+        return this.baseMapper.findIntradayOrderSucc();
+    }
+
+    @Override
+    public Integer findYesterdayOrderSucc() {
+        return this.baseMapper.findYesterdayOrderSucc();
+    }
+
+    @Override
+    public List<CartogramDTO> sevenDayCartogram() {
+        return this.baseMapper.sevenDayCartogram();
+    }
+
+    @Override
+    public List<CartogramDTO> upSevenDayCartogram() {
+        return this.baseMapper.upSevenDayCartogram();
+    }
+
+    @Override
+    public List<CartogramPayDTO> payOrders() {
+        return this.baseMapper.payOrders();
+    }
+
+    @Override
+    public List<CartogramDTO> hourData() {
+        return this.baseMapper.hourData();
+    }
+
+    @Override
+    public List<CartogramPayStatusVo> PayStatuss() {
+        return this.baseMapper.PayStatuss();
+    }
 }

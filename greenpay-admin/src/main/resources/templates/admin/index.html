@@ -13,43 +13,109 @@
             <div class="layadmin-tabsbody-item layui-show">
                 <div class="layui-fluid">
                     <div class="layui-row">
-                        <div class="layui-col-md4" style="padding: 10px 20px;">
+                        <div class="layui-col-md3" style="padding: 10px 20px;">
                             <div class="layui-card analysis-card">
                                 <div class="layui-card-body analysis-card-body">
+
                                     <div class="analysis-card-meta">
-                                        <span>会员总数</span>
+                                        <span>入驻商户数</span>
                                     </div>
                                     <div class="analysis-card-total">
-                                        <span>¥ 126,560</span>
+                                        <span th:text="${homeDateVo.merchantUserInteger}"></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="layui-col-md4" style="padding: 10px 20px;">
+                        <div class="layui-col-md3" style="padding: 10px 20px;">
                             <div class="layui-card analysis-card">
                                 <div class="layui-card-body analysis-card-body">
                                     <div class="analysis-card-meta">
-                                        <span>今日销售总额</span>
+                                        <span>收单总数(笔)</span>
                                     </div>
                                     <div class="analysis-card-total">
-                                        <span>¥ 126,560</span>
+                                        <span th:text="${homeDateVo.orderTotal}"></span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md3" style="padding: 10px 20px;">
+                            <div class="layui-card analysis-card">
+                                <div class="layui-card-body analysis-card-body">
+                                    <div class="analysis-card-meta">
+                                        <span>成交总额(元)</span>
+                                    </div>
+                                    <div class="analysis-card-total">
+                                        <span  th:text="'￥'+${homeDateVo.orderMoneyTotal}"></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="layui-col-md4" style="padding: 10px 20px;">
+                        <div class="layui-col-md3" style="padding: 10px 20px;">
                             <div class="layui-card analysis-card">
                                 <div class="layui-card-body analysis-card-body">
                                     <div class="analysis-card-meta">
-                                        <span>今日订单总数</span>
+                                        <span>平台结算支出(元)</span>
                                     </div>
                                     <div class="analysis-card-total">
-                                        <span>123456</span>
+                                        <span  th:text="'￥'+${homeDateVo.paySettleSum}"></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="layui-row">
+                        <div class="layui-col-md3" style="padding: 10px 20px;">
+                            <div class="layui-card analysis-card">
+                                <div class="layui-card-body analysis-card-body">
+                                    <div class="analysis-card-meta">
+                                        <span>今日收单总数(笔)</span>
+                                    </div>
+                                    <div class="analysis-card-total">
+                                        <span  th:text="${homeDateVo.intradayOrder}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md3" style="padding: 10px 20px;">
+                            <div class="layui-card analysis-card">
+                                <div class="layui-card-body analysis-card-body">
+                                    <div class="analysis-card-meta">
+                                        <span>今日成交笔数(笔)</span>
+                                    </div>
+                                    <div class="analysis-card-total">
+                                        <span  th:text="${homeDateVo.intradayOrderSucces}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md3" style="padding: 10px 20px;">
+                            <div class="layui-card analysis-card">
+                                <div class="layui-card-body analysis-card-body">
+                                    <div class="analysis-card-meta">
+                                        <span>今日成交额(元)</span>
+                                    </div>
+                                    <div class="analysis-card-total">
+                                        <span  th:text="'￥'+${homeDateVo.intradayOrderMoneys}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md3" style="padding: 10px 20px;">
+                            <div class="layui-card analysis-card">
+                                <div class="layui-card-body analysis-card-body">
+                                    <div class="analysis-card-meta">
+                                        <span>今日结算支出(元)</span>
+                                    </div>
+                                    <div class="analysis-card-total">
+                                        <span  th:text="'￥'+${homeDateVo.intradaySettleSucces}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="layui-row">
                         <div class="layui-col-md12" style="padding: 10px 20px;">
                             <div class="layui-card">
@@ -69,9 +135,15 @@
     </div>
 </div>
 <th:block th:replace="admin/footer::script"/>
+<script th:inline="javascript">
+    // let homeDataJson = [${}}]
+</script>
 <script>
     !function () {
+
+
         let myChart = echarts.init(document.getElementById('main'));
+
         let option = {
             grid: {
                 left: '2%',
@@ -80,7 +152,7 @@
                 bottom: '10%'
             },
             legend: {
-              data: ['收单数','成交单数','成交总额']
+                data: ['收单数','成交单数','成交总额']
             },
             xAxis: {
                 type: 'category',
