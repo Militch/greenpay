@@ -27,7 +27,8 @@ services:
     depends_on:
       - redis
       - mysql
-
+    environment:
+      - GRENNPAY_WEB_HOST=http://api.newpays.biz
   mysql:
     restart: always
     image: mysql:8

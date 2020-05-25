@@ -93,6 +93,7 @@ public class OrderNotifyService implements IOrderNotifyService {
         SignType signType = new RSA2SignType(MapUtil.sortAndSerialize(params));
         String sign = signType.sign2(credential);
         sign = UrlSafeB64.encode(sign);
+        logger.info("Notify Sign: {}", sign);
         params.put("sign",sign);
         System.out.println(sign);
         FormBody formBody = buildFormBody4map(params);

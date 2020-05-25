@@ -5,6 +5,7 @@ logging:
   level:
     com.github.binarywang.wxpay: error
     me.chanjar.weixin: error
+    com.esiran.greenpay.common.sign: debug
 
 spring:
   profiles:

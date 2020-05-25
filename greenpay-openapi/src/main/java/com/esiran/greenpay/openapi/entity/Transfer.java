@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class Transfer {
     private String orderNo;
     private String orderSn;
+    private String outOrderNo;
     private Integer mchId;
     private Integer amount;
     private Integer fee;

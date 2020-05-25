@@ -24,9 +24,9 @@ spring:
 
 greenpay:
   web:
-    hostname: http://api.pay.leyyx.cn
+    hostname: ${GRENNPAY_WEB_HOST:http://localhost}
   openapi:
     security:
       sign:
         enabled: true
-        allow_types: rsa,md5
+        allow_types: rsa

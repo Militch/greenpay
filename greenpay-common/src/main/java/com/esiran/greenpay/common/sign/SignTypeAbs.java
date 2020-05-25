@@ -14,4 +14,5 @@ public abstract class SignTypeAbs implements SignType {
     public String getPrincipal() {
         return principal;
     }
+
 }
