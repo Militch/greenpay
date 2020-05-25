@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -141,6 +142,7 @@ public class TransferService implements ITransferService {
         if (r <= 0){
             throw new APIException("账户可用余额不足，无法创建订单","ACCOUNT_AVAIL_BALANCE_NOT_ENOUGH",401);
         }
+        agentPayOrder.setMchId(mchId);
         agentPayOrder.setFee(orderFee);
         agentPayOrder.setStatus(1);
         agentPayOrder.setCreatedAt(LocalDateTime.now());
@@ -154,6 +156,9 @@ public class TransferService implements ITransferService {
         } catch (Exception e) {
             if (e instanceof APIException)
                 throw new APIException(e.getMessage(),((APIException) e).getCode(),((APIException) e).getStatus());
+            if (!StringUtils.isEmpty(e.getMessage())){
+                throw new APIException(e.getMessage(),"CALL_AGENT_PAY_PASSAGE_ERROR",500);
+            }
             throw new APIException("系统错误，调用代付通道接口执行失败","CALL_AGENT_PAY_PASSAGE_ERROR",500);
         }
         return null;

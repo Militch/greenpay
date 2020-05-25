@@ -15,11 +15,13 @@ import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.google.gson.Gson;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class PingAnPlugin implements Plugin<AgentPayOrder> {
     private static final Gson g = new Gson();
     private static IAgentPayOrderService agentPayOrderService;
