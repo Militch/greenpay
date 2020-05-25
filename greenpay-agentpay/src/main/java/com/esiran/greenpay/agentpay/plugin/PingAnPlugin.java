@@ -26,11 +26,15 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
     private static final Gson g = new Gson();
     private static IAgentPayOrderService agentPayOrderService;
     private static RedisDelayQueueClient redisDelayQueueClient;
+    private PingAnPlugin(IAgentPayOrderService agentPayOrderService,RedisDelayQueueClient redisDelayQueueClient){
+        this.agentPayOrderService = agentPayOrderService;
+        this.redisDelayQueueClient = redisDelayQueueClient;
+    }
     private static final class OrderCreateTask implements Task<AgentPayOrder> {
 
         @Override
         public String taskName() {
-            return "create";
+            return "PinAnCreate";
         }
 
         @Override
@@ -95,9 +99,12 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
                         String queryMsg = g.toJson(queryMap);
                         redisDelayQueueClient.sendDelayMessage("agentpay:query",queryMsg,60*1000);
                     }
+                }else {
+                    throw new APIException("代付渠道请求失败","");
                 }
+            }else {
+                throw new APIException("代付渠道请求失败","");
             }
-            throw new APIException("代付渠道请求失败","");
         }
     }
 

@@ -60,7 +60,7 @@ public class EncryptUtil {
     public static String baseTimelineCode(){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddhhmmssSSS");
         String dateTime = simpleDateFormat.format(new Date());
-        return dateTime.concat(getRandom(4));
+        return dateTime.concat(getRandom(3));
     }
     public static String[] encode(String str){
         String md5Str = md5(str);

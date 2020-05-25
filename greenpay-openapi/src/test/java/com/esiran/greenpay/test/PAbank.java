@@ -1,29 +1,17 @@
 package com.esiran.greenpay.test;
 
-import com.esiran.greenpay.bank.pingan.api.PingAnApiEx;
-import com.esiran.greenpay.bank.pingan.entity.HeaderMsg;
-import com.esiran.greenpay.bank.pingan.entity.OnceAgentPay;
-import com.esiran.greenpay.bank.pingan.entity.QueryOnceAgentPay;
-import com.esiran.greenpay.common.util.IdWorker;
+import com.esiran.greenpay.bank.pingan.entity.PATradeCode;
 import com.esiran.greenpay.common.util.Map2Xml;
 import okhttp3.*;
 
 import org.junit.Test;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class PAbank {
 
@@ -153,22 +141,24 @@ public class PAbank {
 
     @Test
     public void test3() throws Exception {
-        HeaderMsg headerMsg = new HeaderMsg();
-        headerMsg.setCompanyCode("00901275100000003000");
-        headerMsg.setOutOrderNumber("213123141241313");
-        PingAnApiEx apiEx = new PingAnApiEx("127.0.0.1", headerMsg);
-//        OnceAgentPay onceAgentPay = new OnceAgentPay();
-//        onceAgentPay.setAcctNo("15000103599403");
-//        onceAgentPay.setInAcctName("冷中平");
-//        onceAgentPay.setInAcctNo("6214851231623096");
-//        onceAgentPay.setTranAmount("10000");
-//        onceAgentPay.setOrderNumber("789456123321");
-//        Map<String, String> map = apiEx.onceAgentPay(onceAgentPay);
-        QueryOnceAgentPay queryOnceAgentPay = new QueryOnceAgentPay();
-        queryOnceAgentPay.setAcctNo("15000103599403");
-        queryOnceAgentPay.setOrderNumber("789456123321");
-        Map<String, String> map = apiEx.queryOnceAgentPay(queryOnceAgentPay);
-//        Map<String, String> map = apiEx.queryAmount("15000103599403");
-        System.out.println(map);
+//        HeaderMsg headerMsg = new HeaderMsg();
+//        headerMsg.setCompanyCode("00901275100000003000");
+//        headerMsg.setOutOrderNumber("213123141241313");
+//        PingAnApiEx apiEx = new PingAnApiEx("127.0.0.1", headerMsg);
+////        OnceAgentPay onceAgentPay = new OnceAgentPay();
+////        onceAgentPay.setAcctNo("15000103599403");
+////        onceAgentPay.setInAcctName("冷中平");
+////        onceAgentPay.setInAcctNo("6214851231623096");
+////        onceAgentPay.setTranAmount("10000");
+////        onceAgentPay.setOrderNumber("789456123321");
+////        Map<String, String> map = apiEx.onceAgentPay(onceAgentPay);
+//        QueryOnceAgentPay queryOnceAgentPay = new QueryOnceAgentPay();
+//        queryOnceAgentPay.setAcctNo("15000103599403");
+//        queryOnceAgentPay.setOrderNumber("789456123321");
+//        Map<String, String> map = apiEx.queryOnceAgentPay(queryOnceAgentPay);
+////        Map<String, String> map = apiEx.queryAmount("15000103599403");
+//        System.out.println(map);
+
+        String code = PATradeCode.ONCE_AGENTPAY.getCode();
     }
 }
