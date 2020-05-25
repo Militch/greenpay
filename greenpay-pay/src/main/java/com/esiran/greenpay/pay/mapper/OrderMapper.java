@@ -197,7 +197,7 @@ public interface OrderMapper extends BaseMapper<Order> {
     List<CartogramPayDTO> payOrders();
 
 
-    @Select("SELECT status,COUNT(*) as count FROM pay_order group by status")
+    @Select("SELECT status,COUNT(*) as count FROM pay_order WHERE DATEDIFF(now(),created_at) = 0 group by status")
     List<CartogramPayStatusVo> PayStatuss();
 
 

@@ -495,7 +495,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
         data = new ManagedMap<>();
         List<CartogramPayStatusVo> payStatusVos = orderService.PayStatuss();
-        int count = orderService.count();
+        int count =payStatusVos.size();
         data.put("name", "转化率");
         data.put("val", payStatusVos);
         data.put("count", count);
