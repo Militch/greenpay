@@ -37,7 +37,7 @@ public class AdminController extends CURDBaseController{
 
     @GetMapping("/home")
     public String home(Model model) {
-        ArrayList<HashMap<String, Object>> homeDate = iSettleOrderService.findHomeDate();
+        HashMap<String,Object> homeDate = iSettleOrderService.findHomeDate();
         String s = gson.toJson(homeDate);
         model.addAttribute("homeDataJson", s);
 

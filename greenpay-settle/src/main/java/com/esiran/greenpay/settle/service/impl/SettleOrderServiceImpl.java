@@ -321,8 +321,9 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
     }
 
     @Override
-    public ArrayList<HashMap<String,Object>> findHomeDate() {
+    public HashMap<String,Object> findHomeDate() {
         HashMap<String, Object> map = new HashMap<>();
+        HashMap<String, Object> data = new HashMap<>();
         ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 
 //        //总商户数
@@ -393,88 +394,76 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 //
 //        Long settleOrdersToday = settleOrders.stream().filter(settleOrder -> settleOrder.getStatus() == 3).mapToLong(SettleOrder::getSettleAmount).sum();
 //
+        List<HashMap<String,Object>> statistics = new ArrayList<>();
+        data.put("name", "今日收单笔数");
+        data.put("val",String.valueOf(intradayOrder));
+        data.put("val2",format);
+        statistics.add(data);
 
-        map.put("name", "今日收单笔数");
-        map.put("val",String.valueOf(intradayOrder));
-        map.put("type", "1");
-        map = new HashMap<>();
-        map.put("name", "同比昨日");
-        map.put("val",format);
-        map.put("type", "2");
-        list.add(map);
-
-        map = new HashMap<>();
-        map.put("name", "今日成交笔数");
-        map.put("val", String.valueOf(intradayOrderSucc));
-        map.put("type", "3");
-        list.add(map);
-        map = new HashMap<>();
-        map.put("name", "同比昨日");
-        map.put("val",percent);
-        map.put("type", "4");
-        list.add(map);
+        data = new HashMap<>();
+        data.put("name", "今日成交笔数");
+        data.put("val", String.valueOf(intradayOrderSucc));
+        data.put("val2",percent);
+        statistics.add(data);
 
         //上周成交总额
         List<CartogramDTO> cartogramDTOS = orderService.upSevenDayCartogram();
         long upSevenSucAmount = cartogramDTOS.stream().mapToLong(CartogramDTO::getSucamount).sum();
 
-        map = new HashMap<>();
-        map.put("name", "今日成交总额");
-        map.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong1.intValue())));
-        map.put("type", "5");
-        map = new HashMap<>();
+        data = new HashMap<>();
+        data.put("name", "今日成交总额");
+        data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong1.intValue())));
+
         a= new BigDecimal(aLong1);
         b = new BigDecimal(upSevenSucAmount);
         String format3 = p.percentBigDecimal(a, b);
 
-        map.put("name", "同比上周");
-        map.put("val", format3);
-        map.put("type", "6");
-        list.add(map);
+        data.put("va2", format3);
+        statistics.add(data);
 
 
 
-        map = new HashMap<>();
-        map.put("name", "昨日成交总额");
-        map.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong.intValue())));
-        map.put("type", "7");
-        map = new HashMap<>();
+        data = new HashMap<>();
+        data.put("name", "昨日成交总额");
+        data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong.intValue())));
+
         a= new BigDecimal(aLong);
         b = new BigDecimal(upSevenSucAmount);
         percent = p.percentBigDecimal(a, b);
 
-        map.put("name", "同比上周");
-        map.put("val", percent);
-        map.put("type", "8");
-        list.add(map);
+        data.put("val2", percent);
+        statistics.add(data);
 
-        map = new HashMap<>();
+        map.put("statistics", statistics);
+        //--end
+
+        data = new HashMap<>();
         List<CartogramPayDTO> cartogramPayDTOS = orderService.payOrders();
-        map.put("payOrder", "支付产品排行");
-        map.put("var", cartogramPayDTOS);
-        map.put("type", "8");
-        list.add(map);
+        data.put("payOrder", "支付产品排行");
+        data.put("var", cartogramPayDTOS);
+        map.put("payOrder", data);
+        //--end
 
-        map = new HashMap<>();
+        data = new HashMap<>();
         StatisticDTO statisticDTO = sevenDaycartogram();
-        map.put("name", "一周统计");
-        map.put("val", statisticDTO);
-        map.put("type", "7");
-        list.add(map);
+        data.put("name", "一周统计");
+        data.put("val", statisticDTO);
+        map.put("sevenDay", data);
+        //--end
 
-        map = new HashMap<>();
+        data = new HashMap<>();
         List<CartogramDTO> hourDatas = orderService.hourData();
-        map.put("name", "24小时");
-        map.put("val", hourDatas);
-        map.put("type", "8");
-        list.add(map);
+        data.put("name", "24小时");
+        data.put("val", hourDatas);
+        map.put("24hour", data);
+        //--end
 
-        map = new ManagedMap<>();
+        data = new ManagedMap<>();
         List<CartogramPayStatusVo> payStatusVos = orderService.PayStatuss();
-        map.put("name", "转化率");
-        map.put("val", payStatusVos);
-        map.put("type","9");
-        list.add(map);
+        data.put("name", "转化率");
+        data.put("val", payStatusVos);
+        map.put("precent", data);
+        //--end
 //        HomeDateVo homeData = new HomeDateVo();
 //        homeData.setMerchantUserInteger(merchantUerIntger);
 //        homeData.setOrderTotal(orderTotal);
@@ -486,7 +475,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 //        homeData.setIntradaySettleSucces(String.valueOf(settleOrdersToday));
 
 
-        return list;
+        return map;
     }
 
     @Override
