@@ -161,6 +161,7 @@ public class TransferService implements ITransferService {
             }
             throw new APIException("系统错误，调用代付通道接口执行失败","CALL_AGENT_PAY_PASSAGE_ERROR",500);
         }
-        return null;
+//        Transfer out = modelMapper.map(agentPayOrder,Transfer.class);
+        return modelMapper.map(agentPayOrder,Transfer.class);
     }
 }
