@@ -51,9 +51,12 @@ public interface IOrderService extends IService<Order> {
 
 
         //七天数据统计
-        List<CartogramDTO> sevenDayCartogram();
+        List<CartogramDTO> sevenDayAllCount();
+        List<CartogramDTO> sevenDayAllAmount();
 
         List<CartogramDTO> upSevenDayCartogram();
+        List<CartogramDTO> upSevenDayAllAmount();
+
 
         List<CartogramPayDTO> payOrders();
 

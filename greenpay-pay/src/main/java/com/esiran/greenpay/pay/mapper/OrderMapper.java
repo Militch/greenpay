@@ -122,75 +122,41 @@ public interface OrderMapper extends BaseMapper<Order> {
     List<CartogramDTO> hourData4count();
 
 
-    @Select("select a.click_date as time,ifnull(b.count,0) as count, ifnull(c.count,0) as succ,ifnull(c.sucamount,0) as sucamount, ifnull(b.amount,0) as amount \n" +
-            "                        from ( \n" +
-            "                            SELECT curdate() as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 1 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 2 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 3 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 4 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 5 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 6 day) as click_date \n" +
-            "                        ) a \n" +
-            "\t\t\t\t\t\t\t\t\t\t\t\tleft join ( \n" +
-            "                        SELECT DATE_FORMAT(created_at,'%Y-%m-%d') as time, \n" +
-            "                          SUM(amount) as amount ,COUNT(DATE_FORMAT(created_at,'%Y-%m-%d')) as count  \n" +
-            "                        FROM `pay_order` WHERE DATE_SUB(CURDATE(),INTERVAL 7 day) <=date(created_at)  \n" +
-            "                        GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d')  \n" +
-            "                        ) b \n" +
-            "\t\t\t\t\t\t\t\t\t\t\t\tON a.click_date = b.time left join( \n" +
-            "                          SELECT DATE_FORMAT(created_at,'%Y-%m-%d') as time, \n" +
-            "                         COUNT(DATE_FORMAT(created_at,'%Y-%m-%d')) as count,\n" +
-            "\t\t\t\t\t\t\t\t\t\t\t\t SUM(amount) as sucamount\n" +
-            "                         FROM `pay_order` WHERE DATE_SUB(CURDATE(),INTERVAL 7 day) <=date(created_at) and status = 3 \n" +
-            "                         GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d')  \n" +
-            "                        )c \n" +
-            "\t\t\t\t\t\t\t\t\t\t\t\ton b.time = c.time  \n" +
-            "                         ORDER BY a.click_date\n" +
-            "             ")
-    List<CartogramDTO> sevenDayCartogram();
+
+    @Select("SELECT DATE_FORMAT(created_at,'%Y%m%d') AS name,\n" +
+            "       COUNT(*) AS count,\n" +
+            "\t\t\t SUM(amount) as amount\n" +
+            "\t\t\t \n" +
+            "FROM pay_order\n" +
+            "WHERE  DATE_SUB(CURDATE(),INTERVAL 7 day) <=date(created_at)\n" +
+            "GROUP BY name;")
+    List<CartogramDTO> sevenDayAllCount();
+
+    @Select("SELECT DATE_FORMAT(created_at,'%Y%m%d') AS name,\n" +
+            " COUNT(*) AS count,\n" +
+            " SUM(amount) as amount\n" +
+            "FROM pay_order\n" +
+            "WHERE  DATE_SUB(CURDATE(),INTERVAL 7 day) <=date(created_at) AND IF(status = 3 OR status = 2, 1, 0)\n" +
+            "GROUP BY name;")
+    List<CartogramDTO> sevenDayAllAmount();
 
 
-    @Select("select a.click_date as time,ifnull(b.count,0) as count, ifnull(c.count,0) as succ,ifnull(c.sucamount,0) as sucamount, ifnull(b.amount,0) as amount \n" +
-            "                        from ( \n" +
-            "                            SELECT date_sub(curdate(), interval 7 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 8 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 9 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 10 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 11 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 12 day) as click_date \n" +
-            "                            union all \n" +
-            "                            SELECT date_sub(curdate(), interval 13 day) as click_date \n" +
-            "                        ) a \n" +
-            "\t\t\t\t\t\t\t\t\t\t\t\tleft join ( \n" +
-            "                        SELECT DATE_FORMAT(created_at,'%Y-%m-%d') as time, \n" +
-            "                          SUM(amount) as amount ,COUNT(DATE_FORMAT(created_at,'%Y-%m-%d')) as count  \n" +
-            "                        FROM `pay_order` WHERE DATE_SUB(CURDATE(),INTERVAL 7 day) <=date(created_at)  \n" +
-            "                        GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d')  \n" +
-            "                        ) b \n" +
-            "\t\t\t\t\t\t\t\t\t\t\t\tON a.click_date = b.time left join( \n" +
-            "                          SELECT DATE_FORMAT(created_at,'%Y-%m-%d') as time, \n" +
-            "                         COUNT(DATE_FORMAT(created_at,'%Y-%m-%d')) as count,\n" +
-            "\t\t\t\t\t\t\t\t\t\t\t\t SUM(amount) as sucamount\n" +
-            "                         FROM `pay_order` WHERE DATE_SUB(CURDATE(),INTERVAL 7 day) <=date(created_at) and status = 3 \n" +
-            "                         GROUP BY DATE_FORMAT(created_at,'%Y-%m-%d')  \n" +
-            "                        )c \n" +
-            "\t\t\t\t\t\t\t\t\t\t\t\ton b.time = c.time  \n" +
-            "                         ORDER BY a.click_date\n" +
-            "             \n" +
-            "            ")
-    List<CartogramDTO> upSevenDayCartogram();
+    @Select("SELECT DATE_FORMAT(created_at,'%Y%m%d') AS name,\n" +
+            "       COUNT(*) AS count,\n" +
+            "\t\t\t SUM(amount) as amount\n" +
+            "FROM pay_order\n" +
+            "WHERE  DATE_SUB(CURDATE(),INTERVAL 14 day) <=date(created_at)\n" +
+            "GROUP BY name;")
+    List<CartogramDTO> upSevenDayAllCount();
+
+    @Select("SELECT DATE_FORMAT(created_at,'%Y%m%d') AS name,\n" +
+            "       COUNT(*) AS count,\n" +
+            "\t\t\t SUM(amount) as amount\n" +
+            "\t\t\t \n" +
+            "FROM pay_order\n" +
+            "WHERE  DATE_SUB(CURDATE(),INTERVAL 14 day) <=date(created_at) AND IF(status = 3 OR status = 2, 1, 0)\n" +
+            "GROUP BY name;")
+    List<CartogramDTO> upSevenDayAllAmount();
 
 
     @Select("SELECT pay_product_name AS payname,COUNT(*) AS count, SUM(amount) as amount FROM pay_order GROUP BY pay_product_name ORDER BY amount DESC")

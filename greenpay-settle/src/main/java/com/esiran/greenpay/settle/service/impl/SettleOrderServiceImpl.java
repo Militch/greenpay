@@ -9,9 +9,7 @@ import com.esiran.greenpay.common.util.EncryptUtil;
 import com.esiran.greenpay.common.util.IdWorker;
 import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.common.util.PercentCount;
-import com.esiran.greenpay.merchant.entity.HomeDateVo;
 import com.esiran.greenpay.merchant.entity.Merchant;
-import com.esiran.greenpay.merchant.entity.SettleAccount;
 import com.esiran.greenpay.merchant.entity.SettleAccountDTO;
 import com.esiran.greenpay.merchant.entity.StatisticDTO;
 import com.esiran.greenpay.merchant.service.IMerchantService;
@@ -409,7 +407,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
         //上周成交总额
         List<CartogramDTO> cartogramDTOS = orderService.upSevenDayCartogram();
-        long upSevenSucAmount = cartogramDTOS.stream().mapToLong(CartogramDTO::getSucamount).sum();
+        long upSevenSucAmount = cartogramDTOS.stream().mapToLong(CartogramDTO::getAmount).sum();
 
         data = new HashMap<>();
         data.put("name", "今日成交总额");
@@ -521,37 +519,71 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
     public StatisticDTO sevenDaycartogram(){
         StatisticDTO statisticDTO = new StatisticDTO();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM月-dd日");
-        ArrayList<String> strings = new ArrayList<>();
 
-        strings.add("时间");
-        strings.add("收单总额");
-        strings.add("成交单数");
-        strings.add("转化率");
-        strings.add("收单金额");
-        strings.add("成交总额");
-        List<CartogramDTO> cartogram = orderService.sevenDayCartogram();
-        ArrayList<Map<String, Object>> list = new ArrayList<>();
-        for (CartogramDTO cartogramDTO : cartogram) {
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("time", simpleDateFormat.format(cartogramDTO.getTime()));
-            //收单总数
-            map.put("incomeCount", cartogramDTO.getCount());
-            //成交单数
-            map.put("paidCount",cartogramDTO.getSucc());
-            Float scc = Float.valueOf(cartogramDTO.getSucc());
-            float total = (float) (cartogramDTO.getCount());
-            BigDecimal a = new BigDecimal(scc);
-            BigDecimal  b = new BigDecimal(total);
-            String percent = p.percentBigDecimal(a, b);
-            map.put("coverRate",percent);
-            //收单金额
-            map.put("totalMoney",cartogramDTO.getAmount() / 100);
-            //成交总额
-            map.put("sucamount", cartogramDTO.getSucamount());
-            list.add(map);
+        List<CartogramDTO> cartogram = orderService.sevenDayAllCount();
+        List<CartogramDTO> cartogramDTOS = orderService.sevenDayAllAmount();
+
+        for (int i = 0; i < cartogram.size(); i++) {
+            CartogramDTO cartogramDTO = cartogram.get(i);
+            String name = cartogramDTO.getName();
+            boolean finded = false;
+            for (CartogramDTO carto : cartogramDTOS) {
+                if (carto.getName()!=null && name.equals(carto.getName())) {
+                    finded = true;
+                    break;
+                }
+            }
+            if (!finded) {
+                CartogramDTO dto = new CartogramDTO();
+                dto.setName(name);
+                dto.setCount(0);
+                dto.setAmount(0l);
+                cartogramDTOS.add(i, dto);
+            }
+
         }
-        statisticDTO.setColumns(strings);
-        statisticDTO.setRows(list);
+
+
+        ArrayList<Map<String, Object>> list = new ArrayList<>();
+
+
+        for (int i = 0; i < cartogram.size(); i++) {
+            CartogramDTO allCount = cartogram.get(i);
+            CartogramDTO allAmount = cartogramDTOS.get(i);
+
+            HashMap<String, Object> map = new HashMap<>();
+
+            map.put("time",allCount.getName());
+            //收单总数
+            List<HashMap<String, Object>> datas = new ArrayList<>();
+
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("title", "收单笔数");
+            data.put("data",allCount.getCount());
+            datas.add(data);
+
+            data = new HashMap<>();
+            data.put("title", "成交笔数");
+            data.put("data",allAmount.getCount());
+            datas.add(data);
+
+            data = new HashMap<>();
+            data.put("title", "收单总额");
+            data.put("data",allCount.getAmount());
+            datas.add(data);
+
+            data = new HashMap<>();
+            data.put("title", "成交总额");
+            data.put("data",allAmount.getAmount());
+            datas.add(data);
+
+            map.put("data", datas);
+
+            list.add(map);
+
+
+        }
+        statisticDTO.setData(list);
         return statisticDTO;
     }
 

@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Data
 public class StatisticDTO {
-    private List<String> columns;
 
-    private List<Map<String,Object>> rows;
+
+    private List<Map<String,Object>> data;
 }

@@ -18,10 +18,6 @@ public class CartogramDTO {
 
     private Integer count;
 
-    private Integer succ;
-
-    private Long sucamount;
-
 
     private Long amount;
 }

@@ -5,28 +5,16 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.esiran.greenpay.common.exception.PostResourceException;
-import com.esiran.greenpay.common.sign.Md5SignType;
-import com.esiran.greenpay.common.sign.SignType;
-import com.esiran.greenpay.common.sign.SignVerify;
-import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.pay.entity.*;
 import com.esiran.greenpay.pay.mapper.OrderMapper;
 import com.esiran.greenpay.pay.service.IOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import okhttp3.FormBody;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -166,13 +154,23 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
 
     @Override
-    public List<CartogramDTO> sevenDayCartogram() {
-        return this.baseMapper.sevenDayCartogram();
+    public List<CartogramDTO> sevenDayAllCount() {
+        return this.baseMapper.sevenDayAllCount();
+    }
+
+    @Override
+    public List<CartogramDTO> sevenDayAllAmount() {
+        return this.baseMapper.sevenDayAllAmount();
     }
 
     @Override
     public List<CartogramDTO> upSevenDayCartogram() {
-        return this.baseMapper.upSevenDayCartogram();
+        return this.baseMapper.upSevenDayAllCount();
+    }
+
+    @Override
+    public List<CartogramDTO> upSevenDayAllAmount() {
+        return this.baseMapper.upSevenDayAllAmount();
     }
 
     @Override
