@@ -2,6 +2,7 @@ package com.esiran.greenpay.bank.pingan.api;
 
 import com.esiran.greenpay.bank.pingan.entity.HeaderMsg;
 import com.esiran.greenpay.bank.pingan.entity.OnceAgentPay;
+import com.esiran.greenpay.bank.pingan.entity.PATradeCode;
 import com.esiran.greenpay.bank.pingan.entity.QueryOnceAgentPay;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.util.Map2Xml;
@@ -152,7 +153,7 @@ public class PingAnApiEx {
         assert xml != null;
         int gbk = xml.getBytes("GBK").length;
         String format = String.format("%010d", gbk);
-        String resultXML = header(companyCode, outOrderNumber, format, xml, "KHKF03");
+        String resultXML = header(companyCode, outOrderNumber, format, xml, PATradeCode.ONCE_AGENTPAY.getCode());
         return request(resultXML,host);
     }
     /**
@@ -187,7 +188,7 @@ public class PingAnApiEx {
         assert xml != null;
         int gbk = xml.getBytes("GBK").length;
         String format = String.format("%010d", gbk);
-        String resultXML = header(companyCode, outOrderNumber, format, xml, "KHKF04");
+        String resultXML = header(companyCode, outOrderNumber, format, xml, PATradeCode.QUERY_ONCE_AGENTPAY.getCode());
         return request(resultXML,host);
     }
     /**
@@ -219,7 +220,7 @@ public class PingAnApiEx {
         assert xml != null;
         int gbk = xml.getBytes("GBK").length;
         String format = String.format("%010d", gbk);
-        String resultXML = header(companyCode, outOrderNumber, format, xml, "4001");
+        String resultXML = header(companyCode, outOrderNumber, format, xml, PATradeCode.QUERY_AMOUNT.getCode());
         return request(resultXML,host);
     }
 
