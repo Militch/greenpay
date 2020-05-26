@@ -41,7 +41,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -464,9 +466,10 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
             hours.add(cartogramDTO);
         }
         hourAmount.addAll(hours);
+        Collections.sort(hourAmount);
         data.put("name", "定单总额");
         data.put("val", hourAmount);
-        map.put("hourDatas", data);
+        map.put("orderAmount", data);
         //--end
 
         //24小时数量
@@ -490,6 +493,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
 
         hourAmount.addAll(hours);
+        Collections.sort(hourAmount);
         data.put("name", "交易趋势");
         data.put("val", hourAmount);
         map.put("tradingTrends", data);
