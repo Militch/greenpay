@@ -409,30 +409,33 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data.put("val2",percent4Count);
         data.put("hint", "同比昨日");
         statistics.add(data);
+        //end
 
-        //上周成交总额
-        List<CartogramDTO> cartogramDTOS = orderService.upSevenDayCartogram();
-        long upSevenSucAmount = cartogramDTOS.stream().mapToLong(CartogramDTO::getAmount).sum();
 
         data = new HashMap<>();
         data.put("name", "今日成交总额");
         data.put("val", NumberUtil.amountFen2Yuan(dayAmount.intValue()));
 
-        a= new BigDecimal(dayAmount);
-        b = new BigDecimal(upSevenSucAmount);
-        String format3 = p.percentBigDecimal(a, b);
 
-        data.put("val2", format3);
-        data.put("hint", "同比上周");
+        data.put("val2", percent4Amount);
+        data.put("hint", "同比昨日");
         statistics.add(data);
+        //end
 
 
+        //上周成交总额
+        List<CartogramDTO> cartogramDTOS = orderService.upSevenDayCartogram();
+        long upSevenSucAmount = cartogramDTOS.stream().mapToLong(CartogramDTO::getAmount).sum();
+        a = new BigDecimal( aLong);
+        b = new BigDecimal(upSevenSucAmount);
+        String upServen = p.percentBigDecimal(a, b);
         data = new HashMap<>();
         data.put("name", "昨日成交总额");
         data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong.intValue())));
-        data.put("val2", percent4Amount);
+        data.put("val2", upServen);
         data.put("hint", "同比上周");
         statistics.add(data);
+        //end
 
         map.put("statistics", statistics);
         //--end
@@ -532,6 +535,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
 
     private void addTime(List<CartogramDTO> cartograms){
+        List<CartogramDTO> cartogramDTOList = new ArrayList<>();
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
 
@@ -552,10 +556,10 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 //                cartogramDTO.setAmount(0l);
 //                times.add(cartogramDTO);
 //            }
-        for (int i = 0; i < 7; i++){
+        for (int i = 7; i >0; i--){
             long dayTime = System.currentTimeMillis() - ((1000 * 60 * 60 * 24) * (i));
             String time = sdf.format(dayTime);
-            List<Object> collect1 = cartograms.stream().filter(cartogramDTO ->
+            List<CartogramDTO> collect1 = cartograms.stream().filter(cartogramDTO ->
                 cartogramDTO.getName().equals(time)
             ).collect(Collectors.toList());
 
@@ -564,12 +568,16 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
                 cartogramDTO.setName(time);
                 cartogramDTO.setCount(0);
                 cartogramDTO.setAmount(0l);
-                times.add(cartogramDTO);
+                cartogramDTOList.add(cartogramDTO);
+            }else {
+                cartogramDTOList.add(collect1.get(0));
+
             }
 
         }
 
-        cartograms.addAll(times);
+        cartograms.clear();
+        cartograms.addAll(cartogramDTOList);
     }
 
     @Override
