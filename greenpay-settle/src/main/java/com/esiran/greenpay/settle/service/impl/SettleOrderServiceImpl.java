@@ -466,12 +466,13 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
             CartogramDTO cartogramDTO = new CartogramDTO();
             cartogramDTO.setName(hs);
             cartogramDTO.setAmount(0l);
+            cartogramDTO.setSuccessAmount(0l);
             hours.add(cartogramDTO);
         }
         hourDatas.addAll(hours);
-        data.put("name", "24小时总额");
+        data.put("name", "定单数量");
         data.put("val", hourDatas);
-        map.put("24hour4amount", data);
+        map.put("orderAmount", data);
         //--end
 
         data = new HashMap<>();
@@ -487,12 +488,13 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
             CartogramDTO cartogramDTO = new CartogramDTO();
             cartogramDTO.setName(hs);
             cartogramDTO.setCount(0);
+            cartogramDTO.setSuccessCount(0);
             hours.add(cartogramDTO);
         }
         hourDatas.addAll(hours);
-        data.put("name", "24小时总数");
+        data.put("name", "交易趋势");
         data.put("val", hourDatas);
-        map.put("24hour4count", data);
+        map.put("tradingTrends", data);
 
         data = new ManagedMap<>();
         List<CartogramPayStatusVo> payStatusVos = orderService.PayStatuss();
@@ -504,17 +506,6 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         //--end
 
 
-//        HomeDateVo homeData = new HomeDateVo();
-//        homeData.setMerchantUserInteger(merchantUerIntger);
-//        homeData.setOrderTotal(orderTotal);
-//        homeData.setOrderMoneyTotal(NumberUtil.amountFen2Yuan(orderMoneyTotal));
-//        homeData.setPaySettleSum(String.valueOf(paysettleSum));
-//        homeData.setIntradayOrder(intradayOrder);
-//        homeData.setIntradayOrderSucces(todayOrderSuccessCount);
-//        homeData.setIntradayOrderMoneys(NumberUtil.amountFen2Yuan(todayOrdersAmounts));
-//        homeData.setIntradaySettleSucces(String.valueOf(settleOrdersToday));
-
-
         return map;
     }
 
@@ -523,9 +514,9 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
         SimpleDateFormat sdf = new SimpleDateFormat("YMMdd");
 
-        List<String> collect = cartograms.stream().map(time -> time.getName()).collect(Collectors.toList());
+//        List<String> collect = cartograms.stream().map(time -> time.getName()).collect(Collectors.toList());
         List<CartogramDTO> times = new ArrayList<>();
-        Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。
+//        Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。
 
 //        cal.setTime(new Date());
 //            for (int i = 0; i < 6; i++) {

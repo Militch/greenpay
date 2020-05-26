@@ -17,7 +17,8 @@ public class CartogramDTO {
     private Date time;
 
     private Integer count;
-
+    private Integer successCount;
 
     private Long amount;
+    private Long successAmount;
 }
