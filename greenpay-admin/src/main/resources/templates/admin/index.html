@@ -14,7 +14,7 @@
                 <div class="layui-fluid">
                     <!-- 统计 -->
                     <div class="layui-row" id="statistical"></div>
-                    <!-- 交易趋势和排行 -->
+                    <!-- 交易趋势和转化率 -->
                     <div class="layui-row">
                         <div class="layui-col-md9" style="padding: 10px 20px;">
                             <div class="layui-card" id="trend">
@@ -24,10 +24,18 @@
                                 </div>
                             </div>
                         </div>
+
+
                         <div class="layui-col-md3" style="padding: 10px 20px;">
-                            <div class="layui-card" id="ranking">
+                            <div class="layui-card" id="rates">
+                                <div class="layui-card-header">转化率</div>
+                                <div class="layui-card-body">
+                                    <div id="ratesChart" style="width: 100%; height: 250px"></div>
+                                </div>
                             </div>
                         </div>
+
+
                     </div>
                     <!-- 订单量 -->
                     <div class="layui-row">
@@ -35,12 +43,12 @@
                             <div class="layui-card" id="orderNum">
                                 <div class="layui-card-header">订单数量</div>
                                 <div class="layui-card-body">
-                                    <div id="main" style="width: 100%; height: 250px"></div>
+                                    <div id="orderNumChart" style="width: 100%; height: 250px"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- 七日交易趋势和转化率 -->
+                    <!-- 七日交易趋势和排行 -->
                     <div class="layui-row">
                         <div class="layui-col-md8" style="padding: 10px 20px;">
                             <div class="layui-card">
@@ -50,14 +58,12 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="layui-col-md4" style="padding: 10px 20px;">
-                            <div class="layui-card" id="rates">
-                                <div class="layui-card-header">转化率</div>
-                                <div class="layui-card-body">
-                                    <div id="ratesChart" style="width: 100%; height: 250px"></div>
-                                </div>
+                            <div class="layui-card" id="ranking" style="">
                             </div>
                         </div>
+
                     </div>
                 </div>
                 <footer th:replace="admin/compose::admin-footer"></footer>
@@ -85,10 +91,18 @@
                                         <span>${item.name}</span>
                                     </div>
                                     <div class="analysis-card-total">
-                                        <span>${item.val}</span>
+                                        <span style="display: ${item.name=="今日收单笔数"||item.name=="今日成交笔数"?'none':''}">&yen;</span> <span>${item.val}</span>
                                     </div>
-                                    <div>
-                                        <span>${item.val2}</span>
+                                    <div style="display: flex; align-items: center;justify-content: space-between;">
+                                        <div style="display: ${item.name=="今日成交总额"||item.name=="昨日成交总额"?'':'none'}">
+                                            ${item.rightHint}：<span style="color: ${item.val2.indexOf('-')?'green':'red'}">${item.val2}</span>
+                                        </div>
+                                        <div style="display: ${item.name=="今日成交总额"||item.name=="昨日成交总额"?'none':''}">
+                                            ${item.leftHint}：<span>${item.upDay}</span>
+                                        </div>
+                                        <div style="display: ${item.name=="今日成交总额"||item.name=="昨日成交总额"?'none':''}">
+                                           ${item.rightHint}：<span style="color: ${item.val2.indexOf('-')?'green':'red'}">${item.val2}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -97,157 +111,222 @@
         document.getElementById('statistical').innerHTML = statisticalStr;
 
         // 交易趋势
-        let trendStr = `<div class="layui-card-header">交易趋势</div>
-                                <div class="layui-card-body">
-                                    <div id="trendsChart" style="width: 100%; height: 250px"></div>
-                                </div>`;
-        document.getElementById('trend').innerHTML = trendStr;
+        let tradingTrends = homeDataJson.tradingTrends;
+        let trendssuccessAmount = [];
+        let trendsAcquire = [];
+        let trendsTimeArr = [];
+        tradingTrends.val.forEach(item=>{
+            trendsAcquire.push(item.count)
+            trendssuccessAmount.push(item.successCount)
+            trendsTimeArr.push(`${item.name}:00`)
+        })
+        let trendsChart = echarts.init(document.getElementById('trendsChart'));
+        let trendsOption = {
+            color: ['#4EA397','#22C3AA', '#7BD9A5'],
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['收单总额', '成交总额']
+            },
+            grid: {
+                left: '0%',
+                right: '0%',
+                bottom: '0%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: trendsTimeArr
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '收单总额',
+                    type: 'line',
+                    data: trendsAcquire
+                },
+                {
+                    name: '成交总额',
+                    type: 'line',
+                    data: trendssuccessAmount
+                }
+            ]
+        }
+        trendsChart.setOption(trendsOption)
 
         // 排行
         let payOrder = homeDataJson.payOrder;
         let rankingStr = "";
-        payOrder.var.forEach(item=>{
-            rankingStr+=`<p>${item.payname} ${item.count} ${item.amount}</p>>`
+        payOrder.var.forEach((item,i)=>{
+            rankingStr+=` <tr>
+                          <td>${i+1}</td>
+                          <td style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">${item.payname}</td>
+                          <td style="text-align: right">${item.count}</td>
+                          <td style="text-align: right">&yen; ${(item.amount/100).toFixed(2)}</td>
+                        </tr>`
         })
-        document.getElementById('ranking').innerHTML = `<div class="layui-card-header">${payOrder.payOrder}</div>
-                              <div class="layui-card-body">${rankingStr}</div>`;
+        let str = `<table class="layui-table" lay-skin="nob">
+                      <colgroup>
+                        <col width="70">
+                        <col width="150">
+                        <col width="150">
+                        <col width="150">
+                      </colgroup>
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>名称</th>
+                          <th style="text-align: right">笔数</th>
+                          <th style="text-align: right">金额(元)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${rankingStr}
+                      </tbody>
+                    </table>`
+        document.getElementById('ranking').innerHTML = `<div class="layui-card-header">支付产品销量</div>
+                              <div class="layui-card-body" style="padding:0">${str}</div>`;
+
 
         // 订单数量
-        let orderNumStr = `<div class="layui-card-header">订单数量</div>
-                                <div class="layui-card-body">
-                                    <div id="main" style="width: 100%; height: 250px"></div>
-                                </div>`;
-        document.getElementById('orderNum').innerHTML = orderNumStr;
-
-        //七日订单趋势
-        // let sevenDay = homeDataJson.sevenDay;
-        // console.log(sevenDay)
-        // let sevenDayChart = echarts.init(document.getElementById('sevenDay'))
-
-        let sevenDay = homeDataJson.sevenDay;
-        console.log('sevenDay.val.data',sevenDay.val.data)
-        let a = sevenDay.val.data;
-        let timeArr = [];
-        a.map(item=>{
-            timeArr.push(item.time)
+        let orderAmount = homeDataJson.orderAmount;
+        let ordersuccessAmount = [];
+        let orderAcquire = [];
+        let orderTimeArr = [];
+        orderAmount.val.forEach(item=>{
+            orderAcquire.push(item.amount)
+            ordersuccessAmount.push(item.successAmount)
+            orderTimeArr.push(`${item.name}:00`)
         })
-        let columns = a.map(item => { return item.date; });
-        let types = a[0].data.map(item => { return item.title });
-        let objs = types.map(item => {
-            const type = item;
-            return {
-                name: item,
-                stack: true,
-                data: function () {
-                    let s = [];
-                    for (let i = 0; i < columns.length; i++) {
-                        let targetDate = columns[i];
-                        let targetObj = a.find(item => { return item.date === targetDate });
-                        let targetObjData = targetObj.data.find(item => { return item.title === type });
-                        s.push(targetObjData.data);
-                    }
-                    return s;
-                }()
-            };
-        });
-
-        objs.map(item=>{
-            console.log(item)
-            if(item.name=="收单笔数"){
-                item.type="bar"
-                item.itemStyle = {
-                    normal:{color:"#FF8849"},
-                }
-            }else if(item.name=="成交笔数"){
-                item.type="bar"
-                item.itemStyle = {
-                    normal:{color:"#3FBB49"},
-                }
-            }else{
-                item.type="line";
-                item.stack = false;
-                item.itemStyle = {
-                    normal:{color:"#000"},
-                }
-            }
-        })
-
-        // suc 成交笔数 inc 收单
-        // let sevenDayArr = []
-
-
-        // console.log(sevenDayArr)
-        var option = {
-            title: {
-                left:'20px',
-                textStyle: {
-                    color: "#436EEE",
-                    fontSize: 17,
-                }
-            },
+        let orderNumChart = echarts.init(document.getElementById('orderNumChart'));
+        let orderNumOption = {
+            color: ['#4EA397','#22C3AA', '#7BD9A5'],
             tooltip: {
-                trigger: "axis",
+                trigger: 'axis'
             },
             legend: {
-                itemWidth:15,
-                itemHeight:15,
-                data:columns,
+                data: ['收单笔数', '成交笔数']
+            },
+            grid: {
+                left: '0%',
+                right: '0%',
+                bottom: '0%',
+                containLabel: true
             },
             xAxis: {
-                data: timeArr,
-                splitLine:{
-                    show:false,
-                },
+                type: 'category',
+                boundaryGap: false,
+                data: orderTimeArr
             },
             yAxis: {
-                splitLine:{
-                    show:false,
-                },
+                type: 'value'
             },
-            series: [{
-                name: '收单总额',
-                type: 'bar',
-                stack:true,
-                data: [5, 20, 36, 10, 10, 20,6],
-                itemStyle:{
-                    normal:{color:"#FF8849"},
+            series: [
+                {
+                    name: '收单笔数',
+                    type: 'line',
+                    data: orderAcquire
+                },
+                {
+                    name: '成交笔数',
+                    type: 'line',
+                    data: ordersuccessAmount
                 }
-            },{
-                name: '成交单数',
-                type: 'bar',
-                stack:true,
-                data: [40, 22, 18, 35, 42, 40,9],
-                itemStyle:{
-                    normal:{color:"#3FBB49"},
+            ]
+        }
+        orderNumChart.setOption(orderNumOption)
+
+
+        //七日订单趋势
+        let sevenDay = homeDataJson.sevenDay;
+        console.log(sevenDay)
+        let timeArr = [];
+        let series = [];
+        let titleArr = [];
+        sevenDay.val.data.map((item, i) => {
+            timeArr.push(item.time)
+            if (i == 0) {
+                item.data.map(inner => {
+                    let obj = {};
+                    titleArr.push(inner.title)
+                    obj.name = inner.title;
+                    if (inner.title === "收单笔数" || inner.title === "成交笔数") {
+                        obj.type = "bar";
+                        obj.stack = true;
+                        obj.barWidth = 75;//柱图宽度
+                    } else {
+                        obj.type = "line";
+                        obj.yAxisIndex = 1;
+                    }
+                    series.push(obj)
+                })
+            }
+        });
+        series.map(out => {
+            out.data = []
+            sevenDay.val.data.map(item => {
+                item.data.map(inner => {
+                    if (inner.title === out.name) {
+                        out.data.push(inner.data)
+                    }
+                })
+            })
+        })
+
+        let sevenDayOption ={
+            color: ['#4EA397','#22C3AA', '#7BD9A5'],
+            tooltip: {
+                trigger: 'axis',
+                    axisPointer: {
+                    type: 'cross',
+                        crossStyle: {
+                        color: '#999'
+                    }
                 }
-            }, {
-                name: '不可用',
-                type: 'line',
-                data: [40, 22, 18, 35, 42, 40,6],
-                itemStyle:{
-                    normal:{color:"#3FBB49"},
+            },
+            legend: {
+                data: titleArr
+            },
+            grid: {
+                left: '0%',
+                right: '0%',
+                bottom: '0%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: timeArr,
+                    axisPointer: {
+                        type: 'shadow'
+                    }
                 }
-            },{
-                name: '不可用1',
-                type: 'line',
-                data: [40, 22, 18, 35, 42, 40,6],
-                itemStyle:{
-                    normal:{color:"#3FBB49"},
+            ],
+                yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}'
+                    }
+                },
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}'
+                    }
                 }
-            }]
+            ],
+                series: series
         };
-        console.log(option.series)
-        console.log('objs',objs)
-
-        option.series = objs
-
         let sevenDayChart = echarts.init(document.getElementById('sevenDay'));
-        sevenDayChart.setOption(option)
-
+        sevenDayChart.setOption(sevenDayOption)
 
         // 转化率
         let precent = homeDataJson.precent;
-        console.log(precent)
         let precentArr = [];
         precent.val.forEach(item=>{
             let obj = {};
@@ -275,17 +354,17 @@
         })
         let ratesChart = echarts.init(document.getElementById('ratesChart'));
         let ratesOption = {
-            legend: {
-                orient: 'vertical',
-                left: 'left',
-                data: ['交易失败', '交易取消', '代付款', '已支付', '订单完成']
+            color: ['#4EA397','#22C3AA', '#7BD9A5','#D0648A','#838E98'],
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b} : {c} ({d}%)'
             },
             series: [
                 {
-                    name: '访问来源',
+                    name: '',
                     type: 'pie',
                     radius: '55%',
-                    center: ['50%', '60%'],
+                    center: ['50%', '50%'],
                     data: precentArr,
                     emphasis: {
                         itemStyle: {
@@ -300,59 +379,7 @@
         ratesChart.setOption(ratesOption)
     }();
 
-    !function () {
-        let $ = layui.jquery;
-        let myChart = echarts.init(document.getElementById('trendsChart'));
-        // let ratesChart = echarts.init(document.getElementById('ratesChart'));
 
-        //交易趋势
-        let option = {
-            grid: {
-                left: '2%',
-                right: '2%',
-                top: '5%',
-                bottom: '10%'
-            },
-            legend: {
-                data: ['收单数','成交单数','成交总额']
-            },
-            xAxis: {
-                type: 'category',
-                data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-            },
-            yAxis: {
-                type: 'value'
-            },
-            series: [{
-                name: '收单数',
-                data: [600, 860, 100, 450, 934, 600, 860],
-                type: 'line',
-                radius: '100%'
-            },{
-                name: '',
-                data: [860, 100, 600, 860, 1290, 860, 934],
-                type: 'line',
-                radius: '100%'
-            }]
-        };
-        //订单量
-        let orderOption = {
-            xAxis: {
-                type: 'category',
-                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-            },
-            yAxis: {
-                type: 'value'
-            },
-            series: [{
-                data: [820, 932, 901, 934, 1290, 1330, 1320],
-                type: 'line'
-            }]
-        }
-
-        myChart.setOption(option);
-
-    }();
 </script>
 <script>
     !function(){
@@ -360,6 +387,13 @@
             ,form = layui.form;
     }();
 </script>
-
+<style>
+    .layui-card-body .layui-table{
+        margin: 0 !important;
+    }
+    .layui-table, .layui-table-view{
+        margin: 0 !important;
+    }
+</style>
 </body>
 </html>
