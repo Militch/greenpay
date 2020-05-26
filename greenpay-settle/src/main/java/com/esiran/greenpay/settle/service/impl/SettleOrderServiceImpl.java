@@ -33,6 +33,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -527,18 +528,35 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。
 
 //        cal.setTime(new Date());
-        for (int i = 0; i < 6; i++) {
-            cal.add(Calendar.DATE,-1);//取当前日期的前一天.
-            String format = sdf.format(cal.getTime());
-            if (collect.contains(format)) {
-                continue;
+//            for (int i = 0; i < 6; i++) {
+//                cal.add(Calendar.DATE, -1);//取当前日期的前一天.
+//                String format = sdf.format(cal.getTime());
+//                if (collect.contains(format)) {
+//                    continue;
+//                }
+//                CartogramDTO cartogramDTO = new CartogramDTO();
+//                cartogramDTO.setName(format);
+//                cartogramDTO.setCount(0);
+//                cartogramDTO.setAmount(0l);
+//                times.add(cartogramDTO);
+//            }
+        for (int i = 0; i < 7; i++){
+            long dayTime = System.currentTimeMillis() - ((1000 * 60 * 60 * 24) * (i));
+            String time = sdf.format(dayTime);
+            List<Object> collect1 = cartograms.stream().filter(cartogramDTO ->
+                cartogramDTO.getName().equals(time)
+            ).collect(Collectors.toList());
+
+            if (CollectionUtils.isEmpty(collect1)) {
+                CartogramDTO cartogramDTO = new CartogramDTO();
+                cartogramDTO.setName(time);
+                cartogramDTO.setCount(0);
+                cartogramDTO.setAmount(0l);
+                times.add(cartogramDTO);
             }
-            CartogramDTO cartogramDTO = new CartogramDTO();
-            cartogramDTO.setName(format);
-            cartogramDTO.setCount(0);
-            cartogramDTO.setAmount(0l);
-            times.add(cartogramDTO);
+
         }
+
         cartograms.addAll(times);
     }
 
