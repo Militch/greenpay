@@ -345,25 +345,23 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 //        Integer paysettleSum = accounts.stream().filter(settleAccount -> settleAccount.getStatus()).mapToInt(SettleAccount::getSettleFeeAmount).sum();
 
 
-        //昨日当前时间订单数
+        //查询昨天0点到昨天当前时间总订单数
         Integer yestdayRealorderData = orderService.yestdayRealorderData();
-        //今日当前时间订单数
+        //查询今日0点到当前时间总订单数
         Integer intradayRealorderData = orderService.intradayRealorderData();
         //同比昨日
-        String format = percentBigDecimal(new BigDecimal(yestdayRealorderData), new BigDecimal(intradayRealorderData));
+        String format = percentBigDecimal(new BigDecimal( intradayRealorderData), new BigDecimal(yestdayRealorderData));
 
 
         //查询当天成功订单总数
         Integer intradayOrderSucc = orderService.findIntradayOrderSucc();
         //查询昨天成功订单总数
         Integer yesterdayOrderSucc = orderService.findYesterdayOrderSucc();
-        Float scc = Float.valueOf(yesterdayOrderSucc);
-        float total = (float) (yestdayRealorderData - intradayRealorderData);
-        float num = Math.round(scc / total * 10000f) / 10000f;
-        //转换率
-        BigDecimal a = new BigDecimal(total);
-        BigDecimal b = new BigDecimal(num);
-        String percent = p.percentBigDecimal(a, b);
+
+        //转换率 订单总数
+        BigDecimal a = new BigDecimal(intradayOrderSucc);
+        BigDecimal b = new BigDecimal(yesterdayOrderSucc);
+        String percent4Count = p.percentBigDecimal(a, b);
 
 
         //昨日当时时间成交总额
@@ -372,20 +370,20 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
             aLong = 0L;
         }
         //今日当时时间成交总额
-        Long aLong1 = orderService.intradayRealoneyData();
-        if (aLong1 == null){
-            aLong1 = 0L;
+        Long dayAmount = orderService.intradayRealoneyData();
+        if (dayAmount == null){
+            dayAmount = 0L;
         }
-         a = new BigDecimal(aLong1);
+         a = new BigDecimal(dayAmount);
          b = new BigDecimal(aLong);
-        percent = p.percentBigDecimal(a, b);
+        String percent4Amount = p.percentBigDecimal(a, b);
         //同日比
 
 
 
         //今日收单总数
-        List<Order> todayOrders = orderService.findIntradayOrder();
-        Integer intradayOrder = todayOrders.size();
+//        List<Order> todayOrders = orderService.findIntradayOrder();
+//        Integer intradayOrder = todayOrders.size();
 //        //今日成交笔数
 //        Long todayOrderSuccessCount = todayOrders.stream().filter(order -> order.getStatus() == 3).mapToInt(Order::getStatus).count();
 //        //今日成交额
@@ -398,14 +396,14 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 //
         List<HashMap<String,Object>> statistics = new ArrayList<>();
         data.put("name", "今日收单笔数");
-        data.put("val",String.valueOf(intradayOrder));
+        data.put("val",intradayRealorderData);
         data.put("val2",format);
         statistics.add(data);
 
         data = new HashMap<>();
         data.put("name", "今日成交笔数");
-        data.put("val", String.valueOf(intradayOrderSucc));
-        data.put("val2",percent);
+        data.put("val", intradayOrderSucc);
+        data.put("val2",percent4Count);
         statistics.add(data);
 
         //上周成交总额
@@ -414,9 +412,9 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
         data = new HashMap<>();
         data.put("name", "今日成交总额");
-        data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong1.intValue())));
+        data.put("val", NumberUtil.amountFen2Yuan(dayAmount.intValue()));
 
-        a= new BigDecimal(aLong1);
+        a= new BigDecimal(dayAmount);
         b = new BigDecimal(upSevenSucAmount);
         String format3 = p.percentBigDecimal(a, b);
 
@@ -424,16 +422,10 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         statistics.add(data);
 
 
-
         data = new HashMap<>();
         data.put("name", "昨日成交总额");
         data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong.intValue())));
-
-        a= new BigDecimal(aLong);
-        b = new BigDecimal(upSevenSucAmount);
-        percent = p.percentBigDecimal(a, b);
-
-        data.put("val2", percent);
+        data.put("val2", percent4Amount);
         statistics.add(data);
 
         map.put("statistics", statistics);
@@ -446,6 +438,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         map.put("payOrder", data);
         //--end
 
+
         data = new HashMap<>();
         StatisticDTO statisticDTO = sevenDaycartogram();
         data.put("name", "一周统计");
@@ -453,10 +446,11 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         map.put("sevenDay", data);
         //--end
 
+        //24小时金额
         data = new HashMap<>();
-        List<CartogramDTO> hourDatas = orderService.hourData4amount();
+        List<CartogramDTO> hourAmount = orderService.hourData4amount();
         List<CartogramDTO> hours = new ArrayList<>();
-        List<String> collect = hourDatas.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
+        List<String> collect = hourAmount.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
         for (int i = 0; i < 24; i++) {
             String hs = String.valueOf(i);
             if (collect.contains(hs)) {
@@ -469,16 +463,18 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
             cartogramDTO.setSuccessAmount(0l);
             hours.add(cartogramDTO);
         }
-        hourDatas.addAll(hours);
-        data.put("name", "定单数量");
-        data.put("val", hourDatas);
-        map.put("orderAmount", data);
+        hourAmount.addAll(hours);
+        data.put("name", "定单总额");
+        data.put("val", hourAmount);
+        map.put("hourDatas", data);
         //--end
 
+        //24小时数量
         data = new HashMap<>();
-        hourDatas = orderService.hourData4count();
+        hourAmount = orderService.hourData4count();
         hours = new ArrayList<>();
-        collect = hourDatas.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
+
+        collect = hourAmount.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
         for (int i = 0; i < 24; i++) {
             String hs = String.valueOf(i);
             if (collect.contains(hs)) {
@@ -491,9 +487,11 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
             cartogramDTO.setSuccessCount(0);
             hours.add(cartogramDTO);
         }
-        hourDatas.addAll(hours);
+
+
+        hourAmount.addAll(hours);
         data.put("name", "交易趋势");
-        data.put("val", hourDatas);
+        data.put("val", hourAmount);
         map.put("tradingTrends", data);
 
         data = new ManagedMap<>();
