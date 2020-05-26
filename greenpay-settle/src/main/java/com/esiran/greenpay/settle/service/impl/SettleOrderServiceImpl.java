@@ -438,7 +438,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data.put("name", "昨日成交总额");
         data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong.intValue())));
         data.put("val2", upServen);
-        data.put("hint", "同比上周");
+        data.put("rightHint", "周同比");
 
         statistics.add(data);
         //end
