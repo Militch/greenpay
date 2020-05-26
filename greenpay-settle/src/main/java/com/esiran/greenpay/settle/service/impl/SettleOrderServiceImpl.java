@@ -533,7 +533,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
     private void addTime(List<CartogramDTO> cartograms){
 
-        SimpleDateFormat sdf = new SimpleDateFormat("YMMdd");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
 
 //        List<String> collect = cartograms.stream().map(time -> time.getName()).collect(Collectors.toList());
         List<CartogramDTO> times = new ArrayList<>();
