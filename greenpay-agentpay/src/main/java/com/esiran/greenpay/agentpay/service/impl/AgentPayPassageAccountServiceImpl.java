@@ -20,6 +20,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -120,6 +121,7 @@ public class AgentPayPassageAccountServiceImpl extends ServiceImpl<AgentPayPassa
             item.setWeight(w);
         }).collect(Collectors.toList());
         a = a.stream().filter(item-> item.getWeight()>0).collect(Collectors.toList());
+        a = a.stream().sorted(Comparator.comparing(AgentPayPassageAccount::getWeight)).collect(Collectors.toList());
         return a;
     }
 
