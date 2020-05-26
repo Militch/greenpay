@@ -400,12 +400,14 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data.put("name", "今日收单笔数");
         data.put("val",intradayRealorderData);
         data.put("val2",format);
+        data.put("hint", "同比昨日");
         statistics.add(data);
 
         data = new HashMap<>();
         data.put("name", "今日成交笔数");
         data.put("val", intradayOrderSucc);
         data.put("val2",percent4Count);
+        data.put("hint", "同比昨日");
         statistics.add(data);
 
         //上周成交总额
@@ -421,6 +423,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         String format3 = p.percentBigDecimal(a, b);
 
         data.put("val2", format3);
+        data.put("hint", "同比上周");
         statistics.add(data);
 
 
@@ -428,6 +431,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data.put("name", "昨日成交总额");
         data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong.intValue())));
         data.put("val2", percent4Amount);
+        data.put("hint", "同比上周");
         statistics.add(data);
 
         map.put("statistics", statistics);
