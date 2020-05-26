@@ -17,6 +17,7 @@ import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +61,16 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
             headerMsg.setOutOrderNumber(data.getOrderSn());
             headerMsg.setCompanyCode(attrmap.get("companyCode"));
             PingAnApiEx apiEx = new PingAnApiEx(attrmap.get("host"),headerMsg);
+            Map<String, String> queryAmount = apiEx.queryAmount(attrmap.get("acctNo"));
+            if (queryAmount == null){
+                throw new APIException("代付渠道请求失败","");
+            }
+            String balance = queryAmount.get("Balance");
+            Integer blanceFen = NumberUtil.amountYuan2fen(new BigDecimal(balance));
+            if (data.getAmount() > blanceFen){
+                throw new APIException("代付余额不足","");
+            }
+            System.out.println(queryAmount);
             OnceAgentPay onceAgentPay = new OnceAgentPay();
             onceAgentPay.setOrderNumber(data.getOrderNo());
             onceAgentPay.setTranAmount(NumberUtil.amountFen2Yuan(data.getAmount()));
@@ -97,7 +108,7 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
                         queryMap.put("orderNo",data.getOrderNo());
                         queryMap.put("count","1");
                         String queryMsg = g.toJson(queryMap);
-                        redisDelayQueueClient.sendDelayMessage("agentpay:query",queryMsg,60*1000);
+                        redisDelayQueueClient.sendDelayMessage("agentpay:query",queryMsg,0);
                     }
                 }else {
                     throw new APIException("代付渠道请求失败","");

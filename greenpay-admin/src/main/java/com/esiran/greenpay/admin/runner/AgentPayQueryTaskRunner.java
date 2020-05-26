@@ -78,7 +78,7 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
                     if (i < 5){
                         queryMap.put("count",String.valueOf(i+1));
                         String queryMsg = g.toJson(queryMap);
-                        redisDelayQueueClient.sendDelayMessage("agentpay:query",queryMsg,60 * 1000);
+                        redisDelayQueueClient.sendDelayMessage("agentpay:query",queryMsg,30 * 1000);
                     }
                 }
             }

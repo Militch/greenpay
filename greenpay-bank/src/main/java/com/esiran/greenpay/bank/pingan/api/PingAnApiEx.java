@@ -33,8 +33,7 @@ public class PingAnApiEx {
     public static Map<String, String> request(String xml, String host){
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/xml; charset=GBK"),xml);
         Request requestOk  = new Request.Builder()
-                //TODO
-                .url("http://127.0.0.1:7072")
+                .url(host)
                 .post(requestBody)
                 .build();
         Response response;
