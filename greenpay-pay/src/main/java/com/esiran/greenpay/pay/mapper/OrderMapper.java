@@ -91,7 +91,7 @@ public interface OrderMapper extends BaseMapper<Order> {
 
 
 
-    @Select("SELECT DATE_FORMAT(created_at,'%Y%m%d') AS name, " +
+    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name, " +
             "       COUNT(*) AS count, " +
             "       SUM(amount) as amount " +
             "FROM pay_order " +
@@ -99,7 +99,7 @@ public interface OrderMapper extends BaseMapper<Order> {
             "GROUP BY name;")
     List<CartogramDTO> sevenDayAllCount();
 
-    @Select("SELECT DATE_FORMAT(created_at,'%Y%m%d') AS name, " +
+    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name, " +
             " COUNT(*) AS count, " +
             " SUM(amount) as amount " +
             "FROM pay_order " +
@@ -108,7 +108,7 @@ public interface OrderMapper extends BaseMapper<Order> {
     List<CartogramDTO> sevenDayAllAmount();
 
 
-    @Select("SELECT DATE_FORMAT(created_at,'%Y%m%d') AS name, " +
+    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name, " +
             "       COUNT(*) AS count, " +
             "  SUM(amount) as amount " +
             "FROM pay_order " +
@@ -116,7 +116,7 @@ public interface OrderMapper extends BaseMapper<Order> {
             "GROUP BY name;")
     List<CartogramDTO> upSevenDayAllCount();
 
-    @Select("SELECT DATE_FORMAT(created_at,'%Y%m%d') AS name, " +
+    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name, " +
             "       COUNT(*) AS count, " +
             " SUM(amount) as amount "+
             "FROM pay_order " +
