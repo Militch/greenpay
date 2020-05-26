@@ -500,6 +500,21 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
         data = new ManagedMap<>();
         List<CartogramPayStatusVo> payStatusVos = orderService.PayStatuss();
+        List<CartogramPayStatusVo> tmpList = new ArrayList<>();
+        List<Integer> status = payStatusVos.stream().map(cartogramPayStatusVo -> cartogramPayStatusVo.getStatus()).collect(Collectors.toList());
+        for (int i = -2; i < 4; i++) {
+            if (i == 0) {
+                continue;
+            }
+            if (status.contains(i)) {
+                continue;
+            }
+            CartogramPayStatusVo cartogramPayStatusVo = new CartogramPayStatusVo();
+            cartogramPayStatusVo.setCount(0);
+            cartogramPayStatusVo.setStatus(i);
+            tmpList.add(cartogramPayStatusVo);
+        }
+        payStatusVos.addAll(tmpList);
         int count =payStatusVos.size();
         data.put("name", "转化率");
         data.put("val", payStatusVos);
