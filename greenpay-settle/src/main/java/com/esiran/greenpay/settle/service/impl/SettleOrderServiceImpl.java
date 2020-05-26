@@ -400,7 +400,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data.put("name", "今日收单笔数");
         data.put("val",intradayRealorderData);
         data.put("val2",format);
-        data.put("rightHint", "同比昨日");
+        data.put("rightHint", "日同比");
         data.put("leftHint","昨日");
         data.put("upDay",yestdayRealorderData);
         statistics.add(data);
@@ -409,7 +409,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data.put("name", "今日成交笔数");
         data.put("val", intradayOrderSucc);
         data.put("val2",percent4Count);
-        data.put("rightHint", "同比昨日");
+        data.put("rightHint", "日同比");
         data.put("leftHint","昨日");
         data.put("upDay",yesterdayOrderSucc);
         statistics.add(data);
@@ -420,9 +420,8 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data.put("name", "今日成交总额");
         data.put("val", NumberUtil.amountFen2Yuan(dayAmount.intValue()));
 
-
         data.put("val2", percent4Amount);
-        data.put("rightHint", "同比昨日");
+        data.put("rightHint", "日同比");
         data.put("leftHint","昨日");
         data.put("upDay",aLong);
         statistics.add(data);
@@ -440,9 +439,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong.intValue())));
         data.put("val2", upServen);
         data.put("hint", "同比上周");
-        data.put("rightHint", "同比昨日");
-        data.put("leftHint","上周");
-        data.put("upDay",upSevenSucAmount);
+
         statistics.add(data);
         //end
 
