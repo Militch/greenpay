@@ -50,38 +50,45 @@ public class SimpleTest {
 
     @Test
     public void test2() throws UnsupportedEncodingException {
-        List<Map<String,Object>> dataList = new ArrayList<>();
-        Map<String,Object> map1 = new HashMap<>();
-        map1.put("t","0520");
-        map1.put("data",250);
-        dataList.add(map1);
-        Map<String,Object> map2 = new HashMap<>();
-        map2.put("t","0521");
-        map2.put("data",250);
-        dataList.add(map2);
-        SimpleDateFormat sdf = new SimpleDateFormat("MMdd");
-        sdf.format(new Date());
+
+        Pattern pattern = Pattern.compile("(^|;)query\\:(.+?)(;|$)");
+        Matcher m = pattern.matcher("corder:pingAnPlugin;query:PingAnQueryPlugin");
+        System.out.println(m.find());
 
 
-        List<Map<String,Object>> out = new ArrayList<>();
-        for (int i=0;i<7;i++){
-            long s = System.currentTimeMillis()-((1000*60*60*24) * (i));
-            String a = sdf.format(new Date(s));
-            List<Map<String,Object>> targetList = dataList.stream().filter(item->{
-                String t = (String) item.get("t");
-                return t.equals(a);
-            }).collect(Collectors.toList());
-            Map<String,Object> data = null;
-            if (targetList.size() == 0){
-                data = new HashMap<>();
-                data.put("t",a);
-                data.put("data",0);
-            }else {
-                data = targetList.get(0);
-            }
-            out.add(data);
-        }
-        System.out.println(out);
+
+//        List<Map<String,Object>> dataList = new ArrayList<>();
+//        Map<String,Object> map1 = new HashMap<>();
+//        map1.put("t","0520");
+//        map1.put("data",250);
+//        dataList.add(map1);
+//        Map<String,Object> map2 = new HashMap<>();
+//        map2.put("t","0521");
+//        map2.put("data",250);
+//        dataList.add(map2);
+//        SimpleDateFormat sdf = new SimpleDateFormat("MMdd");
+//        sdf.format(new Date());
+//
+//
+//        List<Map<String,Object>> out = new ArrayList<>();
+//        for (int i=0;i<7;i++){
+//            long s = System.currentTimeMillis()-((1000*60*60*24) * (i));
+//            String a = sdf.format(new Date(s));
+//            List<Map<String,Object>> targetList = dataList.stream().filter(item->{
+//                String t = (String) item.get("t");
+//                return t.equals(a);
+//            }).collect(Collectors.toList());
+//            Map<String,Object> data = null;
+//            if (targetList.size() == 0){
+//                data = new HashMap<>();
+//                data.put("t",a);
+//                data.put("data",0);
+//            }else {
+//                data = targetList.get(0);
+//            }
+//            out.add(data);
+//        }
+//        System.out.println(out);
 
 
 //

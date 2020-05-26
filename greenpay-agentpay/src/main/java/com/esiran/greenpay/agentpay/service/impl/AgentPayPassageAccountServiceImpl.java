@@ -117,7 +117,7 @@ public class AgentPayPassageAccountServiceImpl extends ServiceImpl<AgentPayPassa
             appaBalance = appaBalance == null ? 0 : appaBalance;
             int diff = appaBalance - finalOrderAmount;
             Integer w = item.getWeight();
-            w += diff;
+            w = diff < 0 ? 0 : w+diff;
             item.setWeight(w);
         }).collect(Collectors.toList());
         a = a.stream().filter(item-> item.getWeight()>0).collect(Collectors.toList());
@@ -135,10 +135,10 @@ public class AgentPayPassageAccountServiceImpl extends ServiceImpl<AgentPayPassa
         AgentPayQueryFlow agentPayQueryFlow = new AgentPayQueryFlow(appa);
         try {
             String impl = ins.getInterfaceImpl();
-            Pattern pattern = Pattern.compile("query:(.+?)(;|$)",Pattern.CASE_INSENSITIVE);
+            Pattern pattern = Pattern.compile("(^|;)query:(.+?)(;|$)");
             Matcher m = pattern.matcher(impl);
-            if (!m.matches()) return null;
-            Plugin<AgentPayPassageAccount> plugin = pluginLoader.loadForClassPath(m.group(1));
+            if (!m.find()) return null;
+            Plugin<AgentPayPassageAccount> plugin = pluginLoader.loadForClassPath(m.group(2));
             plugin.apply(agentPayQueryFlow);
             agentPayQueryFlow.execDependent("queryBalance");
             Map<String,Object> result = agentPayQueryFlow.getResults();

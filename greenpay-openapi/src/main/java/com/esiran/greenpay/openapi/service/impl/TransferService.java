@@ -93,26 +93,8 @@ public class TransferService implements ITransferService {
         if(payPassage == null||!payPassage.getStatus()){
             throw new APIException("通道不存在或未开启，无法创建订单","PASSAGE_NOT_SUPPORTED");
         }
-        AgentPayPassageAccount account = agentPayPassageAccountService.schedulerAgentPayPassageAcc(payPassage.getId());
-        if(account == null||!account.getStatus()){
-            throw new APIException("通道账户不存在或未开启，无法创建订单","PASSAGE_ACC_NOT_SUPPORTED");
-        }
-        Interface ints = interfaceService.getByCode(payPassage.getInterfaceCode());
-        if (ints == null || !ints.getStatus()){
-            throw new APIException("支付接口不存在或未开启，无法创建订单","PAY_INTERFACE_NOT_SUPPORTED");
-        }
-        LambdaQueryWrapper<AgentPayOrder> orderQueryWrapper = new LambdaQueryWrapper<>();
-        orderQueryWrapper.eq(AgentPayOrder::getMchId,mchId);
-        orderQueryWrapper.eq(AgentPayOrder::getOutOrderNo,inputDTO.getOutOrderNo());
-        AgentPayOrder oldOrder = orderService.getOne(orderQueryWrapper);
-        if (oldOrder != null) throw new APIException("支付接口不存在或未开启，无法创建订单","PAY_INTERFACE_NOT_SUPPORTED");
-        // 订单支付渠道初始化
-        agentPayOrder.setAgentpayPassageId(payPassage.getId());
-        agentPayOrder.setAgentpayPassageName(payPassage.getPassageName());
-        agentPayOrder.setAgentpayPassageAccId(account.getId());
-        agentPayOrder.setPayInterfaceId(ints.getId());
-        agentPayOrder.setPayTypeCode(ints.getPayTypeCode());
-        agentPayOrder.setPayInterfaceAttr(account.getInterfaceAttr());
+
+
         // 订单金额以及手续费初始化
         Integer feeType = mapp.getFeeType();
         if (feeType == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
@@ -138,6 +120,27 @@ public class TransferService implements ITransferService {
         }else {
             throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
         }
+        AgentPayPassageAccount account = agentPayPassageAccountService.schedulerAgentPayPassageAcc(payPassage.getId(),orderAmount+orderFee);
+        if(account == null||!account.getStatus()){
+            throw new APIException("通道账户不存在或未开启，无法创建订单","PASSAGE_ACC_NOT_SUPPORTED");
+        }
+        Interface ints = interfaceService.getByCode(payPassage.getInterfaceCode());
+        if (ints == null || !ints.getStatus()){
+            throw new APIException("支付接口不存在或未开启，无法创建订单","PAY_INTERFACE_NOT_SUPPORTED");
+        }
+        LambdaQueryWrapper<AgentPayOrder> orderQueryWrapper = new LambdaQueryWrapper<>();
+        orderQueryWrapper.eq(AgentPayOrder::getMchId,mchId);
+        orderQueryWrapper.eq(AgentPayOrder::getOutOrderNo,inputDTO.getOutOrderNo());
+        AgentPayOrder oldOrder = orderService.getOne(orderQueryWrapper);
+        if (oldOrder != null) throw new APIException("支付接口不存在或未开启，无法创建订单","PAY_INTERFACE_NOT_SUPPORTED");
+        // 订单支付渠道初始化
+        agentPayOrder.setAgentpayPassageId(payPassage.getId());
+        agentPayOrder.setAgentpayPassageName(payPassage.getPassageName());
+        agentPayOrder.setAgentpayPassageAccId(account.getId());
+        agentPayOrder.setPayInterfaceId(ints.getId());
+        agentPayOrder.setPayTypeCode(ints.getPayTypeCode());
+        agentPayOrder.setPayInterfaceAttr(account.getInterfaceAttr());
+
         PrepaidAccount pa = prepaidAccountService.getByMerchantId(mchId);
         if (pa == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
         int r = prepaidAccountService.updateBalance(mchId,(orderAmount+orderFee),-(orderAmount+orderFee));
@@ -154,11 +157,11 @@ public class TransferService implements ITransferService {
         try {
 
             String impl = ints.getInterfaceImpl();
-            Pattern pattern = Pattern.compile("corder:(.+?)(;|$)",Pattern.CASE_INSENSITIVE);
+            Pattern pattern = Pattern.compile("(^|;)corder:(.+?)(;|$)");
             Matcher m = pattern.matcher(impl);
-            if (!m.matches())
+            if (!m.find())
                 throw new IllegalAccessException("接口调用失败");
-            Plugin<AgentPayOrder> plugin = pluginLoader.loadForClassPath(m.group(1));
+            Plugin<AgentPayOrder> plugin = pluginLoader.loadForClassPath(m.group(2));
             plugin.apply(agentPayOrderFlow);
             agentPayOrderFlow.execDependent("create");
         } catch (Exception e) {

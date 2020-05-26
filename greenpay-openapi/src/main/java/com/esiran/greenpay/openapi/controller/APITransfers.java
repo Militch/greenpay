@@ -1,5 +1,6 @@
 package com.esiran.greenpay.openapi.controller;
 
+import com.esiran.greenpay.agentpay.entity.AgentPayBatchInputDTO;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.merchant.entity.Merchant;
 import com.esiran.greenpay.openapi.entity.Transfer;
@@ -26,5 +27,9 @@ public class APITransfers {
         Merchant m = OpenAPISecurityUtils.getSubject();
         Transfer t = transferService.createOneByInput(m.getId(),inputDTO);
         return t;
+    }
+    @PostMapping("/batch")
+    public void batch(@Valid AgentPayBatchInputDTO agentPayBatchInputDTO){
+
     }
 }
