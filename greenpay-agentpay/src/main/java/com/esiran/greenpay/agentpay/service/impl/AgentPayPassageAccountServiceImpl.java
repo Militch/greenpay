@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -107,6 +108,22 @@ public class AgentPayPassageAccountServiceImpl extends ServiceImpl<AgentPayPassa
     }
 
     @Override
+    public List<AgentPayPassageAccount> filterAppa(List<AgentPayPassageAccount> accounts, Integer orderAmount) {
+        orderAmount = orderAmount == null?0:orderAmount;
+        Integer finalOrderAmount = orderAmount;
+        List<AgentPayPassageAccount> a = accounts.stream().peek(item->{
+            Integer appaBalance = getAppaBalance(item);
+            appaBalance = appaBalance == null ? 0 : appaBalance;
+            int diff = appaBalance - finalOrderAmount;
+            Integer w = item.getWeight();
+            w += diff;
+            item.setWeight(w);
+        }).collect(Collectors.toList());
+        a = a.stream().filter(item-> item.getWeight()>0).collect(Collectors.toList());
+        return a;
+    }
+
+    @Override
     public Integer getAppaBalance(AgentPayPassageAccount appa) {
         if (appa == null) return null;
         AgentPayPassage passage =  passageService.getById(appa.getPassageId());
@@ -153,8 +170,14 @@ public class AgentPayPassageAccountServiceImpl extends ServiceImpl<AgentPayPassa
     }
     @Override
     public AgentPayPassageAccount schedulerAgentPayPassageAcc(Integer passageId) {
+        return schedulerAgentPayPassageAcc(passageId,0);
+    }
+
+    @Override
+    public AgentPayPassageAccount schedulerAgentPayPassageAcc(Integer passageId, Integer orderAmount) {
         List<AgentPayPassageAccount> passageAccounts = listAvailableByPassageId(passageId);
         if (passageAccounts == null || passageAccounts.size() == 0) return null;
+        passageAccounts = filterAppa(passageAccounts,orderAmount);
         // 构造权重区间值数组
         int[] sumArr = new int[passageAccounts.size()];
         // 权重总和
@@ -163,29 +186,6 @@ public class AgentPayPassageAccountServiceImpl extends ServiceImpl<AgentPayPassa
             AgentPayPassageAccount account = passageAccounts.get(i);
             int w = account.getWeight();
             sum += w;
-            sumArr[i] = sum;
-        }
-        // 根据权重随机获取数组索引
-        int index = randomPickIndex(sumArr);
-        AgentPayPassageAccount account = passageAccounts.get(index);
-        if (account == null || !account.getStatus()) return null;
-        return account;
-    }
-
-    @Override
-    public AgentPayPassageAccount schedulerAgentPayPassageAcc(Integer passageId, Integer orderAmount) {
-        List<AgentPayPassageAccount> passageAccounts = listAvailableByPassageId(passageId);
-        if (passageAccounts == null || passageAccounts.size() == 0) return null;
-        orderAmount = orderAmount == null?0:orderAmount;
-        // 构造权重区间值数组
-        int[] sumArr = new int[passageAccounts.size()];
-        // 权重总和
-        int sum = 0;
-        for (int i=0; i<sumArr.length; i++){
-            AgentPayPassageAccount account = passageAccounts.get(i);
-            int w = account.getWeight();
-            Integer appaBalance = getAppaBalance(account);
-            sum += w + (appaBalance - orderAmount);
             sumArr[i] = sum;
         }
         // 根据权重随机获取数组索引
