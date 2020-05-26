@@ -15,9 +15,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class SimpleTest {
 
@@ -48,6 +50,48 @@ public class SimpleTest {
 
     @Test
     public void test2() throws UnsupportedEncodingException {
+        List<Map<String,Object>> dataList = new ArrayList<>();
+        Map<String,Object> map1 = new HashMap<>();
+        map1.put("t","0520");
+        map1.put("data",250);
+        dataList.add(map1);
+        Map<String,Object> map2 = new HashMap<>();
+        map2.put("t","0521");
+        map2.put("data",250);
+        dataList.add(map2);
+        SimpleDateFormat sdf = new SimpleDateFormat("MMdd");
+        sdf.format(new Date());
+
+
+        List<Map<String,Object>> out = new ArrayList<>();
+        for (int i=0;i<7;i++){
+            long s = System.currentTimeMillis()-((1000*60*60*24) * (i));
+            String a = sdf.format(new Date(s));
+            List<Map<String,Object>> targetList = dataList.stream().filter(item->{
+                String t = (String) item.get("t");
+                return t.equals(a);
+            }).collect(Collectors.toList());
+            Map<String,Object> data = null;
+            if (targetList.size() == 0){
+                data = new HashMap<>();
+                data.put("t",a);
+                data.put("data",0);
+            }else {
+                data = targetList.get(0);
+            }
+            out.add(data);
+        }
+        System.out.println(out);
+
+
+//
+//        int[] day = new int[]{};
+//        for (){}
+
+
+
+
+
 //        String body = "<form name='fm' method='post' action='http://ggccapi.genguchangcun.cn/mfe88/codePay.php'><input type='hidden' name='orderSource' value='1' /><input type='hidden' name='orderNo' value='666031040836281' /><input type='hidden' name='signVersion' value='V3.0' /><input type='hidden' name='sign' value='Our6Rb5canP2hd6OwwNS1bqqusOuQCrjHdTtPY80xpIRY75fBPuk5WF33C23SVohe0%2F1xIyNI9EP%0D%0AOKD5DyYuvOXSdnyks%2BXb5vX0ho%2BsypatENveUzYLi28XCVXVdFdjxqjm1TP4R5Lp8dAxSR8qULoK%0D%0A0mLf0iZC6L8rqSla8JY%3D%0D%0A' /><input type='hidden' name='riskVersion' value='V3.0' /><input type='hidden' name='version' value='V3.0' /><input type='hidden' name='productName' value='666031040836281' /><input type='hidden' name='orderAmount' value='900' /><input type='hidden' name='orderTime' value='20200510230717' /><input type='hidden' name='payChannelCode' value='CX_DC' /><input type='hidden' name='service' value='getCodeUrl' /><input type='hidden' name='curCode' value='CNY' /><input type='hidden' name='merchantNo' value='JK0002958' /><input type='hidden' name='bgUrl' value='http://122.114.215.124:8972/notify' /></form><script language='JavaScript' > document.fm.submit();</script>";
 //        Pattern pattern = Pattern.compile("^<form .+$",Pattern.DOTALL);
 //        Matcher matcher = pattern.matcher(body);

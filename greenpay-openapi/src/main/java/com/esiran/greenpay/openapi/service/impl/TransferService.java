@@ -36,6 +36,8 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class TransferService implements ITransferService {
@@ -150,7 +152,13 @@ public class TransferService implements ITransferService {
         orderService.save(agentPayOrder);
         AgentPayOrderFlow agentPayOrderFlow = new AgentPayOrderFlow(agentPayOrder);
         try {
-            Plugin<AgentPayOrder> plugin = pluginLoader.loadForClassPath(ints.getInterfaceImpl());
+
+            String impl = ints.getInterfaceImpl();
+            Pattern pattern = Pattern.compile("corder:(.+?)(;|$)",Pattern.CASE_INSENSITIVE);
+            Matcher m = pattern.matcher(impl);
+            if (!m.matches())
+                throw new IllegalAccessException("接口调用失败");
+            Plugin<AgentPayOrder> plugin = pluginLoader.loadForClassPath(m.group(1));
             plugin.apply(agentPayOrderFlow);
             agentPayOrderFlow.execDependent("create");
         } catch (Exception e) {
@@ -161,7 +169,7 @@ public class TransferService implements ITransferService {
             }
             throw new APIException("系统错误，调用代付通道接口执行失败","CALL_AGENT_PAY_PASSAGE_ERROR",500);
         }
-//        Transfer out = modelMapper.map(agentPayOrder,Transfer.class);
-        return modelMapper.map(agentPayOrder,Transfer.class);
+        AgentPayOrder order = orderService.getOneByOrderNo(agentPayOrder.getOrderNo());
+        return modelMapper.map(order,Transfer.class);
     }
 }

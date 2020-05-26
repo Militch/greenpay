@@ -3,24 +3,28 @@ package com.esiran.greenpay.agentpay.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassage;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccount;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccountDTO;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccountInputDTO;
+import com.esiran.greenpay.actuator.Plugin;
+import com.esiran.greenpay.actuator.PluginLoader;
+import com.esiran.greenpay.agentpay.entity.*;
 import com.esiran.greenpay.agentpay.mapper.AgentPayPassageAccountMapper;
+import com.esiran.greenpay.agentpay.plugin.AgentPayOrderFlow;
+import com.esiran.greenpay.agentpay.plugin.AgentPayQueryFlow;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageAccountService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
-import com.esiran.greenpay.pay.entity.PassageAccount;
-import com.esiran.greenpay.pay.entity.ProductPassage;
+import com.esiran.greenpay.pay.entity.Interface;
+import com.esiran.greenpay.pay.service.IInterfaceService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -34,9 +38,12 @@ import java.util.Random;
 public class AgentPayPassageAccountServiceImpl extends ServiceImpl<AgentPayPassageAccountMapper, AgentPayPassageAccount> implements IAgentPayPassageAccountService {
     private static final ModelMapper modelMapper = new ModelMapper();
     private final IAgentPayPassageService passageService;
-
-    public AgentPayPassageAccountServiceImpl(IAgentPayPassageService passageService) {
+    private final IInterfaceService interfaceService;
+    private final PluginLoader pluginLoader;
+    public AgentPayPassageAccountServiceImpl(IAgentPayPassageService passageService, IInterfaceService interfaceService, PluginLoader pluginLoader) {
         this.passageService = passageService;
+        this.interfaceService = interfaceService;
+        this.pluginLoader = pluginLoader;
     }
 
     @Override
@@ -98,6 +105,32 @@ public class AgentPayPassageAccountServiceImpl extends ServiceImpl<AgentPayPassa
                 .gt(AgentPayPassageAccount::getWeight, 0);
         return this.list(queryWrapper);
     }
+
+    @Override
+    public Integer getAppaBalance(AgentPayPassageAccount appa) {
+        if (appa == null) return null;
+        AgentPayPassage passage =  passageService.getById(appa.getPassageId());
+        if (passage == null) return null;
+        Interface ins = interfaceService.getByCode(passage.getInterfaceCode());
+
+        AgentPayQueryFlow agentPayQueryFlow = new AgentPayQueryFlow(appa);
+        try {
+            String impl = ins.getInterfaceImpl();
+            Pattern pattern = Pattern.compile("query:(.+?)(;|$)",Pattern.CASE_INSENSITIVE);
+            Matcher m = pattern.matcher(impl);
+            if (!m.matches()) return null;
+            Plugin<AgentPayPassageAccount> plugin = pluginLoader.loadForClassPath(m.group(1));
+            plugin.apply(agentPayQueryFlow);
+            agentPayQueryFlow.execDependent("queryBalance");
+            Map<String,Object> result = agentPayQueryFlow.getResults();
+            if (result == null) return null;
+            return (Integer) result.get("balance");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
     private static int randomPickIndex(int[] w){
         int len = w.length;
         if (len == 0) return -1;
@@ -130,6 +163,29 @@ public class AgentPayPassageAccountServiceImpl extends ServiceImpl<AgentPayPassa
             AgentPayPassageAccount account = passageAccounts.get(i);
             int w = account.getWeight();
             sum += w;
+            sumArr[i] = sum;
+        }
+        // 根据权重随机获取数组索引
+        int index = randomPickIndex(sumArr);
+        AgentPayPassageAccount account = passageAccounts.get(index);
+        if (account == null || !account.getStatus()) return null;
+        return account;
+    }
+
+    @Override
+    public AgentPayPassageAccount schedulerAgentPayPassageAcc(Integer passageId, Integer orderAmount) {
+        List<AgentPayPassageAccount> passageAccounts = listAvailableByPassageId(passageId);
+        if (passageAccounts == null || passageAccounts.size() == 0) return null;
+        orderAmount = orderAmount == null?0:orderAmount;
+        // 构造权重区间值数组
+        int[] sumArr = new int[passageAccounts.size()];
+        // 权重总和
+        int sum = 0;
+        for (int i=0; i<sumArr.length; i++){
+            AgentPayPassageAccount account = passageAccounts.get(i);
+            int w = account.getWeight();
+            Integer appaBalance = getAppaBalance(account);
+            sum += w + (appaBalance - orderAmount);
             sumArr[i] = sum;
         }
         // 根据权重随机获取数组索引
