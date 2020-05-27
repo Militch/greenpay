@@ -19,7 +19,7 @@
                 </div>
                 <div class="layui-fluid">
                     <div class="layui-card">
-                        <div class="layui-card-header">添加支付接口</div>
+                        <div class="layui-card-header">编辑支付接口</div>
                         <div class="layui-card-body">
                             <form class="layui-form" action="" method="post">
                                 <input type="hidden" name="payTypeCode" th:value="${data.payTypeCode}">
@@ -54,6 +54,47 @@
                                                autocomplete="off"
                                                th:value="${data.interfaceName}"
                                                placeholder="请输入接口名称">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label for="scenarios_1" class="layui-form-label">应用场景：</label>
+                                    <div class="layui-input-block">
+                                        <input id="scenarios_1"
+                                               type="radio"
+                                               name="scenarios"
+                                               value="1"
+                                               title="二维码付款"
+                                               th:field="*{data.scenarios}">
+                                        <input type="radio"
+                                               name="scenarios"
+                                               value="2"
+                                               title="PC网页"
+                                               th:field="*{data.scenarios}">
+                                        <input type="radio"
+                                               name="scenarios"
+                                               value="3"
+                                               title="H5网页"
+                                               th:field="*{data.scenarios}">
+                                        <input type="radio"
+                                               name="scenarios"
+                                               value="4"
+                                               title="移动APP"
+                                               th:field="*{data.scenarios}">
+                                        <input type="radio"
+                                               name="scenarios"
+                                               value="5"
+                                               title="微信公众号"
+                                               th:field="*{data.scenarios}">
+                                        <input type="radio"
+                                               name="scenarios"
+                                               value="6"
+                                               title="支付宝生活号"
+                                               th:field="*{data.scenarios}">
+                                        <input type="radio"
+                                               name="scenarios"
+                                               value="7"
+                                               title="付款码支付"
+                                               th:field="*{data.scenarios}">
                                     </div>
                                 </div>
                                 <div class="layui-form-item">

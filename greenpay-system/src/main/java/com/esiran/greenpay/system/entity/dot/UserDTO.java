@@ -3,12 +3,17 @@ package com.esiran.greenpay.system.entity.dot;
 import com.esiran.greenpay.common.entity.BaseMapperEntity;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * @author han
  */
 @Data
-public class UserDTO extends BaseMapperEntity {
+public class UserDTO {
 
+
+
+    private Integer id;
 
     /**
      * 用户名
@@ -24,4 +29,7 @@ public class UserDTO extends BaseMapperEntity {
 
 
     private String roleNames;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

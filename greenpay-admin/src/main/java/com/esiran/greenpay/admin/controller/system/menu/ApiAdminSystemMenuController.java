@@ -47,7 +47,7 @@ public class ApiAdminSystemMenuController {
             @ApiImplicitParam(name = "size",value = "每页个数 ",defaultValue = "10")
     })
     @GetMapping
-    public  ResponseEntity list() {
+    public  ResponseEntity<List<MenuTreeVo>> list() {
 
         List<MenuTreeVo> menuTreeVoList = iMenuService.menuList();
 
@@ -64,14 +64,14 @@ public class ApiAdminSystemMenuController {
     }
 
     @GetMapping("/roleTree")
-    public ResponseEntity Rolelist(Page<Menu> page){
+    public ResponseEntity<IPage<Menu>> Rolelist(Page<Menu> page){
         IPage<Menu> menuTreeVoList = iMenuService.menuTreeList(page);
 
         return ResponseEntity.ok(menuTreeVoList);
     }
 
     @PostMapping
-    public ResponseEntity add(MenuInputVo menuInputVo) throws PostResourceException {
+    public ResponseEntity<String> add(MenuInputVo menuInputVo) throws PostResourceException {
 
         if (menuInputVo == null) {
             throw new PostResourceException("参数不正确");

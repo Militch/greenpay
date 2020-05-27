@@ -16,17 +16,21 @@ import com.esiran.greenpay.system.mapper.MenuMapper;
 import com.esiran.greenpay.system.service.IMenuService;
 import com.esiran.greenpay.system.utils.TreeUtil;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import java.util.stream.Collectors;
 
 /**
@@ -176,6 +180,41 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         }
         removeById(menudId);
         return true;
+    }
+
+    @Override
+    public List<Menu> findMenusByParentId(Integer parentId) {
+        LambdaQueryWrapper<Menu> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Menu::getParentId,parentId)
+                .orderByDesc(Menu::getSorts);
+        return this.list(lambdaQueryWrapper);
+    }
+
+    @Override
+    public List<MenuDTO> fa(List<Menu> menus, int deep) {
+        modelMap.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        List<MenuDTO> m = new ArrayList<>();
+        for (Menu menu : menus){
+            MenuDTO menuDTO = modelMap.map(menu,MenuDTO.class);
+            String text = String.format("%s%s",deep>0?"--&nbsp;":"",menu.getTitle());
+            String[] s = new String[deep>1?(deep-1)*3:0];
+            Arrays.fill(s,"&nbsp;");
+            String a = String.join("",s);
+            menuDTO.setTitleDisplay(a.concat(text));
+            m.add(menuDTO);
+            List<Menu> c = findMenusByParentId(menu.getId());
+            if (c.size() != 0){
+                int de = deep+1;
+                m.addAll(fa(c, de));
+            }
+        }
+        return m;
+    }
+
+    @Override
+    public List<MenuDTO> all() {
+        List<Menu> rootMenus = findMenusByParentId(0);
+        return fa(rootMenus, 0);
     }
 
 
