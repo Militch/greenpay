@@ -35,15 +35,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 
     @Override
-    public User addUser(UserInputDto userInputDto) throws PostResourceException {
+    public User addUser(UserInputDto userInputDto) throws Exception {
         User user = modelMapper.map(userInputDto, User.class);
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(User::getUsername, user.getUsername()).or()
                 .eq(User::getEmail, user.getEmail());
         User oldUser = getOne(lambdaQueryWrapper);
         if (oldUser != null) {
-            throw new PostResourceException("用户名或邮箱已经存在");
+            throw new Exception("用户名或邮箱已经存在");
         }
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(userInputDto.getCreatedAt());
         save(user);
         return  user ;
     }

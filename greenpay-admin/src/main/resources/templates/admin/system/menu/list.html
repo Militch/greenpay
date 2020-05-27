@@ -18,7 +18,7 @@
                                 <div class="layui-card-header">菜单管理</div>
                                 <div class="layui-card-body" style="padding: 0">
                                     <div class="admin-table_header">
-                                        <button class="layui-btn" onclick="addPerm('{{r.id}}',0)">新增</button>
+                                        <button class="layui-btn" onclick="addPerm('{{r.id}}',0,0)">新增</button>
                                         <div th:replace="admin/compose::admin-table_header_right('请输入用户名')">
                                         </div>
                                         <div style="clear:both;"></div>
@@ -29,7 +29,7 @@
                                     <table id="menuList" class="layui-table" type="text/html" lay-filter="userTable"></table>
                                     <script type="text/html" id="optBar">
                                         <a class="layui-btn layui-btn-primary layui-btn-xs" onclick="edit('{{d.id}}',0)">编辑</a>
-                                        <a class="layui-btn layui-btn-xs" onclick="addPerm('{{d.id}}',1)">添加子节点</a>
+                                        <a class="layui-btn layui-btn-xs" onclick="addPerm('{{d.id}}','{{d.type}}',1)">添加子节点</a>
                                         <a class="layui-btn layui-btn-danger layui-btn-xs" onclick="del('{{d.id}}','{{d.title}}')">删除</a>
                                     </script>
                                 </div>
@@ -54,10 +54,10 @@
                             <input name="title" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
                         </div>
                     </div>
-                    <div class="layui-form-item" pane="">
+                    <div class="layui-form-item" pane="" id="radio">
                         <label class="layui-form-label">权限分类</label>
 
-                        <div class="layui-input-block">
+                        <div class="layui-input-block" >
                             <input name="type" value="1" title="菜单" checked="checked" type="radio"/>
                             <input name="type" value="2" title="按钮" type="radio"/>
                         </div>
@@ -66,7 +66,7 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">权限路径</label>
                         <div class="layui-input-inline">
-                            <input name="path" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+                            <input name="path"  autocomplete="off" class="layui-input" type="text"/>
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -87,7 +87,7 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">图标</label>
                         <div class="layui-input-inline">
-                            <input name="icon" id="icon" lay-verify="required" autocomplete="off" class="layui-input" type="text">
+                            <input name="icon" id="icon"  autocomplete="off" class="layui-input" type="text">
                         </div>
                     </div>
                     <div class="layui-form-item layui-form-text">

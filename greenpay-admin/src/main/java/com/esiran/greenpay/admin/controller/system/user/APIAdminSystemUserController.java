@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -75,16 +76,18 @@ public class APIAdminSystemUserController extends CURDBaseController {
         for (UserDTO user : convert.getRecords()) {
             List<UserRole> userRoles = iUserRoleService.selectUserRoleById(user.getId());
             List<Integer> collect = userRoles.stream().map(role -> role.getRoleId()).collect(Collectors.toList());
-            List<Role> roles = iRoleService.selectByIds(collect);
-            String roleNames ="";
-            for (int i = 0; i < roles.size(); i++) {
-                if (i != 0) {
-                    roleNames += ",";
+            if (!CollectionUtils.isEmpty(collect)) {
+                List<Role> roles = iRoleService.selectByIds(collect);
+                String roleNames ="";
+                for (int i = 0; i < roles.size(); i++) {
+                    if (i != 0) {
+                        roleNames += ",";
+                    }
+                    roleNames += roles.get(i).getName();
                 }
-                roleNames += roles.get(i).getName();
+                user.setRoleNames(roleNames);
             }
 
-            user.setRoleNames(roleNames);
         }
 
         return convert;
@@ -107,10 +110,8 @@ public class APIAdminSystemUserController extends CURDBaseController {
 
 
     @PostMapping
-    public ResponseEntity add(@Valid UserInputDto userInputDto) throws PostResourceException {
-        if (StringUtils.isBlank(userInputDto.getRoleIds())) {
-            throw new PostResourceException("用户权限为空");
-        }
+    public ResponseEntity add(@Valid UserInputDto userInputDto) throws Exception {
+
         iUserRoleService.addUserAndRole(userInputDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(true);

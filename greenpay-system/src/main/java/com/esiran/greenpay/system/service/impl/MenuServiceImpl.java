@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -86,7 +87,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                 .map(item -> modelMap.map(item, MenuTreeVo.class))
                 .collect(Collectors.toList());
 
-        TreeUtil.buildByLoop(menuTreeVoList, -1);
+        TreeUtil.buildByLoop(menuTreeVoList, 0);
 //
 //        Map<Integer, List<MenuTreeVo>> listMap = new HashMap<>();
 //
@@ -129,7 +130,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                 .map(item -> modelMap.map(item, MenuTreeVo.class))
                 .filter(item -> item.getType().equals(type))
                 .collect(Collectors.toList());
-        return TreeUtil.buildByLoop(mt, -1);
+        return TreeUtil.buildByLoop(mt, 0);
     }
 
     @Override
@@ -139,7 +140,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
                 .map(item -> modelMap.map(item, MenuTreeVo.class))
                 .filter(item -> item.getType().equals(type))
                 .collect(Collectors.toList());
-        return TreeUtil.buildByLoop(menuTreeVos,-1);
+        return TreeUtil.buildByLoop(menuTreeVos,0);
     }
 
     @Override
@@ -184,7 +185,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         List<MenuTreeVo> mt = menus.stream()
                 .map(item -> modelMapper.map(item, MenuTreeVo.class))
                 .collect(Collectors.toList());
-        return TreeUtil.buildByLoop(mt,-1);
+        return TreeUtil.buildByLoop(mt,0);
     }
 
     @Override
@@ -207,6 +208,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         if (oldMenu != null) {
             throw new APIException("菜单已经存在",String.valueOf(HttpStatus.BAD_REQUEST));
         }
+        menu.setCreatedAt(LocalDateTime.now());
+        menu.setUpdatedAt(menu.getCreatedAt());
         save(menu);
     }
 

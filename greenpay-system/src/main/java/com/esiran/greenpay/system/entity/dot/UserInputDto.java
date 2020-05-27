@@ -45,7 +45,6 @@ public class UserInputDto  extends BaseMapperEntity {
     private String email;
 
     @ApiModelProperty("用户角色")
-    @NotBlank(message = "请选择正确的角色")
     private String roleIds;
 
 

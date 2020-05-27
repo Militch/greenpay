@@ -171,7 +171,7 @@
                 return itemArr;
             }
             // return JSON.stringify(getJsonTree(data,''));
-            return getJsonTree(data, -1);
+            return getJsonTree(data, 0);
         }
         //console.log(JSON.stringify(getJsonTree(data,'')));
 

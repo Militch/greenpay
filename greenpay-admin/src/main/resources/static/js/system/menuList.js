@@ -154,6 +154,7 @@ function edit(id,style){
                 $("input[type='radio'][value='2']").attr("checked", data.type == 2 ? true : false);
                 form.render()
                 $("#parentId").val(data.parentId);
+
                 // var sex = 2;
                 // $(":radio[name='rbsex'][value='" + sex + "']").prop("checked", "checked");
                 // data.type==0?$("input[name='style']").val(1).checked:$("input[name='style']").val(2).checked;
@@ -178,7 +179,7 @@ function edit(id,style){
     }
 }
 //开通权限
-function addPerm(parentId,flag){
+function addPerm(parentId,dataType,flag){
     if(null!=parentId){
         //flag[0:开通权限；1：新增子节点权限]
         //style[0:编辑；1：新增]
@@ -190,6 +191,12 @@ function addPerm(parentId,flag){
             $("#style").val(1);
             //设置父id
             $("#parentId").val(parentId);
+        }
+        if(dataType==2){
+            $('#radio').css('display','none')
+        }else{
+            $('#radio').css('display','block')
+
         }
         layer.open({
             type:1,

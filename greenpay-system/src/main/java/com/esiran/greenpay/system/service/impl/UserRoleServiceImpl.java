@@ -45,17 +45,21 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
 
     @Override
     @Transactional
-    public boolean addUserAndRole(UserInputDto userInputDto) throws PostResourceException {
+    public boolean addUserAndRole(UserInputDto userInputDto) throws Exception {
+
         User user = userService.addUser(userInputDto);
         String[] split = userInputDto.getRoleIds().split(",");
-        UserRole role = new UserRole();
-        for (String s : split) {
-            Integer id = Integer.valueOf(s);
-            role.setUserId(user.getId());
-            role.setRoleId(id);
-            this.save(role);
+        if (split.length>0 && !split[0].equals("")) {
+            UserRole role = new UserRole();
+            for (String s : split) {
+                Integer id = Integer.valueOf(s);
+                role.setUserId(user.getId());
+                role.setRoleId(id);
+                this.save(role);
+            }
         }
-        return false;
+
+        return true;
     }
 
     @Override
@@ -112,6 +116,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         user.setEmail(userInputDto.getEmail());
 
         user.setPassword(userInputDto.getPassword());
+        user.setUpdatedAt(LocalDateTime.now());
         userService.updateById(user);
 
         //更新用戶權限

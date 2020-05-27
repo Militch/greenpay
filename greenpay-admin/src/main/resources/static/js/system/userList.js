@@ -139,17 +139,8 @@ function submitAjax(obj){
         },
         error: function (data) {
             var er = $.parseJSON(data.responseText);
-            var sr ;
-            if (er.errors.length > 1) {
-                $.each(er.errors, function(i, item) {
-                    sr = item.message;
-                    return false;
-                });
-            }else {
-                sr = er.errors[0].message;
-            }
 
-            layer.alert(sr);
+            layer.alert(er.message);
 
         }
     });
@@ -164,10 +155,10 @@ function checkRole(){
     }
     //校验是否授权
     var roleIds = array.join(",");
-    if(roleIds==null || roleIds==''){
-        layer.alert("请您给该用户添加对应的角色！")
-        return false;
-    }
+    // if(roleIds==null || roleIds==''){
+    //     layer.alert("请您给该用户添加对应的角色！")
+    //     return false;
+    // }
     $("#roleIds").val(roleIds);
     return true;
 }

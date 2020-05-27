@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -61,6 +62,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         }
         //更新角色信息
         Role role = modelMapper.map(roleDto, Role.class);
+        role.setCreatedAt(LocalDateTime.now());
+        role.setUpdatedAt(role.getCreatedAt());
         boolean save = save(role);
         String[] split = roleDto.getPermIds().split(",");
         //插入角色权限菜单
@@ -69,6 +72,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
             Integer value = Integer.valueOf(s);
             roleMenu.setRoleId(role.getId());
             roleMenu.setMenuId(value);
+            roleMenu.setCreatedAt(LocalDateTime.now());
+            roleMenu.setUpdatedAt(roleMenu.getCreatedAt());
             iRoleMenuService.save(roleMenu);
         }
 
@@ -86,7 +91,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         }
         //更新角色信息
         role.setRoleCode(roleDto.getRoleCode());
-
+        role.setUpdatedAt(LocalDateTime.now());
 
         return updateById(role);
     }

@@ -17,7 +17,7 @@ import com.esiran.greenpay.system.entity.vo.UserInputVo;
  * @since 2020-04-13
  */
 public interface IUserService extends IService<User> {
-    User addUser(UserInputDto userInputDto) throws PostResourceException;
+    User addUser(UserInputDto userInputDto) throws Exception;
 
     UserDTO selectUserById(Integer userId) throws PostResourceException;
 

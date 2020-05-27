@@ -21,7 +21,7 @@ import java.util.List;
 public interface IUserRoleService extends IService<UserRole> {
     IPage<UserRoleDto> selectUserRoles(Page<UserRole> userVoPage);
 
-    boolean addUserAndRole(UserInputDto userInputDto) throws PostResourceException;
+    boolean addUserAndRole(UserInputDto userInputDto) throws Exception;
 
     List<UserRole> selectUserRoleById(Integer userId);
 
