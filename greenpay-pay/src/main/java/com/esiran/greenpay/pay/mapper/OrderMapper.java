@@ -61,24 +61,23 @@ public interface OrderMapper extends BaseMapper<Order> {
             "AND DATE_FORMAT(NOW(),'%Y-%m-%d %T')")
     Long intradayRealmoneyData();
 
-    @Select("SELECT DATE_FORMAT(created_at,'%H') AS name, " +
-            "       SUM(amount) as amount, " +
-            "       COUNT(1) AS count, " +
-            "       SUM((IF(status = 3, amount, 0))) AS successAmount, " +
-            "       COUNT(IF(status = 3, 1, 0)) AS successCount " +
-            "FROM pay_order " +
-            "WHERE order_no " +
-            "  AND date_format(created_at, '%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d') " +
-            "GROUP BY name;")
-    List<CartogramDTO> hourData();
+    @Select("SELECT DATE_FORMAT(created_at,'%H') AS name,   " +
+            "                   SUM(amount) as amount,   " +
+            "                   COUNT(1) AS count,   " +
+            "                   SUM((IF(status = 3, amount, 0))) AS successAmount,   " +
+            "                   COUNT(IF(status = 3, 1, 0)) AS successCount   " +
+            "            FROM pay_order   " +
+            "            WHERE  date_format(created_at, '%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d')   " +
+            "            GROUP BY name;;")
+    List<CartogramDTO> hourAllData();
 
 
-    @Select("SELECT DATE_FORMAT(created_at,'%H') AS name, " +
-            "       SUM(amount) as amount, " +
-            "       SUM((IF(status = 3 OR status = 2, amount, 0))) AS successAmount " +
-            "FROM pay_order " +
-            "WHERE date_format(created_at, '%Y%m%d') = DATE_FORMAT(now(),'%Y%m%d') " +
-            "GROUP BY name; ")
+    @Select("SELECT DATE_FORMAT(created_at,'%H') AS name,   " +
+            "                   SUM(amount) as amount,   " +
+            "                   SUM((IF(status = 3 OR status = 2, amount, 0))) AS successAmount   " +
+            "            FROM pay_order   " +
+            "            WHERE date_format(created_at, '%Y%m%d') = DATE_FORMAT(now(),'%Y%m%d')   " +
+            "            GROUP BY name; ")
     List<CartogramDTO> hourData4amount();
 
     @Select("SELECT DATE_FORMAT(created_at,'%H') AS name, " +

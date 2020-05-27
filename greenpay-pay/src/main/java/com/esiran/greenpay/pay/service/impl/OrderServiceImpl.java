@@ -180,7 +180,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     @Override
     public List<CartogramDTO> hourData() {
-        return this.baseMapper.hourData();
+        return this.baseMapper.hourAllData();
     }
 
     @Override
