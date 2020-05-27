@@ -38,6 +38,9 @@ public interface IMenuService extends IService<Menu> {
 
     public boolean removeMenuByid(Integer menudId) throws APIException;
 
+    List<Menu> findMenusByParentId(Integer parentId);
+    List<MenuDTO> fa(List<Menu> menus, int deep);
+    List<MenuDTO> all();
 
     void addMenu(MenuDTO menuDTO) throws APIException;
 

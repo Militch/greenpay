@@ -5,6 +5,8 @@ import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.system.entity.Menu;
 import com.esiran.greenpay.system.entity.dot.MenuDTO;
 import com.esiran.greenpay.system.service.IMenuService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -24,8 +26,8 @@ import java.util.List;
 @RequestMapping("/admin/system/menu")
 public class AdminSystemMenuController {
 
-    private IMenuService iMenuService;
-
+    private final IMenuService iMenuService;
+    private static final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
     private static final ModelMapper MODEL_MAPPER = new ModelMapper();
 
     public AdminSystemMenuController(IMenuService iMenuService) {
@@ -33,13 +35,10 @@ public class AdminSystemMenuController {
     }
 
     @GetMapping("/list")
-    @ResponseBody
-    public ModelAndView list(){
-        ModelAndView modelAndView = new ModelAndView("admin/system/menu/list");
-//        List<Menu> list = iMenuService.list();
-//        modelAndView.addObject("permList",list);
-//        modelAndView.addObject("msg", "ok");
-        return modelAndView;
+    public String list(ModelMap modelMap){
+        List<MenuDTO> md = iMenuService.all();
+        modelMap.addAttribute("listJsonString", gson.toJson(md));
+        return "admin/system/menu/list";
     }
 
     @GetMapping("/list/{menuId}/edit")
