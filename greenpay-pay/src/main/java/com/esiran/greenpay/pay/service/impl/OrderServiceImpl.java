@@ -1,31 +1,20 @@
 package com.esiran.greenpay.pay.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.esiran.greenpay.common.exception.PostResourceException;
-import com.esiran.greenpay.common.sign.Md5SignType;
-import com.esiran.greenpay.common.sign.SignType;
-import com.esiran.greenpay.common.sign.SignVerify;
-import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.pay.entity.*;
 import com.esiran.greenpay.pay.mapper.OrderMapper;
 import com.esiran.greenpay.pay.service.IOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import okhttp3.FormBody;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -128,4 +117,84 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return orderPage.convert(OrderDTO::convertOrderEntity);
     }
 
+    @Override
+    public List<Order> findIntradayOrder() {
+        return   baseMapper.findIntradayOrder(new QueryWrapper<>());
+    }
+
+    //查询昨天0点到昨天当前时间总订单数
+    @Override
+    public Integer yestdayRealorderData() {
+        return this.baseMapper.yestdayRealorderData();
+    }
+    //查询今日0点到当前时间总订单数
+    @Override
+    public Integer intradayRealorderData() {
+        return this.baseMapper.intradayRealorderData();
+    }
+    //查询昨天0点到昨天当前时间成交额
+    @Override
+    public Long yestdayRealmoneyData() {
+        return this.baseMapper.yestdayRealmoneyData();
+    }
+    //查询今日0点到当前时间成交额
+    @Override
+    public Long intradayRealoneyData() {
+        return this.baseMapper.intradayRealmoneyData();
+    }
+
+    @Override
+    public Integer findIntradayOrderSucc() {
+        return this.baseMapper.findIntradayOrderSucc();
+    }
+
+    @Override
+    public Integer findYesterdayOrderSucc() {
+        return this.baseMapper.findYesterdayOrderSucc();
+    }
+
+    @Override
+    public List<CartogramDTO> sevenDayAllCount() {
+        return this.baseMapper.sevenDayAllCount();
+    }
+
+    @Override
+    public List<CartogramDTO> sevenDayAllAmount() {
+        return this.baseMapper.sevenDayAllAmount();
+    }
+
+    @Override
+    public List<CartogramDTO> upSevenDayCartogram() {
+        return this.baseMapper.upSevenDayAllCount();
+    }
+
+    @Override
+    public List<CartogramDTO> upSevenDayAllAmount() {
+        return this.baseMapper.upSevenDayAllAmount();
+    }
+
+    @Override
+    public List<CartogramPayDTO> payOrders() {
+        return this.baseMapper.payOrders();
+    }
+
+    @Override
+    public List<CartogramDTO> hourData() {
+        return this.baseMapper.hourAllData();
+    }
+
+    @Override
+    public List<CartogramDTO> hourData4amount() {
+        return this.baseMapper.hourData4amount();
+    }
+
+    @Override
+    public List<CartogramDTO> hourData4count() {
+        return this.baseMapper.hourData4count();
+    }
+
+    @Override
+    public List<CartogramPayStatusVo> PayStatuss() {
+        return this.baseMapper.PayStatuss();
+    }
 }

@@ -3,21 +3,24 @@ package com.esiran.greenpay.settle.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
 import com.esiran.greenpay.common.util.EncryptUtil;
 import com.esiran.greenpay.common.util.IdWorker;
 import com.esiran.greenpay.common.util.NumberUtil;
+import com.esiran.greenpay.common.util.PercentCount;
 import com.esiran.greenpay.merchant.entity.Merchant;
-import com.esiran.greenpay.merchant.entity.PayAccountDTO;
 import com.esiran.greenpay.merchant.entity.SettleAccountDTO;
+import com.esiran.greenpay.merchant.entity.StatisticDTO;
 import com.esiran.greenpay.merchant.service.IMerchantService;
 import com.esiran.greenpay.merchant.service.IPayAccountService;
 import com.esiran.greenpay.merchant.service.ISettleAccountService;
-import com.esiran.greenpay.pay.entity.OrderQueryDTO;
+import com.esiran.greenpay.pay.entity.CartogramDTO;
+import com.esiran.greenpay.pay.entity.CartogramPayDTO;
+import com.esiran.greenpay.pay.entity.CartogramPayStatusVo;
 import com.esiran.greenpay.pay.entity.ExtractQueryDTO;
 import com.esiran.greenpay.pay.entity.Order;
+import com.esiran.greenpay.pay.service.IOrderService;
 import com.esiran.greenpay.settle.entity.SettleOrder;
 import com.esiran.greenpay.settle.entity.SettleOrderDTO;
 import com.esiran.greenpay.settle.entity.SettleOrderInputDTO;
@@ -27,13 +30,25 @@ import com.esiran.greenpay.settle.service.ISettleOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -52,11 +67,15 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
     private final  IMerchantService iMerchantService;
     private final ISettleAccountService iSettleAccountService;
     private final IdWorker idWorker;
-    public SettleOrderServiceImpl(IPayAccountService payAccountService, IMerchantService iMerchantService, ISettleAccountService iSettleAccountService, IdWorker idWorker) {
+    private final IOrderService orderService;
+    private final ISettleAccountService settleAccountService;
+    public SettleOrderServiceImpl(IPayAccountService payAccountService, IMerchantService iMerchantService, ISettleAccountService iSettleAccountService, IdWorker idWorker, IOrderService orderService, ISettleAccountService settleAccountService) {
         this.payAccountService = payAccountService;
         this.iMerchantService = iMerchantService;
         this.iSettleAccountService = iSettleAccountService;
         this.idWorker = idWorker;
+        this.orderService = orderService;
+        this.settleAccountService = settleAccountService;
     }
 
 
@@ -297,5 +316,328 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         settleOrder.setUpdatedAt(settleOrder.getCreatedAt());
         save(settleOrder);
 
+    }
+
+
+    @Override
+    public List<SettleOrder> selectSettlesToday() {
+        return this.baseMapper.selectSettlesToday(new LambdaQueryWrapper<>());
+    }
+
+    @Override
+    public HashMap<String,Object> findHomeDate() {
+        HashMap<String, Object> map = new HashMap<>();
+        HashMap<String, Object> data = new HashMap<>();
+
+
+
+        //查询昨天0点到昨天当前时间总订单数
+        Integer yestdayRealorderData = orderService.yestdayRealorderData();
+        //查询今日0点到当前时间总订单数
+        Integer intradayRealorderData = orderService.intradayRealorderData();
+        //同比昨日
+        String format = percentBigDecimal(new BigDecimal( intradayRealorderData), new BigDecimal(yestdayRealorderData));
+
+        List<HashMap<String,Object>> statistics = new ArrayList<>();
+        data.put("name", "今日收单笔数");
+        data.put("val",intradayRealorderData);
+        data.put("val2",format);
+        data.put("rightHint", "日同比");
+        data.put("leftHint","昨日");
+        data.put("upDay",yestdayRealorderData);
+        statistics.add(data);
+
+
+
+        //查询当天成功订单总数
+        Integer intradayOrderSucc = orderService.findIntradayOrderSucc();
+        //查询昨天成功订单总数
+        Integer yesterdayOrderSucc = orderService.findYesterdayOrderSucc();
+
+        //转换率 订单总数
+        BigDecimal a = new BigDecimal(intradayOrderSucc);
+        BigDecimal b = new BigDecimal(yesterdayOrderSucc);
+        String percent4Count = p.percentBigDecimal(a, b);
+
+
+        data = new HashMap<>();
+        data.put("name", "今日成交笔数");
+        data.put("val", intradayOrderSucc);
+        data.put("val2",percent4Count);
+        data.put("rightHint", "日同比");
+        data.put("leftHint","昨日");
+        data.put("upDay",yesterdayOrderSucc);
+        statistics.add(data);
+        //end
+
+
+
+        //昨日当时时间成交总额
+        Long aLong = orderService.yestdayRealmoneyData();
+        if (aLong == null){
+            aLong = 0L;
+        }
+        //今日当时时间成交总额
+        Long dayAmount = orderService.intradayRealoneyData();
+        if (dayAmount == null){
+            dayAmount = 0L;
+        }
+        a = new BigDecimal(dayAmount);
+        b = new BigDecimal(aLong);
+        String percent4Amount = p.percentBigDecimal(a, b);
+
+        data = new HashMap<>();
+        data.put("name", "今日成交总额");
+        data.put("val", NumberUtil.amountFen2Yuan(dayAmount.intValue()));
+
+        data.put("val2", percent4Amount);
+        data.put("rightHint", "日同比");
+        data.put("leftHint","昨日");
+        data.put("upDay",aLong);
+        statistics.add(data);
+        //end
+
+
+        //上周成交总额
+        List<CartogramDTO> cartogramDTOS = orderService.upSevenDayCartogram();
+        long upSevenSucAmount = cartogramDTOS.stream().mapToLong(CartogramDTO::getAmount).sum();
+        a = new BigDecimal( aLong);
+        b = new BigDecimal(upSevenSucAmount);
+        String upServen = p.percentBigDecimal(a, b);
+        data = new HashMap<>();
+        data.put("name", "昨日成交总额");
+        data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong.intValue())));
+        data.put("val2", upServen);
+        data.put("rightHint", "周同比");
+
+        statistics.add(data);
+        //end
+
+        map.put("statistics", statistics);
+        //--end
+
+        data = new HashMap<>();
+        List<CartogramPayDTO> cartogramPayDTOS = orderService.payOrders();
+        data.put("payOrder", "支付产品排行");
+        data.put("var", cartogramPayDTOS);
+        map.put("payOrder", data);
+        //--end
+
+
+        data = new HashMap<>();
+        StatisticDTO statisticDTO = sevenDaycartogram();
+        data.put("name", "一周统计");
+        data.put("val", statisticDTO);
+        map.put("sevenDay", data);
+        //--end
+
+        //24小时交易金额
+        data = new HashMap<>();
+        List<CartogramDTO> hourAmount = orderService.hourData4amount();
+        List<CartogramDTO> hours = new ArrayList<>();
+        List<String> collect = hourAmount.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
+        for (int i = 0; i < 24; i++) {
+            String hs = String.valueOf(i);
+            if (collect.contains(hs)) {
+                continue;
+            }
+
+            CartogramDTO cartogramDTO = new CartogramDTO();
+            cartogramDTO.setName(hs);
+            cartogramDTO.setAmount(0l);
+            cartogramDTO.setSuccessAmount(0l);
+            hours.add(cartogramDTO);
+        }
+        hourAmount.addAll(hours);
+        Collections.sort(hourAmount);
+        data.put("name", "定单总额");
+        data.put("val", hourAmount);
+        map.put("orderAmount", data);
+        //--end
+
+        //24小交易趋势
+        data = new HashMap<>();
+        hourAmount = orderService.hourData4count();
+        hours = new ArrayList<>();
+
+        //填充
+        collect = hourAmount.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
+        for (int i = 0; i < 24; i++) {
+            String hs = String.valueOf(i);
+            if (collect.contains(hs)) {
+                continue;
+            }
+
+            CartogramDTO cartogramDTO = new CartogramDTO();
+            cartogramDTO.setName(hs);
+            cartogramDTO.setCount(0);
+            cartogramDTO.setSuccessCount(0);
+            hours.add(cartogramDTO);
+        }
+
+        hourAmount.addAll(hours);
+        Collections.sort(hourAmount);
+        data.put("name", "交易趋势");
+        data.put("val", hourAmount);
+        map.put("tradingTrends", data);
+        //end
+
+
+        //转化率
+        data = new ManagedMap<>();
+        List<CartogramPayStatusVo> payStatusVos = orderService.PayStatuss();
+        List<CartogramPayStatusVo> tmpList = new ArrayList<>();
+        List<Integer> status = payStatusVos.stream().map(cartogramPayStatusVo -> cartogramPayStatusVo.getStatus()).collect(Collectors.toList());
+        for (int i = -2; i < 4; i++) {
+            if (i == 0) {
+                continue;
+            }
+            if (status.contains(i)) {
+                continue;
+            }
+            CartogramPayStatusVo cartogramPayStatusVo = new CartogramPayStatusVo();
+            cartogramPayStatusVo.setCount(0);
+            cartogramPayStatusVo.setStatus(i);
+            tmpList.add(cartogramPayStatusVo);
+        }
+        payStatusVos.addAll(tmpList);
+        int count =payStatusVos.size();
+        data.put("name", "转化率");
+        data.put("val", payStatusVos);
+        data.put("count", count);
+        map.put("precent", data);
+        //--end
+
+
+        return map;
+    }
+
+
+    private void addTime(List<CartogramDTO> cartograms){
+        List<CartogramDTO> cartogramDTOList = new ArrayList<>();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
+
+//        List<String> collect = cartograms.stream().map(time -> time.getName()).collect(Collectors.toList());
+        List<CartogramDTO> times = new ArrayList<>();
+//        Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。
+
+//        cal.setTime(new Date());
+//            for (int i = 0; i < 6; i++) {
+//                cal.add(Calendar.DATE, -1);//取当前日期的前一天.
+//                String format = sdf.format(cal.getTime());
+//                if (collect.contains(format)) {
+//                    continue;
+//                }
+//                CartogramDTO cartogramDTO = new CartogramDTO();
+//                cartogramDTO.setName(format);
+//                cartogramDTO.setCount(0);
+//                cartogramDTO.setAmount(0l);
+//                times.add(cartogramDTO);
+//            }
+        for (int i = 7; i >0; i--){
+            long dayTime = System.currentTimeMillis() - ((1000 * 60 * 60 * 24) * (i));
+            String time = sdf.format(dayTime);
+            List<CartogramDTO> collect1 = cartograms.stream().filter(cartogramDTO ->
+                cartogramDTO.getName().equals(time)
+            ).collect(Collectors.toList());
+
+            if (CollectionUtils.isEmpty(collect1)) {
+                CartogramDTO cartogramDTO = new CartogramDTO();
+                cartogramDTO.setName(time);
+                cartogramDTO.setCount(0);
+                cartogramDTO.setAmount(0l);
+                cartogramDTOList.add(cartogramDTO);
+            }else {
+                cartogramDTOList.add(collect1.get(0));
+
+            }
+
+        }
+
+        cartograms.clear();
+        cartograms.addAll(cartogramDTOList);
+    }
+
+    @Override
+    public StatisticDTO sevenDaycartogram(){
+        StatisticDTO statisticDTO = new StatisticDTO();
+
+
+        List<CartogramDTO> cartogram = orderService.sevenDayAllCount();
+        List<CartogramDTO> cartogramDTOS = orderService.sevenDayAllAmount();
+
+
+        addTime(cartogram);
+
+        for (int i = 0; i < cartogram.size(); i++) {
+            CartogramDTO cartogramDTO = cartogram.get(i);
+            String name = cartogramDTO.getName();
+            boolean finded = false;
+            for (CartogramDTO carto : cartogramDTOS) {
+                if (carto.getName()!=null && name.equals(carto.getName())) {
+                    finded = true;
+                    break;
+                }
+            }
+            if (!finded) {
+                CartogramDTO dto = new CartogramDTO();
+                dto.setName(name);
+                dto.setCount(0);
+                dto.setAmount(0l);
+                cartogramDTOS.add(i, dto);
+            }
+
+        }
+
+
+        ArrayList<Map<String, Object>> list = new ArrayList<>();
+
+
+        for (int i = 0; i < cartogram.size(); i++) {
+            CartogramDTO allCount = cartogram.get(i);
+            CartogramDTO allAmount = cartogramDTOS.get(i);
+
+            HashMap<String, Object> map = new HashMap<>();
+
+            map.put("time",allCount.getName());
+            //收单总数
+            List<HashMap<String, Object>> datas = new ArrayList<>();
+
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("title", "收单笔数");
+            data.put("data",allCount.getCount());
+            datas.add(data);
+
+            data = new HashMap<>();
+            data.put("title", "成交笔数");
+            data.put("data",allAmount.getCount());
+            datas.add(data);
+
+            data = new HashMap<>();
+            data.put("title", "收单总额");
+            data.put("data",allCount.getAmount());
+            datas.add(data);
+
+            data = new HashMap<>();
+            data.put("title", "成交总额");
+            data.put("data",allAmount.getAmount());
+            datas.add(data);
+
+            map.put("data", datas);
+
+            list.add(map);
+
+
+        }
+        statisticDTO.setData(list);
+        return statisticDTO;
+    }
+
+    private  PercentCount p = new PercentCount();
+    private String percentBigDecimal(BigDecimal total,BigDecimal num){
+
+        String percent = p.percentBigDecimal(total,num);
+        return percent;
     }
 }

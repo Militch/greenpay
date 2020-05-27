@@ -4,12 +4,18 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
+import com.esiran.greenpay.merchant.entity.HomeDateVo;
+import com.esiran.greenpay.merchant.entity.StatisticDTO;
 import com.esiran.greenpay.pay.entity.ExtractQueryDTO;
 import com.esiran.greenpay.settle.entity.SettleOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.esiran.greenpay.settle.entity.SettleOrderDTO;
 import com.esiran.greenpay.settle.entity.SettleOrderInputDTO;
 import com.esiran.greenpay.settle.entity.SettleOrderQueryDto;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * <p>
@@ -29,5 +35,10 @@ public interface ISettleOrderService extends IService<SettleOrder> {
     void updateOrderStatus(String orderNo, Integer status) throws PostResourceException;
     void postOrder(SettleOrderInputDTO inputDTO) throws PostResourceException, ResourceNotFoundException;
 
+    List<SettleOrder> selectSettlesToday();
+
+    public HashMap<String,Object> findHomeDate();
+
+    StatisticDTO sevenDaycartogram();
 
 }

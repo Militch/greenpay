@@ -88,7 +88,6 @@ public class APICashiers {
     public String createQrPage(@Valid CashierInputDTO inputDTO) throws Exception {
         Merchant merchant = OpenAPISecurityUtils.getSubject();
         String productCode = inputDTO.getChannel();
-
         PayOrder payOrder = cashierService.createCashierByInput(productCode, inputDTO, merchant);
         String orderNo = payOrder.getOrder().getOrderNo();
         Interface ins = interfaceService.getById(payOrder.getOrderDetail().getPayInterfaceId());

@@ -42,4 +42,8 @@ public interface IMerchantService extends IService<Merchant> {
     HomeData homeData(Integer mchId);
 
     Boolean delMerchant(Integer mchid) throws PostResourceException;
+
+
+
+
 }
