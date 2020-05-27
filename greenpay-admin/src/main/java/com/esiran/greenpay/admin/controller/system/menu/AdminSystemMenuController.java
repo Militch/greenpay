@@ -5,8 +5,7 @@ import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.system.entity.Menu;
 import com.esiran.greenpay.system.entity.dot.MenuDTO;
 import com.esiran.greenpay.system.service.IMenuService;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -20,6 +19,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
@@ -27,9 +29,16 @@ import java.util.List;
 public class AdminSystemMenuController {
 
     private final IMenuService iMenuService;
-    private static final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class,new LocalDateAdapter())
+            .disableHtmlEscaping().create();
     private static final ModelMapper MODEL_MAPPER = new ModelMapper();
-
+    public static class LocalDateAdapter implements JsonSerializer<LocalDateTime> {
+        @Override
+        public JsonElement serialize(LocalDateTime localDateTime, Type type, JsonSerializationContext jsonSerializationContext) {
+            return new JsonPrimitive(localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }
+    }
     public AdminSystemMenuController(IMenuService iMenuService) {
         this.iMenuService = iMenuService;
     }
