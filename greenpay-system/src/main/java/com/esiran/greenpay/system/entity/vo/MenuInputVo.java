@@ -1,6 +1,5 @@
-package com.esiran.greenpay.system.entity;
+package com.esiran.greenpay.system.entity.vo;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.esiran.greenpay.common.entity.BaseMapperEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,12 +16,12 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
-@TableName("system_menu")
-public class Menu extends BaseMapperEntity {
+public class MenuInputVo extends BaseMapperEntity {
 
     /**
      * 菜单标题
      */
+
     private String title;
 
     /**
@@ -56,4 +55,5 @@ public class Menu extends BaseMapperEntity {
     private Integer sorts;
 
     private String extra;
+
 }

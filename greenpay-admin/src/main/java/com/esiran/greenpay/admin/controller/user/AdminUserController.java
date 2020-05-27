@@ -6,8 +6,8 @@ import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.util.TOTPUtil;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.system.entity.User;
-import com.esiran.greenpay.system.entity.UserInputDTO;
-import com.esiran.greenpay.system.entity.UserInputVo;
+import com.esiran.greenpay.system.entity.vo.UserInputDTO;
+import com.esiran.greenpay.system.entity.vo.UserInputVo;
 import com.esiran.greenpay.system.service.IUserService;
 import com.google.common.io.BaseEncoding;
 import org.apache.shiro.SecurityUtils;
@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/user")

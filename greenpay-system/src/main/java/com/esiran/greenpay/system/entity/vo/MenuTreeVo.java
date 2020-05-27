@@ -1,24 +1,15 @@
-package com.esiran.greenpay.system.entity;
+package com.esiran.greenpay.system.entity.vo;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.esiran.greenpay.common.entity.BaseMapperEntity;
+import com.esiran.greenpay.system.entity.TreeNode;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 
 /**
- * <p>
- * 系统菜单
- * </p>
- *
- * @author Militch
- * @since 2020-04-13
+ * @author han
+ * @Package com.esiran.greenpay.system.entity.vo
+ * @date 2020/5/20 9:38
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("system_menu")
-public class Menu extends BaseMapperEntity {
+public class MenuTreeVo extends TreeNode<MenuTreeVo> {
 
     /**
      * 菜单标题
