@@ -131,7 +131,7 @@
             },
             grid: {
                 left: '0%',
-                right: '0%',
+                right: '1%',
                 bottom: '0%',
                 containLabel: true
             },
@@ -164,7 +164,9 @@
         payOrder.var.forEach((item,i)=>{
             rankingStr+=` <tr>
                           <td>${i+1}</td>
-                          <td style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">${item.payname}</td>
+                          <td>
+                            <p title="${item.payname}" style="width:130px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">${item.payname}</p>
+                          </td>
                           <td style="text-align: right">${item.count}</td>
                           <td style="text-align: right">&yen; ${(item.amount/100).toFixed(2)}</td>
                         </tr>`
@@ -213,7 +215,7 @@
             },
             grid: {
                 left: '0%',
-                right: '0%',
+                right: '1%',
                 bottom: '0%',
                 containLabel: true
             },
@@ -275,6 +277,16 @@
                     }
                 })
             })
+        })
+        series.map(item=>{
+            if(item.name == "收单总额"|| item.name == "成交总额"){
+                let itemArr =[]
+                item.data.map(inner=>{
+                    inner = (inner/100).toFixed(2)
+                    itemArr.push(inner)
+                })
+                item.data = itemArr
+            }
         })
 
         let sevenDayOption ={

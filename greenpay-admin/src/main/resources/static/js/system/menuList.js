@@ -1,7 +1,9 @@
 /**
  * 权限列表
  */
-let $ = layui.jquery;
+let $ = layui.jquery,
+    layer = layui.layer
+    ,form = layui.form;
 !(function () {
 
     layui.use('table', function(){
@@ -139,6 +141,7 @@ function edit(id,style){
         $("#style").val(style);
         $("#id").val(id);
         $.get("/admin/api/v1/system/menus/"+id,function(data) {
+            console.log(data)
             // console.log(data);
             if(null!=data){
                 $("input[name='title']").val(data.title);
@@ -147,6 +150,9 @@ function edit(id,style){
                 $("input[name='sorts']").val(data.sorts);
                 $("input[name='icon']").val(data.icon);
                 $("textarea[name='extra']").text(data.extra);
+                $("input[type='radio'][value='1']").attr("checked", data.type == 1 ? true : false);
+                $("input[type='radio'][value='2']").attr("checked", data.type == 2 ? true : false);
+                form.render()
                 $("#parentId").val(data.parentId);
                 // var sex = 2;
                 // $(":radio[name='rbsex'][value='" + sex + "']").prop("checked", "checked");
@@ -164,6 +170,7 @@ function edit(id,style){
                         location.reload();
                     }
                 });
+
             }else{
                 layer.alert("获取权限数据出错，请您稍后再试");
             }
