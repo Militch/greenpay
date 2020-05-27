@@ -1,11 +1,11 @@
-package com.esiran.greenpay.admin.controller.system;
+package com.esiran.greenpay.admin.controller.system.setting;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/system/settings")
+@RequestMapping("/admin/system/settings")
 public class AdminSystemSettingsController {
     @GetMapping()
     public String list(){
