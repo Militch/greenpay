@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>统一收银台</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.css">
+    <link rel="stylesheet" th:href="@{/css/qrcodepage.css}">
+    <style th:if="${style == 'wechat'}">
+        .bd2 {
+            background-color: #07C160
+        }
+    </style>
+</head>
+
+<body>
+<div class="bd-w">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white">
+            <h5 class="my-0 mr-md-auto font-weight-normal">统一收银台</h5>
+            <nav class="my-2 my-md-0 mr-md-3">
+                <a class="p-2 text-secondary" href="#">帮助？</a>
+            </nav>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="order-section">
+            <span class="order-left">
+                订单提交成功，请尽快完成支付。
+                交易流水号：<span th:text="${'123456'}"></span> ,
+                订单编号：<span th:text="${'123456'}"></span>
+            </span>
+        <span class="order-right">
+                <span class="o-price">
+                    <em>应付金额</em>
+                    <strong th:text="${'￥124.00'}"></strong>
+                    <em>元</em>
+                </span>
+            </span>
+    </div>
+    <div class="bd1">
+        <div class="pay-section">
+            <img th:if="${style == 'alipay'}" th:src="@{/img/alipay_icon.png}" alt="支付方式">
+            <img th:if="${style == 'wechat'}" th:src="@{/img/wechat_icon.png}" alt="支付方式">
+            <span class="pay-des">亿万用户的选择，更快更安全</span>
+        </div>
+        <div class="row">
+            <div class="col-md-4" style="max-width: inherit!important;">
+                <div class="card">
+                    <div id="qrcode">
+                        <img th:src="${qrCodeImgUrl}" alt="支付二维码">
+                    </div>
+                    <div class="card-body bd2">
+                        <img th:src="@{/img/scan.png}" alt="扫描">
+                        <div class="text-wrap">
+                            <p class="card-text" th:if="${style == 'alipay'}">请使用支付宝扫一扫</p>
+                            <p class="card-text" th:if="${style == 'wechat'}">请使用微信扫一扫</p>
+                            <p class="card-text">扫描二维码以完成支付</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="bd3">
+                    <img th:if="${style == 'alipay'}" th:src="@{/img/qrcode_guide_alipay.jpg}" class="img-fluid" alt="...">
+                    <img th:if="${style == 'wechat'}" th:src="@{/img/qrcode_guide_wechat.png}" class="img-fluid" alt="...">
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="pt-3 my-md-4 pt-md-4 border-top">
+        <p class="text-center" style="font-size:.5rem;color:#666;">
+            Copyright © 2020 <a href="http://gnpays.com">GREENPAYS</a> 版权所有
+        </p>
+    </footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.2/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+<script type="application/javascript">
+    // ! function(codeUrl) {
+    //     var qrcode = new QRCode(document.getElementById("qrcode"), {
+    //         text: codeUrl,
+    //         width: 800,
+    //         height: 800,
+    //         colorDark: "#000000",
+    //         colorLight: "#ffffff",
+    //         correctLevel: QRCode.CorrectLevel.H
+    //     });
+    // }('${url}');
+</script>
+<script type="application/javascript">
+</script>
+<script type="application/javascript">
+    //TODO 查询订单状态 轮训
+    // !function (returnUrl) {
+    //     let id = setInterval(function () {
+    //         $.ajax({
+    //             url: `/query/orderStatus?orderId=${order.tradeNo}`,
+    //             type: "GET",
+    //             success: function (result) {
+    //                 if (result === "SUCCESS"){
+    //                     clearInterval(id);
+    //                     if (returnUrl){
+    //                         location.replace(returnUrl);
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //     },1000);
+    // }('${returnUrl}');
+</script>
+</body>
+
+</html>

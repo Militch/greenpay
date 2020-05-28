@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>角色管理 - GreenPay</title>
+<html xmlns:th="http://www.thymeleaf.org">
+<script type="text/javascript" src="/js/dateUtils.js"></script>
+<link rel="stylesheet" href="/js/ztree/css/zTreeStyle/zTreeStyle.css"></link>
+<head >
+    <title>角色列表 - GreenPay</title>
     <th:block th:replace="admin/header::stylesheet" />
+
 </head>
 <body class="layui-layout-body">
 <div class="layadmin-tabspage-none">
@@ -12,69 +15,44 @@
         <div class="layui-body">
             <div class="layadmin-tabsbody-item layui-show">
                 <div th:replace="admin/compose::layui-breadcrumb('系统管理','角色管理')"></div>
+                <div class="layui-card error-card" th:style="${errors==null}?'display:none;':''">
+                    <div class="layui-card-body">
+                        <blockquote class="layui-elem-quote" th:each="error:${errors}" th:text="${error.message}"></blockquote>
+                    </div>
+                </div>
                 <div class="layui-fluid">
                     <div class="layui-card">
                         <div class="layui-card-header">角色管理</div>
                         <div class="layui-card-body" style="padding: 0">
                             <div class="admin-table_header">
                                 <div class="admin-table_header_left">
-                                    <button type="button" class="layui-btn">新增</button>
-                                    <button type="button" class="layui-btn">删除选中</button>
+                                    <a th:href="@{'/admin/system/role/list/add'}" class="layui-btn ">新增</a>
                                 </div>
                                 <div th:replace="admin/compose::admin-table_header_right('请输入角色名称')">
                                 </div>
                                 <div style="clear:both;"></div>
                             </div>
-                            <table id="demo" lay-filter="test"></table>
+                            <table class="layui-table" lay-filter="demo"  id="demo">
+                            </table>
                             <script type="text/html" id="barDemo">
                                 <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-                                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                                <a  class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
                             </script>
+
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="layadmin-body-shade" layadmin-event="shade"></div>
         </div>
-        <div class="layadmin-body-shade" layadmin-event="shade"></div>
     </div>
 </div>
+
 <th:block th:replace="admin/footer::script"/>
-<script th:inline="none">
-    !function(){
-        let layer = layui.layer
-            ,table = layui.table;
-        //第一个实例
-        table.render({
-            elem: '#demo'
-            ,url: '/api/products' //数据接口
-            ,page: true //开启分页
-            ,parseData: function(res){ //res 即为原始返回的数据
-                return {
-                    "code": 0,
-                    "msg": res.message,
-                    "count": res.total,
-                    "data": res.records
-                };
-            }
-            ,request: {
-                pageName: 'current'
-                ,limitName: 'size'
-            }
-            ,cols: [[ //表头
-                {type: 'checkbox', fixed: 'left'}
-                ,{field: 'id', title: 'ID',width:100, unresize:true}
-                ,{field: 'productTitle', title: '产品标题', width:250, unresize:true}
-                ,{align: 'right', field: 'costPriceVal', title: '成本价/美元', width:150, unresize:true}
-                ,{align: 'right', field: 'priceVal', title: '售价/美元', width:150, unresize:true}
-                ,{field: 'countryName', title: '国家', width:250, unresize:true}
-                ,{field: 'providerName', title: '提供商', width:250, unresize:true}
-                ,{field: 'createdAt', title: '创建时间', width:180, unresize:true}
-                ,{field: 'updatedAt', title: '更新时间', width:180, unresize:true}
-                ,{fixed:'right',align: 'center', toolbar: '#barDemo', width:120}
-            ]]
-        });
-    }();
+<script src="/js/system/roleList.js">
+
 </script>
+
 
 </body>
 </html>

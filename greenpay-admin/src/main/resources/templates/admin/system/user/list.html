@@ -10,6 +10,7 @@
         <div th:replace="admin/header::nav"></div>
         <div th:replace="admin/side::menu"></div>
         <div class="layui-body">
+
             <div class="layadmin-tabsbody-item layui-show">
                 <div th:replace="admin/compose::layui-breadcrumb('系统管理','用户管理')"></div>
                 <div class="layui-fluid">
@@ -17,17 +18,14 @@
                         <div class="layui-card-header">用户管理</div>
                         <div class="layui-card-body" style="padding: 0">
                             <div class="admin-table_header">
-                                <div class="admin-table_header_left">
-                                    <button type="button" class="layui-btn">新增</button>
-                                    <button type="button" class="layui-btn">删除选中</button>
-                                </div>
+                                <button class="layui-btn " onclick="addUser()">新增</button>
                                 <div th:replace="admin/compose::admin-table_header_right('请输入用户名')">
                                 </div>
                                 <div style="clear:both;"></div>
                             </div>
-                            <table id="demo" lay-filter="test"></table>
-                            <script type="text/html" id="barDemo">
-                                <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                            <table id="uesrList" lay-filter="userTable"></table>
+                            <script type="text/html" id="optBar">
+                                <a th:href="@{'/admin/system/user/list/{{d.id}}/edit'}"  class="layui-btn layui-btn-xs">编辑</a>
                                 <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
                             </script>
                         </div>
@@ -38,39 +36,58 @@
         <div class="layadmin-body-shade" layadmin-event="shade"></div>
     </div>
 </div>
+
+<!--添加或编辑用户-->
+<div id="setUser" class="site-text" style="wmargin: 5%;display:none;">
+    <form id="userForm" class="layui-form" method="post" action="" style="margin-top: 20px;">
+        <input id="pageNum" type="hidden" name="pageNum"/>
+        <input id="roleIds" type="hidden" name="roleIds"/>
+        <input id="id" type="hidden" name="id"/>
+        <input id="version" type="hidden" name="version"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-inline">
+                <input id="username" name="username" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-inline">
+                <input id="email" name="email" lay-verify="required | email" autocomplete="off" class="layui-input" type="text"/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-inline">
+                <input id="password" name="password" autocomplete="off" class="layui-input"
+                       type="password" placeholder="请填写6位以上的密码"/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">确认密码</label>
+            <div class="layui-input-inline">
+                <input id="verifyPassword" name="verifyPassword" autocomplete="off"
+                       class="layui-input" type="password"  placeholder="请填写6位以上的密码"/>
+            </div>
+
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">授予角色</label>
+            <div class="layui-input-block" id="roleDiv">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn"  lay-submit="" lay-filter="userSubmit">提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+
 <th:block th:replace="admin/footer::script"/>
-<script th:inline="none">
-    !function(){
-        let layer = layui.layer
-            ,table = layui.table;
-        //第一个实例
-        table.render({
-            elem: '#demo'
-            ,url: '/api/v1/system/users' //数据接口
-            ,page: true //开启分页
-            ,parseData: function(res){ //res 即为原始返回的数据
-                return {
-                    "code": 0,
-                    "msg": res.message,
-                    "count": res.total,
-                    "data": res.records
-                };
-            }
-            ,request: {
-                pageName: 'current'
-                ,limitName: 'size'
-            }
-            ,cols: [[ //表头
-                {type: 'checkbox', fixed: 'left'}
-                ,{field: 'id', title: 'ID',width:100, unresize:true}
-                ,{field: 'username', title: '用户名', width:250, unresize:true}
-                ,{field: 'createdAt', title: '创建时间', width:180, unresize:true}
-                ,{field: 'updatedAt', title: '更新时间', width:180, unresize:true}
-                ,{fixed:'right',align: 'center', toolbar: '#barDemo', width:120}
-            ]]
-        });
-    }();
-</script>
+<script src="/js/system/userList.js"></script>
 
 </body>
 </html>

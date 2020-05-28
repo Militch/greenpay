@@ -34,7 +34,10 @@ public class Interface  extends BaseMapperEntity {
      * 支付接口名称
      */
     private String interfaceName;
-
+    /**
+     * 应用场景
+     */
+    private Integer scenarios;
     private Integer interfaceType;
     private String interfaceImpl;
     /**

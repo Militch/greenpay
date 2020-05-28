@@ -14,7 +14,9 @@ public class InterfaceInputDTO {
     private String interfaceName;
     @NotBlank(message = "支付类型不能为空")
     private String payTypeCode;
-    @NotNull(message = "接口调用方式为空")
+    @NotNull(message = "应用场景不能为空")
+    private Integer scenarios;
+    @NotNull(message = "接口调用方式不能为空")
     private Integer interfaceType;
     private String interfaceImpl;
     @NotNull(message = "状态不能为空")

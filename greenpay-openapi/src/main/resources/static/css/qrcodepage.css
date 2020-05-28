@@ -1,0 +1,81 @@
+body {
+    background-color: #fff;
+}
+.bd-w{
+    background: #fff;
+}
+.bd1{
+    padding: 3rem;
+    box-shadow: 0 6px 32px rgba(0,0,0,.13);
+    background-color: #FFFFFF;
+}
+.bd2 {
+    position: relative;
+    padding: 0;
+    padding: .5rem 1rem;
+    color: #fff;
+    line-height: 1.5rem;
+    background-color: rgb(44, 136, 211);
+}
+.bd2 p{
+    margin: 0;
+}
+.bd1 .pay-section {
+    padding-bottom: 3rem;
+    position: relative;
+}
+.bd1 .pay-section > img{
+    height: 2rem;
+}
+.bd1 .pay-section > img:first-child{
+    margin-right: .5rem;
+}
+.pay-section .img-logo {
+    width: 10rem;
+}
+.pay-section .pay-des {
+    margin-left: 1rem;
+    vertical-align: middle;
+    color: #666;
+
+}
+.bd2 .text-wrap{
+    margin-left: 3.5rem;
+}
+.bd2 img{
+    float: left;
+    height: 3rem;
+}
+.bd3 {
+    width: 48%;
+    margin-left: 3rem;
+}
+.order-section{
+    position: relative;
+    padding: 0;
+    overflow : hidden;
+    line-height: 5rem;
+}
+.order-left{
+    float: left;
+    font-size: .8rem;
+    padding-top: .188rem;
+    color: #333;
+}
+.order-right{
+    float: right;
+}
+.order-right .o-price em{
+    vertical-align: bottom;
+    font-style: normal;
+    color: #666;
+}
+.order-right .o-price strong{
+    font-style: normal;
+    font-size: 1.5rem;
+    color: #e31613;
+}
+#qrcode img{
+    width: 100%;
+    padding: .5rem;
+}

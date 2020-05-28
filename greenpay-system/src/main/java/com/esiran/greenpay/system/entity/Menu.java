@@ -1,9 +1,6 @@
 package com.esiran.greenpay.system.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
 import com.esiran.greenpay.common.entity.BaseMapperEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,7 +33,7 @@ public class Menu extends BaseMapperEntity {
     /**
      * 菜单类型（1:目录,2:菜单,3:按钮）
      */
-    private Boolean type;
+    private Integer type;
 
     /**
      * 目录图标

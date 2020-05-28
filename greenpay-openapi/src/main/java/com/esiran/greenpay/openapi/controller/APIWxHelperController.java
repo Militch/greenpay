@@ -60,17 +60,17 @@ public class APIWxHelperController {
     }
 
     private String savePayload2cache(
-            String wxMpAppId, String wxMpSecret,
-            String mchId,  String redirectUrl){
+            String wxMpAppId,
+            String wxMpSecret,
+            String redirectUrl){
         if (wxMpAppId == null || wxMpSecret == null
-                || mchId == null || redirectUrl == null){
+                || redirectUrl == null){
             return null;
         }
         Map<String,String> payload = new HashMap<>();
         payload.put("wxMpAppId", wxMpAppId);
         payload.put("wxMpSecret", wxMpSecret);
         payload.put("redirectUrl",redirectUrl);
-        payload.put("mchId", mchId);
         return payloadService.savePayload2cache(PAYLOAD_KEY_PRE,payload,180,TimeUnit.SECONDS);
     }
 
@@ -79,10 +79,8 @@ public class APIWxHelperController {
         if (payload == null) return null;
         String wxMpAppId = payload.get("wxMpAppId");
         String wxMpSecret = payload.get("wxMpSecret");
-        String mchId = payload.get("mchId");
         String redirectUrl = payload.get("redirectUrl");
-        if (wxMpAppId == null || wxMpSecret == null
-                || mchId == null || redirectUrl == null){
+        if (wxMpAppId == null || wxMpSecret == null|| redirectUrl == null){
             return null;
         }
         WxMpDefaultConfigImpl config = new WxMpDefaultConfigImpl();
@@ -98,39 +96,26 @@ public class APIWxHelperController {
         }
         if (token == null) return null;
         String openId = token.getOpenId();
-        Merchant merchant = merchantService.getById(mchId);
-        if (merchant == null) return null;
-        ApiConfigDTO apiConfig = apiConfigService.findByMerchantId(merchant.getId());
-        if (apiConfig == null) return null;
         Map<String,String> out = new HashMap<>();
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        out.put("timestamp",timestamp);
         out.put("openId",openId);
-        out.put("signType","md5");
         String principal = MapUtil.sortAndSerialize(out);
-        SignType signType = new Md5SignType(principal);
-        SignVerify signVerify = signType.sign(apiConfig.getApiSecurity());
-        String sign = signVerify.getSign();
         Pattern hasArgsPattern = Pattern.compile("[a-zA-z]+://[^\\s]+?\\?[^\\s]*");
         Matcher hasArgsMatcher = hasArgsPattern.matcher(redirectUrl);
-        String redirect = String.format("%s?%s&sign=%s",redirectUrl,principal,sign);
+        String redirect = String.format("%s?%s",redirectUrl,principal);
         if (hasArgsMatcher.matches()){
-            redirect = String.format("%s&%s&sign=%s",redirectUrl,principal,sign);
+            redirect = String.format("%s&%s",redirectUrl,principal);
         }
         return redirect;
     }
 
     @GetMapping("/openid")
     public String openId(
-            HttpServletRequest request,
             @Valid WxOPenIdInputDTO wxOPenIdInputDTO,
             HttpServletResponse response) {
-        Merchant merchant = OpenAPISecurityUtils.getSubject();
         String redirectUrl = wxOPenIdInputDTO.getRedirectUrl();
         String wxMpAppId = "wx2aeda339f56138bf";
         String wxMpSecret = "731787f51247a33c4ff210cd613dd780";
-        String payloadId = savePayload2cache(wxMpAppId,wxMpSecret,
-                String.valueOf(merchant.getId()),redirectUrl);
+        String payloadId = savePayload2cache(wxMpAppId,wxMpSecret,redirectUrl);
         if (payloadId == null){
             response.setStatus(404);
             return null;

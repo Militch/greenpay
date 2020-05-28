@@ -1,4 +1,4 @@
-package com.esiran.greenpay.system.entity;
+package com.esiran.greenpay.system.entity.vo;
 
 import lombok.Data;
 

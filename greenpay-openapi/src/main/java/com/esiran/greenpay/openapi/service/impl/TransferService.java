@@ -175,6 +175,7 @@ public class TransferService implements ITransferService {
         } catch (Exception e) {
             if (e instanceof APIException)
                 throw new APIException(e.getMessage(),((APIException) e).getCode(),((APIException) e).getStatus());
+<<<<<<< HEAD
             if (!StringUtils.isEmpty(e.getMessage())){
                 throw new APIException(e.getMessage(),"CALL_AGENT_PAY_PASSAGE_ERROR",500);
             }
@@ -218,6 +219,9 @@ public class TransferService implements ITransferService {
             batchOrder.setBatchNo(batchInputDTO.getBatchNo());
             TransferInputDTO transferInputDTO = modelMapper.map(batchOrder, TransferInputDTO.class);
             createOneByInput(mchId, transferInputDTO);
+=======
+            throw new APIException("系统错误，调用代付通道执行失败","CALL_",401);
+>>>>>>> 765a19b08307b7af78cde9fb41e2050893c3e499
         }
         AgentPayBatch agentPayBatch = modelMapper.map(batchInputDTO, AgentPayBatch.class);
         agentPayBatchService.save(agentPayBatch);

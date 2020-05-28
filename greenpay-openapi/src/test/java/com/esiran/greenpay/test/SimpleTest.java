@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
@@ -51,6 +52,7 @@ public class SimpleTest {
     @Test
     public void test2() throws UnsupportedEncodingException {
 
+<<<<<<< HEAD
         Pattern pattern = Pattern.compile("(^|;)query\\:(.+?)(;|$)");
         Matcher m = pattern.matcher("corder:pingAnPlugin;query:PingAnQueryPlugin");
         System.out.println(m.find());
@@ -99,6 +101,15 @@ public class SimpleTest {
 
 
 
+=======
+
+        String s = "123465789";
+        int i = 222 - s.length();
+        char[] cs = new char[i];
+        Arrays.fill(cs,'0');
+        String a = s.concat(new String(cs));
+        System.out.println(a);
+>>>>>>> 765a19b08307b7af78cde9fb41e2050893c3e499
 //        String body = "<form name='fm' method='post' action='http://ggccapi.genguchangcun.cn/mfe88/codePay.php'><input type='hidden' name='orderSource' value='1' /><input type='hidden' name='orderNo' value='666031040836281' /><input type='hidden' name='signVersion' value='V3.0' /><input type='hidden' name='sign' value='Our6Rb5canP2hd6OwwNS1bqqusOuQCrjHdTtPY80xpIRY75fBPuk5WF33C23SVohe0%2F1xIyNI9EP%0D%0AOKD5DyYuvOXSdnyks%2BXb5vX0ho%2BsypatENveUzYLi28XCVXVdFdjxqjm1TP4R5Lp8dAxSR8qULoK%0D%0A0mLf0iZC6L8rqSla8JY%3D%0D%0A' /><input type='hidden' name='riskVersion' value='V3.0' /><input type='hidden' name='version' value='V3.0' /><input type='hidden' name='productName' value='666031040836281' /><input type='hidden' name='orderAmount' value='900' /><input type='hidden' name='orderTime' value='20200510230717' /><input type='hidden' name='payChannelCode' value='CX_DC' /><input type='hidden' name='service' value='getCodeUrl' /><input type='hidden' name='curCode' value='CNY' /><input type='hidden' name='merchantNo' value='JK0002958' /><input type='hidden' name='bgUrl' value='http://122.114.215.124:8972/notify' /></form><script language='JavaScript' > document.fm.submit();</script>";
 //        Pattern pattern = Pattern.compile("^<form .+$",Pattern.DOTALL);
 //        Matcher matcher = pattern.matcher(body);

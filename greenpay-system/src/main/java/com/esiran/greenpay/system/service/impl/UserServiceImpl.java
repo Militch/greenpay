@@ -6,11 +6,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.util.TOTPUtil;
 import com.esiran.greenpay.system.entity.User;
-import com.esiran.greenpay.system.entity.UserInputDTO;
-import com.esiran.greenpay.system.entity.UserInputVo;
+import com.esiran.greenpay.system.entity.dot.UserDTO;
+import com.esiran.greenpay.system.entity.dot.UserInputDto;
+import com.esiran.greenpay.system.entity.vo.UserInputDTO;
+import com.esiran.greenpay.system.entity.vo.UserInputVo;
 import com.esiran.greenpay.system.mapper.UserMapper;
 import com.esiran.greenpay.system.service.IUserService;
-import com.google.common.io.BaseEncoding;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,36 @@ import java.util.regex.Pattern;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
     private static final ModelMapper modelMapper = new ModelMapper();
+
+
+
+    @Override
+    public User addUser(UserInputDto userInputDto) throws Exception {
+        User user = modelMapper.map(userInputDto, User.class);
+        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(User::getUsername, user.getUsername()).or()
+                .eq(User::getEmail, user.getEmail());
+        User oldUser = getOne(lambdaQueryWrapper);
+        if (oldUser != null) {
+            throw new Exception("用户名或邮箱已经存在");
+        }
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(userInputDto.getCreatedAt());
+        save(user);
+        return  user ;
+    }
+
+    @Override
+    public UserDTO selectUserById(Integer userId) throws PostResourceException {
+        User user = getById(userId);
+        if (user == null) {
+            throw new PostResourceException("用户不存在");
+        }
+        return modelMapper.map(user, UserDTO.class);
+    }
+
+
+
     @Override
     public void updateUser(Integer userId, UserInputDTO userInputDTO) throws PostResourceException {
         User oldUser = this.getById(userId);
