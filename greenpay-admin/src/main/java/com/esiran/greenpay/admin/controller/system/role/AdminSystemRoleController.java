@@ -4,7 +4,7 @@ import com.esiran.greenpay.common.entity.APIError;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.system.entity.Role;
-import com.esiran.greenpay.system.entity.dot.UserRoleDto;
+import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
 import com.esiran.greenpay.system.service.IRoleService;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -70,7 +70,7 @@ public class AdminSystemRoleController {
     }
 
     @PostMapping("/list/edit/{id}")
-    public String update(@PathVariable Long id, UserRoleDto roleDto) throws PostResourceException {
+    public String update(@PathVariable Long id, UserRoleInputDto roleDto) throws PostResourceException {
         if (StringUtils.isBlank(roleDto.getName())) {
             throw new PostResourceException("角色名称不能为空");
         }

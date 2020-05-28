@@ -6,13 +6,14 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 /**
  * @author han
  */
 @Data
 @ApiModel("RoleDto")
-public class UserRoleDto  extends BaseMapperEntity {
+public class UserRoleInputDto {
 
     /**
      * 角色名称
@@ -34,4 +35,14 @@ public class UserRoleDto  extends BaseMapperEntity {
     @NotBlank(message = "角色编码不能为空")
     private String permIds;
 
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updatedAt;
 }

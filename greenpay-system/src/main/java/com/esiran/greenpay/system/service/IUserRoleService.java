@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.system.entity.UserRole;
 import com.esiran.greenpay.system.entity.dot.UserInputDto;
-import com.esiran.greenpay.system.entity.dot.UserRoleDto;
+import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import java.util.List;
  * @since 2020-04-13
  */
 public interface IUserRoleService extends IService<UserRole> {
-    IPage<UserRoleDto> selectUserRoles(Page<UserRole> userVoPage);
+    IPage<UserRoleInputDto> selectUserRoles(Page<UserRole> userVoPage);
 
     boolean addUserAndRole(UserInputDto userInputDto) throws Exception;
 

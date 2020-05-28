@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.system.entity.Role;
 import com.esiran.greenpay.system.entity.RoleMenu;
-import com.esiran.greenpay.system.entity.dot.UserRoleDto;
+import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
 import com.esiran.greenpay.system.service.IRoleMenuService;
 import com.esiran.greenpay.system.service.IRoleService;
 import io.swagger.annotations.Api;
@@ -61,7 +61,7 @@ public class APIAdminSystemRoleController {
     @ApiOperation("更新用户角色")
     @PutMapping
 //    @Transactional
-    public boolean upRole(@Valid UserRoleDto userRoleDto) throws Exception{
+    public boolean upRole(@Valid UserRoleInputDto userRoleDto) throws Exception{
         Role newRole = modelMapper.map(userRoleDto, Role.class);
         newRole.setRoleCode(userRoleDto.getPermIds());
         //得到新的权限
@@ -86,7 +86,7 @@ public class APIAdminSystemRoleController {
 
 
     @PostMapping("/add")
-    public boolean add(@Valid UserRoleDto userRoleDto) throws PostResourceException {
+    public boolean add(@Valid UserRoleInputDto userRoleDto) throws PostResourceException {
         roleService.save(userRoleDto);
         return true;
     }
@@ -94,9 +94,9 @@ public class APIAdminSystemRoleController {
 
     @ApiOperation("获取指定ID用户角色")
     @GetMapping("/{id}")
-    public UserRoleDto get(@PathVariable("id") Long userId) throws Exception{
+    public UserRoleInputDto get(@PathVariable("id") Long userId) throws Exception{
         Role role = roleService.selectById(userId);
-        UserRoleDto roleDto = modelMapper.map(role, UserRoleDto.class);
+        UserRoleInputDto roleDto = modelMapper.map(role, UserRoleInputDto.class);
         return roleDto;
     }
 

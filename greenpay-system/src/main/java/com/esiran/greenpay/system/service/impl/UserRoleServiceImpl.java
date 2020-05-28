@@ -9,14 +9,16 @@ import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.system.entity.User;
 import com.esiran.greenpay.system.entity.UserRole;
 import com.esiran.greenpay.system.entity.dot.UserInputDto;
-import com.esiran.greenpay.system.entity.dot.UserRoleDto;
+import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
 import com.esiran.greenpay.system.mapper.UserRoleMapper;
 import com.esiran.greenpay.system.service.IUserRoleService;
 import com.esiran.greenpay.system.service.IUserService;
+import org.springframework.data.redis.connection.ConnectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,7 +40,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     }
 
     @Override
-    public IPage<UserRoleDto> selectUserRoles(Page<UserRole> userVoPage) {
+    public IPage<UserRoleInputDto> selectUserRoles(Page<UserRole> userVoPage) {
         QueryWrapper<UserRole> wrapper = new QueryWrapper<>();
         return this.baseMapper.selectRole(userVoPage,wrapper);
     }
@@ -76,13 +78,15 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         lambdaQueryWrapper.eq(UserRole::getUserId, userId);
         remove(lambdaQueryWrapper);
 
-        for (String roleId : roleIds) {
-            UserRole role = new UserRole();
-            role.setUserId(userId);
-            role.setRoleId(Integer.valueOf(roleId));
-            role.setCreatedAt(LocalDateTime.now());
-            role.setUpdatedAt(role.getCreatedAt());
-            save(role);
+        if (roleIds.length > 0 && !roleIds[0].equals("")) {
+            for (String roleId : roleIds) {
+                UserRole role = new UserRole();
+                role.setUserId(userId);
+                role.setRoleId(Integer.valueOf(roleId));
+                role.setCreatedAt(LocalDateTime.now());
+                role.setUpdatedAt(role.getCreatedAt());
+                save(role);
+            }
         }
 
         return false;
@@ -115,7 +119,6 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         user.setUsername(userInputDto.getUsername());
         user.setEmail(userInputDto.getEmail());
 
-        user.setPassword(userInputDto.getPassword());
         user.setUpdatedAt(LocalDateTime.now());
         userService.updateById(user);
 

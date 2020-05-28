@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.system.entity.Role;
 import com.esiran.greenpay.system.entity.RoleMenu;
-import com.esiran.greenpay.system.entity.dot.UserRoleDto;
+import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
 import com.esiran.greenpay.system.mapper.RoleMapper;
 import com.esiran.greenpay.system.service.IRoleMenuService;
 import com.esiran.greenpay.system.service.IRoleService;
@@ -47,7 +47,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
     @Override
     @Transactional
-    public boolean save(UserRoleDto roleDto) throws PostResourceException {
+    public boolean save(UserRoleInputDto roleDto) throws PostResourceException {
         if (StringUtils.isBlank(roleDto.getName())) {
             throw new PostResourceException("角色名称不能为空");
         }
@@ -81,7 +81,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     }
 
     @Override
-    public boolean edit(UserRoleDto roleDto) throws PostResourceException {
+    public boolean edit(UserRoleInputDto roleDto) throws PostResourceException {
         LambdaQueryWrapper<Role> lambdaQueryWrapper = new LambdaQueryWrapper<>();
 
         lambdaQueryWrapper.eq(Role::getName, roleDto.getName());
