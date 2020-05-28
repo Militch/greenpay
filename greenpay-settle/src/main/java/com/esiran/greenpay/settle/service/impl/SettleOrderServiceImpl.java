@@ -450,7 +450,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         }
         hourAmount.addAll(hours);
         Collections.sort(hourAmount);
-        data.put("name", "定单总额");
+        data.put("name", "交易趋势");
         data.put("val", hourAmount);
         map.put("orderAmount", data);
         //--end
@@ -477,7 +477,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
         hourAmount.addAll(hours);
         Collections.sort(hourAmount);
-        data.put("name", "交易趋势");
+        data.put("name", "订单数量");
         data.put("val", hourAmount);
         map.put("tradingTrends", data);
         //end
