@@ -87,6 +87,9 @@
 </div>
 <th:block th:replace="admin/footer::script"/>
 <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.13.0/js/md5.min.js"></script>
+<script th:inline="javascript">
+    let userRoles = [[${userRoles}]];
+</script>
 <script th:inline="none">
     !function(){
 
@@ -103,7 +106,7 @@
                 $('input[name="roleIds"]').val(arr_box);
 
                 let pwd = $("#passwordInput").val();
-                if (pwd.length >= 6) {
+                if (typeof pwd !== "undefined" && pwd!==null && pwdpwd.length >= 6) {
                     let ps = md5(pwd);
                     $("input[name='password']").val(ps);
                 }
@@ -118,8 +121,10 @@
                     //显示角色数据
                     $("#roleDiv").empty();
                     $.each(data.records, function (index, item) {
+                        let include = userRoles.includes(item.id);
                         // <input type="checkbox" name="roleId" title="发呆" lay-skin="primary"/>
-                        var roleInput=$("<input type='checkbox' name='roleId' value="+item.id+" title="+item.name+" lay-skin='primary'/>");
+                        let checkeds = include?'checked':'';
+                        let roleInput = `<input type='checkbox' name='roleId' value="${item.id}" title="${item.name}" ${checkeds} lay-skin="primary"/>`;
                         var div=$("<div class='layui-unselect layui-form-checkbox' lay-skin='primary'>" +
                             "<span>"+item.name+"</span><i class='layui-icon'>&#xe626;</i>" +
                             "</div>");

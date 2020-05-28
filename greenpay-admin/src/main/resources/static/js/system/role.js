@@ -37,7 +37,7 @@
                 }
 
                 var name = data.field.name;
-                var roleCode =permIds;
+                var roleCode =data.field.roleCode;
                 var role = {name:name,roleCode:roleCode,permIds:permIds}
 
                 $.ajax({
@@ -55,8 +55,14 @@
                         }
                     },
                     error: function (data) {
-                        alert(data.responseJSON.message);
-                        layer.closeAll();
+                        er = $.parseJSON(data.responseText);
+                        let errors = er.errors;
+                        if (typeof error !== "undefined" && errors !== null && errors.length > 0) {
+                            layer.alert(errors[0].message);
+                        }else {
+                            layer.alert(er.message);
+                        }
+                        // layer.closeAll();
                     }
                 });
                 return false;

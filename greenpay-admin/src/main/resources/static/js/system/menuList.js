@@ -6,6 +6,7 @@ let $ = layui.jquery,
     ,form = layui.form;
 !(function () {
 
+
     var table = layui.table
         ,form = layui.form,
         layer = layui.layer;
