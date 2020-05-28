@@ -41,7 +41,7 @@
                     <div class="layui-row">
                         <div class="layui-col-md12" style="padding: 10px 20px;">
                             <div class="layui-card" id="orderNum">
-                                <div class="layui-card-header">订单数量</div>
+                                <div class="layui-card-header">订单总额</div>
                                 <div class="layui-card-body">
                                     <div id="orderNumChart" style="width: 100%; height: 250px"></div>
                                 </div>
@@ -111,14 +111,15 @@
         document.getElementById('statistical').innerHTML = statisticalStr;
 
         // 交易趋势
-        let tradingTrends = homeDataJson.tradingTrends;
-        let trendssuccessAmount = [];
-        let trendsAcquire = [];
-        let trendsTimeArr = [];
-        tradingTrends.val.forEach(item=>{
-            trendsAcquire.push(item.count)
-            trendssuccessAmount.push(item.successCount)
-            trendsTimeArr.push(`${item.name}:00`)
+        let orderAmount = homeDataJson.orderAmount;
+        console.log(orderAmount)
+        let ordersuccessAmount = [];
+        let orderAcquire = [];
+        let orderTimeArr = [];
+        orderAmount.val.forEach(item=>{
+            orderAcquire.push((item.amount/100).toFixed(2))
+            ordersuccessAmount.push((item.successAmount/100).toFixed(2))
+            orderTimeArr.push(`${item.name}:00`)
         })
         let trendsChart = echarts.init(document.getElementById('trendsChart'));
         let trendsOption = {
@@ -138,7 +139,7 @@
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
-                data: trendsTimeArr
+                data: orderTimeArr
             },
             yAxis: {
                 type: 'value'
@@ -147,12 +148,12 @@
                 {
                     name: '收单总额',
                     type: 'line',
-                    data: trendsAcquire
+                    data: orderAcquire
                 },
                 {
                     name: '成交总额',
                     type: 'line',
-                    data: trendssuccessAmount
+                    data: ordersuccessAmount
                 }
             ]
         }
@@ -194,15 +195,15 @@
                               <div class="layui-card-body" style="padding:0">${str}</div>`;
 
 
-        // 订单数量
-        let orderAmount = homeDataJson.orderAmount;
-        let ordersuccessAmount = [];
-        let orderAcquire = [];
-        let orderTimeArr = [];
-        orderAmount.val.forEach(item=>{
-            orderAcquire.push(item.amount)
-            ordersuccessAmount.push(item.successAmount)
-            orderTimeArr.push(`${item.name}:00`)
+        // 订单总额
+        let tradingTrends = homeDataJson.tradingTrends;
+        let TrendssuccessAmount = [];
+        let TrendsAcquire = [];
+        let TrendsTimeArr = [];
+        tradingTrends.val.forEach(item=>{
+            TrendsAcquire.push(item.count)
+            TrendssuccessAmount.push(item.successCount)
+            TrendsTimeArr.push(`${item.name}:00`)
         })
         let orderNumChart = echarts.init(document.getElementById('orderNumChart'));
         let orderNumOption = {
@@ -222,7 +223,7 @@
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
-                data: orderTimeArr
+                data: TrendsTimeArr
             },
             yAxis: {
                 type: 'value'
@@ -231,12 +232,12 @@
                 {
                     name: '收单笔数',
                     type: 'line',
-                    data: orderAcquire
+                    data: TrendsAcquire
                 },
                 {
                     name: '成交笔数',
                     type: 'line',
-                    data: ordersuccessAmount
+                    data: TrendssuccessAmount
                 }
             ]
         }
@@ -342,11 +343,11 @@
         let precentArr = [];
         precent.val.forEach(item=>{
             let obj = {};
-            if(item.status===-1){
+            if(item.status===-2){
                 obj.value = item.count;
                 obj.name = "交易失败"
             }
-            if(item.status===-2){
+            if(item.status===-1){
                 obj.value = item.count;
                 obj.name = "交易取消"
             }
