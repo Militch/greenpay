@@ -5,6 +5,7 @@ import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.system.entity.Menu;
 import com.esiran.greenpay.system.entity.dot.MenuDTO;
 import com.esiran.greenpay.system.service.IMenuService;
+import com.google.gson.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -18,28 +19,35 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
 @RequestMapping("/admin/system/menu")
 public class AdminSystemMenuController {
 
-    private IMenuService iMenuService;
-
+    private final IMenuService iMenuService;
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class,new LocalDateAdapter())
+            .disableHtmlEscaping().create();
     private static final ModelMapper MODEL_MAPPER = new ModelMapper();
-
+    public static class LocalDateAdapter implements JsonSerializer<LocalDateTime> {
+        @Override
+        public JsonElement serialize(LocalDateTime localDateTime, Type type, JsonSerializationContext jsonSerializationContext) {
+            return new JsonPrimitive(localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }
+    }
     public AdminSystemMenuController(IMenuService iMenuService) {
         this.iMenuService = iMenuService;
     }
 
     @GetMapping("/list")
-    @ResponseBody
-    public ModelAndView list(){
-        ModelAndView modelAndView = new ModelAndView("admin/system/menu/list");
-//        List<Menu> list = iMenuService.list();
-//        modelAndView.addObject("permList",list);
-//        modelAndView.addObject("msg", "ok");
-        return modelAndView;
+    public String list(ModelMap modelMap){
+        List<MenuDTO> md = iMenuService.all();
+        modelMap.addAttribute("listJsonString", gson.toJson(md));
+        return "admin/system/menu/list";
     }
 
     @GetMapping("/list/{menuId}/edit")

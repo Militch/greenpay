@@ -8,7 +8,7 @@
     </select>
 
 
-    <resultMap id="rolevo" type="com.esiran.greenpay.system.entity.dot.UserRoleDto">
+    <resultMap id="rolevo" type="com.esiran.greenpay.system.entity.dot.UserRoleInputDto">
         <id property="id" column="role_id"/>
         <result property="name" column="name"/>
         <result property="roleCodes" column="roleCodes"/>

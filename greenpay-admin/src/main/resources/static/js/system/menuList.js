@@ -6,77 +6,27 @@ let $ = layui.jquery,
     ,form = layui.form;
 !(function () {
 
-    layui.use('table', function(){
-        var table = layui.table
-            ,form = layui.form,
-            layer = layui.layer;
+    var table = layui.table
+        ,form = layui.form,
+        layer = layui.layer;
+    //监听工具条
+    table.on('tool(userTable)', function(obj){
+        var data = obj.data;
+        if(obj.event === 'del'){
+            delUser(obj,layer,data);
+        } else if(obj.event === 'edit'){
+            //编辑
 
-        tableIns=table.render({
-            elem: '#menuList'
-            ,url:'/admin/api/v1/system/menus'
-            ,cellMinWidth: 80
-            ,page: true
-            ,parseData: function(res){ //res 即为原始返回的数据
-                return {
-                    "code": 0,//解析接口状态
-                    // "msg": res.message,//解析提示文本
-                    // "count": res.total,//解析提示文本
-                    "records": res//解析数据列表
-                };
-            },
-            request: {
-                pageName: 'current' //页码的参数名称，默认：current
-                ,limitName: 'size' //每页数据量的参数名，默认：size
-            },response:{
-                statusName: 'code' //数据状态的字段名称，默认：code
-                ,statusCode: 0 //成功的状态码，默认：0
-                ,countName: 'count' //数据总数的字段名称，默认：count
-                ,dataName: 'records' //数据列表的字段名称，默认：data
-            }
-            ,cols: [[
-                {type:'checkbox'}//{type: 'checkbox', fixed: 'left'}
-                ,{field:'id', title:'ID',width:80, unresize: true, sort: true}
-                ,{field:'title', title:'权限名称', width:200,}
-                ,{field: 'mark', title: '标识', width:200}
-                ,{field: 'type', title: '权限分类', width:200}
-                ,{field: 'path', title: '权限路径', width:200}
-                ,{field: 'createdAt', title: '创建时间', width:200, unresize:true}
-                ,{field: 'updatedAt', title: '更新时间', width:200, unresize:true}
-                ,{fixed:'right', title:'操作',width:0,align:'left', toolbar:'#optBar'}
-            ]]
-            ,  done: function(res, curr, count){
-                //如果是异步请求数据方式，res即为你接口返回的信息。
-                //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
-                //console.log(res);
-                //得到当前页码
-                //console.log(curr);
-                //得到数据总量
-                //console.log(count);
-                pageCurr=curr;
-            }
-        });
-
-        //监听工具条
-        table.on('tool(userTable)', function(obj){
-            var data = obj.data;
-            if(obj.event === 'del'){
-                delUser(obj,layer,data);
-            } else if(obj.event === 'edit'){
-                //编辑
-
-            } else if(obj.event === 'recover'){
-                //恢复
-                recoverUser(data,data.id);
-            }
-        });
-        //监听提交
-        form.on('submit(userSubmit)', function(data){
-            formSubmit(data);
-            return false;
-        });
-
+        } else if(obj.event === 'recover'){
+            //恢复
+            recoverUser(data,data.id);
+        }
     });
-
+    //监听提交
+    form.on('submit(userSubmit)', function(data){
+        formSubmit(data);
+        return false;
+    });
     //操作
     layui.use('form', function(){
         var form = layui.form;
@@ -154,6 +104,7 @@ function edit(id,style){
                 $("input[type='radio'][value='2']").attr("checked", data.type == 2 ? true : false);
                 form.render()
                 $("#parentId").val(data.parentId);
+
                 // var sex = 2;
                 // $(":radio[name='rbsex'][value='" + sex + "']").prop("checked", "checked");
                 // data.type==0?$("input[name='style']").val(1).checked:$("input[name='style']").val(2).checked;
@@ -178,7 +129,7 @@ function edit(id,style){
     }
 }
 //开通权限
-function addPerm(parentId,flag){
+function addPerm(parentId,dataType,flag){
     if(null!=parentId){
         //flag[0:开通权限；1：新增子节点权限]
         //style[0:编辑；1：新增]
@@ -190,6 +141,14 @@ function addPerm(parentId,flag){
             $("#style").val(1);
             //设置父id
             $("#parentId").val(parentId);
+        }
+        if(dataType==2){
+            layer.alert("按钮类型不能添加子节点");
+            return false;
+            // $('#radio').css('display','none')
+        }else{
+            $('#radio').css('display','block')
+
         }
         layer.open({
             type:1,

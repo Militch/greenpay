@@ -10,13 +10,14 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.time.LocalDateTime;
 
 /**
  * @author han
  */
 @Data
 @ApiModel("UserInput")
-public class UserInputDto  extends BaseMapperEntity {
+public class UserInputDto  {
 
     /**
      * 用户名
@@ -31,7 +32,7 @@ public class UserInputDto  extends BaseMapperEntity {
      * 用户密码
      */
     @ApiModelProperty("用户密码")
-    @NotBlank(message = "用户密码不能为空")
+//    @NotBlank(message = "用户密码不能为空")
     private String password;
 
 
@@ -45,8 +46,17 @@ public class UserInputDto  extends BaseMapperEntity {
     private String email;
 
     @ApiModelProperty("用户角色")
-    @NotBlank(message = "请选择正确的角色")
     private String roleIds;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updatedAt;
 
 
 }

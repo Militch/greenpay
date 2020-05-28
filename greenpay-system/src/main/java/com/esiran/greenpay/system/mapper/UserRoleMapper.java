@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.esiran.greenpay.system.entity.UserRole;
-import com.esiran.greenpay.system.entity.dot.UserRoleDto;
+import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -18,7 +18,7 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface UserRoleMapper extends BaseMapper<UserRole> {
 
-    IPage<UserRoleDto> selectRole(IPage<UserRole> userVoPage, @Param(Constants.WRAPPER) Wrapper<UserRole> wrapper);
+    IPage<UserRoleInputDto> selectRole(IPage<UserRole> userVoPage, @Param(Constants.WRAPPER) Wrapper<UserRole> wrapper);
 
-    UserRoleDto selectRolesById(@Param(Constants.WRAPPER) Wrapper<UserRole> wrapper);
+    UserRoleInputDto selectRolesById(@Param(Constants.WRAPPER) Wrapper<UserRole> wrapper);
 }

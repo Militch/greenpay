@@ -120,6 +120,9 @@ function submitAjax(obj){
         type: "POST",
         data: $("#userForm").serialize(),
         url: "/admin/api/v1/system/users",
+        handlers:{
+          '_isView':'true'
+        },
         success: function (data) {
             if (data ) {
                 layer.alert("操作成功",function(){
@@ -139,17 +142,13 @@ function submitAjax(obj){
         },
         error: function (data) {
             var er = $.parseJSON(data.responseText);
-            var sr ;
-            if (er.errors.length > 1) {
-                $.each(er.errors, function(i, item) {
-                    sr = item.message;
-                    return false;
-                });
+            let error = er.errors;
+            if (typeof error !== "undefined" && error !== null && error.length > 0) {
+                layer.alert(error[0].message);
             }else {
-                sr = er.errors[0].message;
+                layer.alert(er.message);
             }
 
-            layer.alert(sr);
 
         }
     });
@@ -164,10 +163,10 @@ function checkRole(){
     }
     //校验是否授权
     var roleIds = array.join(",");
-    if(roleIds==null || roleIds==''){
-        layer.alert("请您给该用户添加对应的角色！")
-        return false;
-    }
+    // if(roleIds==null || roleIds==''){
+    //     layer.alert("请您给该用户添加对应的角色！")
+    //     return false;
+    // }
     $("#roleIds").val(roleIds);
     return true;
 }

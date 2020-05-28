@@ -3,20 +3,24 @@ package com.esiran.greenpay.system.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.system.entity.User;
 import com.esiran.greenpay.system.entity.UserRole;
 import com.esiran.greenpay.system.entity.dot.UserInputDto;
-import com.esiran.greenpay.system.entity.dot.UserRoleDto;
+import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
 import com.esiran.greenpay.system.mapper.UserRoleMapper;
 import com.esiran.greenpay.system.service.IUserRoleService;
 import com.esiran.greenpay.system.service.IUserService;
+import org.springframework.data.redis.connection.ConnectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,24 +42,28 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     }
 
     @Override
-    public IPage<UserRoleDto> selectUserRoles(Page<UserRole> userVoPage) {
+    public IPage<UserRoleInputDto> selectUserRoles(Page<UserRole> userVoPage) {
         QueryWrapper<UserRole> wrapper = new QueryWrapper<>();
         return this.baseMapper.selectRole(userVoPage,wrapper);
     }
 
     @Override
     @Transactional
-    public boolean addUserAndRole(UserInputDto userInputDto) throws PostResourceException {
+    public boolean addUserAndRole(UserInputDto userInputDto) throws APIException {
+
         User user = userService.addUser(userInputDto);
         String[] split = userInputDto.getRoleIds().split(",");
-        UserRole role = new UserRole();
-        for (String s : split) {
-            Integer id = Integer.valueOf(s);
-            role.setUserId(user.getId());
-            role.setRoleId(id);
-            this.save(role);
+        if (split.length>0 && !split[0].equals("")) {
+            UserRole role = new UserRole();
+            for (String s : split) {
+                Integer id = Integer.valueOf(s);
+                role.setUserId(user.getId());
+                role.setRoleId(id);
+                this.save(role);
+            }
         }
-        return false;
+
+        return true;
     }
 
     @Override
@@ -72,14 +80,17 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         lambdaQueryWrapper.eq(UserRole::getUserId, userId);
         remove(lambdaQueryWrapper);
 
-        for (String roleId : roleIds) {
-            UserRole role = new UserRole();
-            role.setUserId(userId);
-            role.setRoleId(Integer.valueOf(roleId));
-            role.setCreatedAt(LocalDateTime.now());
-            role.setUpdatedAt(role.getCreatedAt());
-            save(role);
+        if (roleIds.length > 0 && !roleIds[0].equals("")) {
+            for (String roleId : roleIds) {
+                UserRole role = new UserRole();
+                role.setUserId(userId);
+                role.setRoleId(Integer.valueOf(roleId));
+                role.setCreatedAt(LocalDateTime.now());
+                role.setUpdatedAt(role.getCreatedAt());
+                save(role);
+            }
         }
+
 
         return false;
     }
@@ -111,7 +122,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         user.setUsername(userInputDto.getUsername());
         user.setEmail(userInputDto.getEmail());
 
-        user.setPassword(userInputDto.getPassword());
+        user.setUpdatedAt(LocalDateTime.now());
         userService.updateById(user);
 
         //更新用戶權限

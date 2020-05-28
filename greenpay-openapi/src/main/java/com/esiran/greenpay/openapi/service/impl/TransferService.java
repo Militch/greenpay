@@ -151,10 +151,10 @@ public class TransferService implements ITransferService {
             Plugin<AgentPayOrder> plugin = pluginLoader.loadForClassPath(ints.getInterfaceImpl());
             plugin.apply(agentPayOrderFlow);
             agentPayOrderFlow.execDependent("create");
-//            agentPayOrderFlow.getResults();
-//            redisDelayQueueClient.sendDelayMessage("order:notify",gson.toJson(messagePayload),0);
         } catch (Exception e) {
-//            return agentPayOrderFlow.getFailedString();
+            if (e instanceof APIException)
+                throw new APIException(e.getMessage(),((APIException) e).getCode(),((APIException) e).getStatus());
+            throw new APIException("系统错误，调用代付通道执行失败","CALL_",401);
         }
         return null;
     }

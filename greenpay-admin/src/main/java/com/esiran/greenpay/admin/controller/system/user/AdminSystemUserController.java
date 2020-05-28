@@ -9,6 +9,7 @@ package com.esiran.greenpay.admin.controller.system.user;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
+import com.esiran.greenpay.system.entity.UserRole;
 import com.esiran.greenpay.system.entity.dot.UserDTO;
 import com.esiran.greenpay.system.entity.dot.UserInputDto;
 import com.esiran.greenpay.system.service.IUserRoleService;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin/system/user")
@@ -45,12 +47,14 @@ public class AdminSystemUserController {
     @PageViewHandleError
     public String edit( ModelMap modelMap, @PathVariable Integer userId) throws PostResourceException {
         UserDTO user = userService.selectUserById(userId);
+
         modelMap.addAttribute("user", user);
         return "admin/system/user/edit";
     }
 
 
     @PostMapping("/list/{userId}/edit")
+    @PageViewHandleError
     public String edit(@PathVariable Integer userId,@Valid UserInputDto userInputDto) throws PostResourceException {
 
         if (StringUtils.isBlank(userInputDto.getUsername()) ||
@@ -61,13 +65,13 @@ public class AdminSystemUserController {
         if (StringUtils.isBlank(userInputDto.getEmail())) {
             throw new PostResourceException("用户名或Email为空");
         }
-        if (StringUtils.isBlank(userInputDto.getPassword()) || userInputDto.getPassword().length()<6) {
-            throw new PostResourceException("用户名密码至少6位");
-        }
+//        if (StringUtils.isBlank(userInputDto.getPassword()) || userInputDto.getPassword().length()<6) {
+//            throw new PostResourceException("用户名密码至少6位");
+//        }
 
-        if (StringUtils.isBlank(userInputDto.getRoleIds())) {
-            throw new PostResourceException("未选择角色权限");
-        }
+//        if (StringUtils.isBlank(userInputDto.getRoleIds())) {
+//            throw new PostResourceException("未选择角色权限");
+//        }
 
         userRoleService.updateUserAndRoles(userId,userInputDto);
 
@@ -76,7 +80,6 @@ public class AdminSystemUserController {
 
 
     @GetMapping("/add")
-    @PageViewHandleError
     public String add() {
         return "admin/system/user/add";
     }
