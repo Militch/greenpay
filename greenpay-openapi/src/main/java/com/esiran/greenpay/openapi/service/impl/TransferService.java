@@ -3,10 +3,12 @@ package com.esiran.greenpay.openapi.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.esiran.greenpay.actuator.Plugin;
 import com.esiran.greenpay.actuator.PluginLoader;
+import com.esiran.greenpay.agentpay.entity.AgentPayBatch;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassage;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccount;
 import com.esiran.greenpay.agentpay.plugin.AgentPayOrderFlow;
+import com.esiran.greenpay.agentpay.service.IAgentPayBatchService;
 import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageAccountService;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
@@ -19,6 +21,8 @@ import com.esiran.greenpay.merchant.entity.MerchantAgentPayPassage;
 import com.esiran.greenpay.merchant.entity.PrepaidAccount;
 import com.esiran.greenpay.merchant.service.IMerchantService;
 import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
+import com.esiran.greenpay.openapi.entity.BatchInputDTO;
+import com.esiran.greenpay.openapi.entity.BatchOrder;
 import com.esiran.greenpay.openapi.entity.Transfer;
 import com.esiran.greenpay.openapi.entity.TransferInputDTO;
 import com.esiran.greenpay.openapi.service.ITransferService;
@@ -26,6 +30,7 @@ import com.esiran.greenpay.pay.entity.Interface;
 import com.esiran.greenpay.pay.service.IInterfaceService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
@@ -36,6 +41,7 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +52,7 @@ public class TransferService implements ITransferService {
     private static final Gson gson = new GsonBuilder().create();
     private final IdWorker idWorker;
     private final IMerchantService merchantService;
+    private final IAgentPayBatchService agentPayBatchService;
     private final IAgentPayPassageService agentPayPassageService;
     private final IAgentPayPassageAccountService agentPayPassageAccountService;
     private final IInterfaceService interfaceService;
@@ -55,7 +62,7 @@ public class TransferService implements ITransferService {
     public TransferService(
             IdWorker idWorker,
             IMerchantService merchantService,
-            IAgentPayPassageService agentPayPassageService,
+            IAgentPayBatchService agentPayBatchService, IAgentPayPassageService agentPayPassageService,
             IAgentPayPassageAccountService agentPayPassageAccountService,
             IInterfaceService interfaceService,
             IAgentPayOrderService orderService,
@@ -63,6 +70,7 @@ public class TransferService implements ITransferService {
             IPrepaidAccountService prepaidAccountService) {
         this.idWorker = idWorker;
         this.merchantService = merchantService;
+        this.agentPayBatchService = agentPayBatchService;
         this.agentPayPassageService = agentPayPassageService;
         this.agentPayPassageAccountService = agentPayPassageAccountService;
         this.interfaceService = interfaceService;
@@ -174,5 +182,44 @@ public class TransferService implements ITransferService {
         }
         AgentPayOrder order = orderService.getOneByOrderNo(agentPayOrder.getOrderNo());
         return modelMapper.map(order,Transfer.class);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batch(BatchInputDTO batchInputDTO, Integer mchId) throws APIException {
+        String extra = batchInputDTO.getExtra();
+        List<BatchOrder> list = gson.fromJson(extra, new TypeToken<List<BatchOrder>>() {
+        }.getType());
+        if (batchInputDTO.getTotalCount() != list.size()){
+            throw new APIException("代付总笔数与实际总笔数不符","");
+        }
+        int  totalAmount= list.stream().mapToInt(BatchOrder::getAmount).sum();
+        if (batchInputDTO.getTotalAmount() != totalAmount){
+            throw new APIException("代付总金额与实际总金额不符","");
+        }
+        for (BatchOrder batchOrder : list) {
+            if (StringUtils.isEmpty(batchOrder.getOutOrderNo()) || batchOrder.getOutOrderNo().length() > 20){
+                throw new APIException("扩展参数订单号异常","");
+            }else if (StringUtils.isEmpty(batchOrder.getAccountName())){
+                throw new APIException(String.format("扩展参数订单号%s: 账户名异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getAccountType())){
+                throw new APIException(String.format("扩展参数订单号%s: 账户类型异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getAmount()) || batchOrder.getAmount() <= 0){
+                throw new APIException(String.format("扩展参数订单号%s: 订单金额异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getAccountNumber())){
+                throw new APIException(String.format("扩展参数订单号%s: 账户号异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getBankName())){
+                throw new APIException(String.format("扩展参数订单号%s: 开户行异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getBankNumber())){
+                throw new APIException(String.format("扩展参数订单号%s: 联行号异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getNotifyUrl())){
+                throw new APIException(String.format("扩展参数订单号%s: 通知地址异常",batchOrder.getOutOrderNo()),"");
+            }
+            batchOrder.setBatchNo(batchInputDTO.getBatchNo());
+            TransferInputDTO transferInputDTO = modelMapper.map(batchOrder, TransferInputDTO.class);
+            createOneByInput(mchId, transferInputDTO);
+        }
+        AgentPayBatch agentPayBatch = modelMapper.map(batchInputDTO, AgentPayBatch.class);
+        agentPayBatchService.save(agentPayBatch);
     }
 }

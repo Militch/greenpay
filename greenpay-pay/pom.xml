@@ -40,7 +40,28 @@
             <groupId>com.esiran</groupId>
             <artifactId>greenpay-message</artifactId>
         </dependency>
+        <!-- 支付接口配置 -->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>3.4.49.ALL</version>
+        </dependency>
+        <!-- 支付接口需要依赖commons-logging:jar:1.1.1 -->
+        <!-- https://mvnrepository.com/artifact/commons-logging/commons-logging -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <!-- 生成支付二维码需要jar -->
+        <!-- https://mvnrepository.com/artifact/com.google.zxing/core -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.3.3</version>
+        </dependency>
 
     </dependencies>
+
 
 </project>
