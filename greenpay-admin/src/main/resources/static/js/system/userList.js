@@ -120,6 +120,9 @@ function submitAjax(obj){
         type: "POST",
         data: $("#userForm").serialize(),
         url: "/admin/api/v1/system/users",
+        handlers:{
+          '_isView':'true'
+        },
         success: function (data) {
             if (data ) {
                 layer.alert("操作成功",function(){
@@ -139,8 +142,13 @@ function submitAjax(obj){
         },
         error: function (data) {
             var er = $.parseJSON(data.responseText);
+            let error = er.errors;
+            if (typeof error !== "undefined" && error !== null && error.length > 0) {
+                layer.alert(error[0].message);
+            }else {
+                layer.alert(er.message);
+            }
 
-            layer.alert(er.message);
 
         }
     });

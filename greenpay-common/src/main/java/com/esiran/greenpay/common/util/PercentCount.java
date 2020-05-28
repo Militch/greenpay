@@ -64,7 +64,7 @@ public  class PercentCount  {
     //真正计算
     public double realCountDecimal(BigDecimal preNum,BigDecimal sufNum){
         //(前面的数字-后面的数字)/后面的数字*100
-        BigDecimal bigDecimal = (preNum.subtract(sufNum)).divide(sufNum,2, RoundingMode.HALF_UP).multiply(new BigDecimal("100")).setScale(2, BigDecimal.ROUND_UP);
+        BigDecimal bigDecimal = (preNum.subtract(sufNum)).divide(sufNum,2, RoundingMode.HALF_UP).multiply(new BigDecimal("1")).setScale(2, BigDecimal.ROUND_UP);
         if (bigDecimal.compareTo(BigDecimal.ZERO) !=0){
             return  bigDecimal.doubleValue();
         }

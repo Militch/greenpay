@@ -1,6 +1,8 @@
 package com.esiran.greenpay.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.system.entity.Role;
@@ -103,4 +105,29 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     }
 
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class,ApiException.class})
+    public boolean updateUserRole(UserRoleInputDto userRoleDto) throws ApiException {
+
+        Role newRole = modelMapper.map(userRoleDto, Role.class);
+
+        //得到新的权限
+        String permIds = userRoleDto.getPermIds();
+        String[] split = permIds.split(",");
+        //删除已有的权限
+        QueryWrapper<RoleMenu> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("role_id", newRole.getId());
+        iRoleMenuService.remove(queryWrapper);
+        //插入新的权限
+        RoleMenu roleMenu = new RoleMenu();
+        for (String s : split) {
+            Integer id = Integer.valueOf(s);
+            roleMenu.setRoleId(newRole.getId());
+            roleMenu.setMenuId(id);
+            iRoleMenuService.save(roleMenu);
+        }
+        //更新角色
+        this.updateById(newRole);
+        return false;
+    }
 }

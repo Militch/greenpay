@@ -30,11 +30,11 @@ public interface OrderMapper extends BaseMapper<Order> {
 
 
     //查询当天成功订单总数
-    @Select("SELECT count(order_no) FROM pay_order WHERE DATEDIFF(now(),created_at) = 0 AND `status` = 3")
+    @Select("SELECT count(order_no) FROM pay_order WHERE DATEDIFF(now(),created_at) = 0 AND (`status` = 3 OR `status` = 2)")
     Integer findIntradayOrderSucc();
 
     //查询昨天成功订单总数
-    @Select("SELECT count(order_no) FROM pay_order WHERE DATEDIFF(now(),created_at) = 1 AND `status` = 1")
+    @Select("SELECT count(order_no) FROM pay_order WHERE DATEDIFF(now(),created_at) = 1 AND (`status` = 3 OR `status` = 2)")
     Integer findYesterdayOrderSucc();
 
 
@@ -51,14 +51,14 @@ public interface OrderMapper extends BaseMapper<Order> {
 
 
     //查询昨天0点到昨天当前时间成交额
-    @Select("SELECT SUM(amount) FROM pay_order WHERE created_at BETWEEN DATE_FORMAT(DATE_SUB(NOW(),interval 1 day),'%Y-%m-%d 00:00:00')" +
-            "AND DATE_FORMAT(DATE_SUB(NOW(),interval 1 day),'%Y-%m-%d %T')")
+    @Select("SELECT SUM(amount) FROM pay_order WHERE created_at BETWEEN DATE_FORMAT(DATE_SUB(NOW(),interval 1 day),'%Y-%m-%d 00:00:00')  " +
+            " AND DATE_FORMAT(DATE_SUB(NOW(),interval 1 day),'%Y-%m-%d %T') AND (`status` = 3 OR `status` = 2)")
     Long yestdayRealmoneyData();
 
 
     //查询今日0点到当前时间成交额
-    @Select("SELECT SUM(amount) FROM pay_order WHERE created_at BETWEEN DATE_FORMAT(NOW(),'%Y-%m-%d 00:00:00')" +
-            "AND DATE_FORMAT(NOW(),'%Y-%m-%d %T')")
+    @Select("SELECT SUM(amount) FROM pay_order WHERE created_at BETWEEN DATE_FORMAT(NOW(),'%Y-%m-%d 00:00:00') " +
+            "AND DATE_FORMAT(NOW(),'%Y-%m-%d %T') AND (`status` = 3 OR `status` = 2)")
     Long intradayRealmoneyData();
 
     @Select("SELECT DATE_FORMAT(created_at,'%H') AS name,   " +

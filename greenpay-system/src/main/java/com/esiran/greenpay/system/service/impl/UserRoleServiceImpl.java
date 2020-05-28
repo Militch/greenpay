@@ -3,8 +3,10 @@ package com.esiran.greenpay.system.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.system.entity.User;
 import com.esiran.greenpay.system.entity.UserRole;
@@ -47,7 +49,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
 
     @Override
     @Transactional
-    public boolean addUserAndRole(UserInputDto userInputDto) throws Exception {
+    public boolean addUserAndRole(UserInputDto userInputDto) throws APIException {
 
         User user = userService.addUser(userInputDto);
         String[] split = userInputDto.getRoleIds().split(",");
@@ -88,6 +90,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
                 save(role);
             }
         }
+
 
         return false;
     }

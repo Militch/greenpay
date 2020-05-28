@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @ApiModel("RoleDto")
 public class UserRoleInputDto {
+    private Integer id;
 
     /**
      * 角色名称
@@ -31,8 +32,7 @@ public class UserRoleInputDto {
     /**
      * 角色
      */
-    @ApiModelProperty("角色编码")
-    @NotBlank(message = "角色编码不能为空")
+    @ApiModelProperty("角色权限")
     private String permIds;
 
 

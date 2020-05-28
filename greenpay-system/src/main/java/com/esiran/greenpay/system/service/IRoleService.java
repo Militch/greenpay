@@ -1,5 +1,6 @@
 package com.esiran.greenpay.system.service;
 
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.system.entity.Role;
@@ -23,6 +24,7 @@ public interface IRoleService extends IService<Role> {
 
     boolean edit(UserRoleInputDto roleDto) throws PostResourceException;
 
+    boolean updateUserRole(UserRoleInputDto userRoleDto) throws ApiException;
     List<Role> selectByIds(List<Integer> ids);
 
 }

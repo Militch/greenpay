@@ -54,6 +54,7 @@ public class AdminSystemUserController {
 
 
     @PostMapping("/list/{userId}/edit")
+    @PageViewHandleError
     public String edit(@PathVariable Integer userId,@Valid UserInputDto userInputDto) throws PostResourceException {
 
         if (StringUtils.isBlank(userInputDto.getUsername()) ||
@@ -79,7 +80,6 @@ public class AdminSystemUserController {
 
 
     @GetMapping("/add")
-    @PageViewHandleError
     public String add() {
         return "admin/system/user/add";
     }

@@ -2,6 +2,7 @@ package com.esiran.greenpay.admin.controller.system.role;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.system.entity.Role;
@@ -14,6 +15,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,32 +62,17 @@ public class APIAdminSystemRoleController {
 
     @ApiOperation("更新用户角色")
     @PutMapping
-//    @Transactional
-    public boolean upRole(@Valid UserRoleInputDto userRoleDto) throws Exception{
-        Role newRole = modelMapper.map(userRoleDto, Role.class);
-        newRole.setRoleCode(userRoleDto.getPermIds());
-        //得到新的权限
-        String permIds = userRoleDto.getPermIds();
-        String[] split = permIds.split(",");
-        //删除已有的权限
-        QueryWrapper<RoleMenu> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("role_id", newRole.getId());
-        roleMenuService.remove(queryWrapper);
-        //插入新的权限
-        RoleMenu roleMenu = new RoleMenu();
-        for (String s : split) {
-            Integer id = Integer.valueOf(s);
-            roleMenu.setRoleId(newRole.getId());
-            roleMenu.setMenuId(id);
-            roleMenuService.save(roleMenu);
-        }
-        //更新角色
-        roleService.updateById(newRole);
+
+    public boolean upRole(@Valid UserRoleInputDto userRoleDto) throws ApiException {
+;
+        roleService.updateUserRole(userRoleDto);
+
         return true;
     }
 
 
     @PostMapping("/add")
+
     public boolean add(@Valid UserRoleInputDto userRoleDto) throws PostResourceException {
         roleService.save(userRoleDto);
         return true;
