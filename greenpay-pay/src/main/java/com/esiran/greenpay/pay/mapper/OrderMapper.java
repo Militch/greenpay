@@ -80,12 +80,12 @@ public interface OrderMapper extends BaseMapper<Order> {
             "            GROUP BY name; ")
     List<CartogramDTO> hourData4amount();
 
-    @Select("SELECT DATE_FORMAT(created_at,'%H') AS name, " +
-            "       COUNT(1) AS count, " +
-            "       COUNT(IF(status = 3 OR status = 2, 1, 0)) AS successCount " +
-            "FROM pay_order " +
-            "WHERE date_format(created_at, '%Y%m%d') = DATE_FORMAT(now(),'%Y%m%d') " +
-            "GROUP BY name;")
+    @Select("SELECT DATE_FORMAT(created_at,'%H') AS name,   " +
+            "                   COUNT(1) AS count,   " +
+            "                   SUM(IF(status = 3 OR status = 2, 1, 0)) AS successCount   " +
+            "            FROM pay_order   " +
+            "            WHERE date_format(created_at, '%Y%m%d') = DATE_FORMAT(now(),'%Y%m%d')   " +
+            "            GROUP BY name;")
     List<CartogramDTO> hourData4count();
 
 
