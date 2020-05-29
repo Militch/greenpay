@@ -124,6 +124,26 @@ public interface OrderMapper extends BaseMapper<Order> {
     List<CartogramDTO> upSevenDayAllAmount();
 
 
+    @Select("select  dayofweek(created_at) AS name, \n" +
+            "                COUNT(*) AS count, \n" +
+            "                \n" +
+            "                SUM((IF (status = 2 OR status = 3 ,1,0))) AS successCount, \n" +
+            "                SUM(amount) AS amount, \n" +
+            "                SUM((if(status = 2 OR status = 3 ,amount,0))) as successAmount \n" +
+            "             from pay_order where DATE_SUB(CURDATE(),INTERVAL 7 DAY) <= DATE(created_at) \n" +
+            "             GROUP BY name;")
+    List<CartogramDTO> sevenDay4CountAndAmount();
+
+
+    @Select("select  DATE_FORMAT(created_at,'%d') AS name,\n" +
+            "    COUNT(*) AS count,\n" +
+            "    SUM((IF (status = 2 OR status = 3 ,1,0))) AS successCount,\n" +
+            "    SUM(amount) AS amount,\n" +
+            "    SUM((if(status = 2 OR status = 3 ,amount,0))) as successAmount\n" +
+            " from pay_order where DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m') \n" +
+            " GROUP BY name;")
+    List<CartogramDTO> currentMonth4CountAndAmount();
+
     @Select("SELECT pay_product_name AS payname,COUNT(*) AS count, SUM(amount) as amount FROM pay_order WHERE DATE_SUB(CURDATE(),INTERVAL 7 day)<= DATE(created_at) GROUP BY pay_product_name ORDER BY amount DESC")
     List<CartogramPayDTO> payOrders();
 

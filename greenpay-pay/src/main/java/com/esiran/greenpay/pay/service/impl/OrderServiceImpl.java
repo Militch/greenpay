@@ -197,4 +197,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     public List<CartogramPayStatusVo> PayStatuss() {
         return this.baseMapper.PayStatuss();
     }
+
+
+    @Override
+    public List<CartogramDTO> sevenDay4CountAndAmount() {
+        return this.baseMapper.sevenDay4CountAndAmount();
+    }
+
+    @Override
+    public List<CartogramDTO> currentMonth4CountAndAmount() {
+        return this.baseMapper.currentMonth4CountAndAmount();
+    }
 }

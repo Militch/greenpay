@@ -435,20 +435,9 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data = new HashMap<>();
         List<CartogramDTO> hourAmount = orderService.hourData4amount();
         List<CartogramDTO> hours = new ArrayList<>();
-        List<String> collect = hourAmount.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
-        for (int i = 0; i < 24; i++) {
-            String hs = String.valueOf(i);
-            if (collect.contains(hs)) {
-                continue;
-            }
 
-            CartogramDTO cartogramDTO = new CartogramDTO();
-            cartogramDTO.setName(hs);
-            cartogramDTO.setAmount(0l);
-            cartogramDTO.setSuccessAmount(0l);
-            hours.add(cartogramDTO);
-        }
-        hourAmount.addAll(hours);
+        List<CartogramDTO> dtoList = transfer(hourAmount, 0,23);
+        hourAmount.addAll(dtoList);
         Collections.sort(hourAmount);
         data.put("name", "交易趋势");
         data.put("val", hourAmount);
@@ -458,30 +447,32 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         //24小交易趋势
         data = new HashMap<>();
         hourAmount = orderService.hourData4count();
-        hours = new ArrayList<>();
 
-        //填充
-        collect = hourAmount.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
-        for (int i = 0; i < 24; i++) {
-            String hs = String.valueOf(i);
-            if (collect.contains(hs)) {
-                continue;
-            }
-
-            CartogramDTO cartogramDTO = new CartogramDTO();
-            cartogramDTO.setName(hs);
-            cartogramDTO.setCount(0);
-            cartogramDTO.setSuccessCount(0);
-            hours.add(cartogramDTO);
-        }
-
-        hourAmount.addAll(hours);
+        dtoList = transfer(hourAmount, 0,23);
+        hourAmount.addAll(dtoList);
         Collections.sort(hourAmount);
         data.put("name", "订单数量");
         data.put("val", hourAmount);
         map.put("tradingTrends", data);
         //end
 
+        //一周交易趋势
+        List<CartogramDTO> cartogramDTOList = orderService.sevenDay4CountAndAmount();
+        List<CartogramDTO> weekList = transfer(cartogramDTOList, 1,7);
+        cartogramDTOList.addAll(weekList);
+        Collections.sort(cartogramDTOList);
+        data.put("name", "一周交易趋势");
+        data.put("val", cartogramDTOList);
+        map.put("weekList", data);
+
+        //一月交易趋势
+        List<CartogramDTO> month4CountAndAmount = orderService.currentMonth4CountAndAmount();
+        List<CartogramDTO> monthList = transfer(month4CountAndAmount,1, getCurrentMonthLastDay());
+        month4CountAndAmount.addAll(monthList);
+        Collections.sort(month4CountAndAmount);
+        data.put("name", "当月交易趋势");
+        data.put("val", month4CountAndAmount);
+        map.put("monthList", monthList);
 
         //转化率
         data = new ManagedMap<>();
@@ -557,6 +548,40 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
         cartograms.clear();
         cartograms.addAll(cartogramDTOList);
+    }
+
+
+    private List<CartogramDTO> transfer(List<CartogramDTO> sources,int start, int addNum) {
+        List<String> collect = sources.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
+        List<CartogramDTO> addData = new ArrayList<>();
+        for (int i = start; i <= addNum; i++) {
+            String time = String.valueOf(i);
+            if (collect.contains(time)) {
+                continue;
+            }
+
+            CartogramDTO cartogramDTO = new CartogramDTO();
+            cartogramDTO.setName(time);
+            cartogramDTO.setCount(0);
+            cartogramDTO.setSuccessCount(0);
+            cartogramDTO.setAmount(0l);
+            cartogramDTO.setSuccessAmount(0l);
+            addData.add(cartogramDTO);
+
+        }
+
+        return addData;
+    }
+    /**
+     * 取得当月天数
+     * */
+    public static int getCurrentMonthLastDay()
+    {
+        Calendar a = Calendar.getInstance();
+        a.set(Calendar.DATE, 1);//把日期设置为当月第一天
+        a.roll(Calendar.DATE, -1);//日期回滚一天，也就是最后一天
+        int maxDate = a.get(Calendar.DATE);
+        return maxDate;
     }
 
     @Override
