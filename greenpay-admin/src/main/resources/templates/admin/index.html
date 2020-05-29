@@ -18,13 +18,17 @@
                     <div class="layui-row">
                         <div class="layui-col-md9" style="padding: 10px 20px;">
                             <div class="layui-card" id="trend">
-                                <div class="layui-card-header">交易趋势</div>
+                                <div class="layui-card-header" style="display: flex;align-items: center;justify-content: space-between">
+                                    <p>交易趋势 (<span id="tips">当天</span>) </p>
+                                    <div><button type="button" class="layui-btn layui-btn-xs" id="trendday">当天</button>
+                                        <button type="button" class="layui-btn layui-btn-xs" id="trendweek">本周</button>
+                                        <button type="button" class="layui-btn layui-btn-xs" id="trendmonth">当月</button></div>
+                                </div>
                                 <div class="layui-card-body">
                                     <div id="trendsChart" style="width: 100%; height: 250px"></div>
                                 </div>
                             </div>
                         </div>
-
 
                         <div class="layui-col-md3" style="padding: 10px 20px;">
                             <div class="layui-card" id="rates">
@@ -78,6 +82,7 @@
 </script>
 <script>
     !function () {
+        let $ = layui.jquery;
         homeDataJson = JSON.parse(homeDataJson)
         console.log(homeDataJson)
         //统计
@@ -112,52 +117,83 @@
 
         // 交易趋势
         let orderAmount = homeDataJson.orderAmount;
-        console.log(orderAmount)
-        let ordersuccessAmount = [];
-        let orderAcquire = [];
-        let orderTimeArr = [];
-        orderAmount.val.forEach(item=>{
-            orderAcquire.push((item.amount/100).toFixed(2))
-            ordersuccessAmount.push((item.successAmount/100).toFixed(2))
-            orderTimeArr.push(`${item.name}:00`)
-        })
-        let trendsChart = echarts.init(document.getElementById('trendsChart'));
-        let trendsOption = {
-            color: ['#4EA397','#22C3AA', '#7BD9A5'],
-            tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: ['收单总额', '成交总额']
-            },
-            grid: {
-                left: '0%',
-                right: '1%',
-                bottom: '0%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                data: orderTimeArr
-            },
-            yAxis: {
-                type: 'value'
-            },
-            series: [
-                {
-                    name: '收单总额',
-                    type: 'line',
-                    data: orderAcquire
+        let monthList = homeDataJson.monthList;
+        let weekList = homeDataJson.weekList;
+        console.log('orderAmount',orderAmount)
+        console.log('monthList',monthList)
+        console.log('weekList',weekList)
+
+        function trendsFn(data){
+            let ordersuccessAmount = [];
+            let orderAcquire = [];
+            let orderTimeArr = [];
+            if(data.length!==24){
+                data.forEach(item=>{
+                    orderAcquire.push((item.amount/100).toFixed(2))
+                    ordersuccessAmount.push((item.successAmount/100).toFixed(2))
+                    orderTimeArr.push(item.name)
+                })
+            }else{
+                data.forEach(item=>{
+                    orderAcquire.push((item.amount/100).toFixed(2))
+                    ordersuccessAmount.push((item.successAmount/100).toFixed(2))
+                    orderTimeArr.push(`${item.name}:00`)
+                })
+            }
+
+            let trendsChart = echarts.init(document.getElementById('trendsChart'));
+            let trendsOption = {
+                color: ['#4EA397','#22C3AA', '#7BD9A5'],
+                tooltip: {
+                    trigger: 'axis'
                 },
-                {
-                    name: '成交总额',
-                    type: 'line',
-                    data: ordersuccessAmount
-                }
-            ]
+                legend: {
+                    data: ['收单总额', '成交总额']
+                },
+                grid: {
+                    left: '0%',
+                    right: '1%',
+                    bottom: '0%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: orderTimeArr
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '收单总额',
+                        type: 'line',
+                        data: orderAcquire
+                    },
+                    {
+                        name: '成交总额',
+                        type: 'line',
+                        data: ordersuccessAmount
+                    }
+                ]
+            }
+            trendsChart.setOption(trendsOption)
         }
-        trendsChart.setOption(trendsOption)
+        trendsFn(orderAmount.val)
+
+
+        $('#trendday').click(function () {
+            $('#tips').html('当天')
+            trendsFn(orderAmount.val)
+        })
+        $('#trendweek').click(function () {
+            $('#tips').html('本周')
+            trendsFn(weekList.val)
+        })
+        $('#trendmonth').click(function () {
+            $('#tips').html('本月')
+            trendsFn(monthList.val)
+        })
 
         // 排行
         let payOrder = homeDataJson.payOrder;
