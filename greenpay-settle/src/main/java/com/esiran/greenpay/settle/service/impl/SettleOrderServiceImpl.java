@@ -457,6 +457,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         //end
 
         //一周交易趋势
+        data = new ManagedMap<>();
         List<CartogramDTO> cartogramDTOList = orderService.sevenDay4CountAndAmount();
         List<CartogramDTO> weekList = transfer(cartogramDTOList, 1,7);
         cartogramDTOList.addAll(weekList);
@@ -466,13 +467,14 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         map.put("weekList", data);
 
         //一月交易趋势
+        data = new ManagedMap<>();
         List<CartogramDTO> month4CountAndAmount = orderService.currentMonth4CountAndAmount();
         List<CartogramDTO> monthList = transfer(month4CountAndAmount,1, getCurrentMonthLastDay());
         month4CountAndAmount.addAll(monthList);
         Collections.sort(month4CountAndAmount);
         data.put("name", "当月交易趋势");
         data.put("val", month4CountAndAmount);
-        map.put("monthList", monthList);
+        map.put("monthList", data);
 
         //转化率
         data = new ManagedMap<>();
