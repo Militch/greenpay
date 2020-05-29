@@ -124,23 +124,22 @@ public interface OrderMapper extends BaseMapper<Order> {
     List<CartogramDTO> upSevenDayAllAmount();
 
 
-    @Select("select  dayofweek(created_at) AS name, \n" +
-            "                COUNT(*) AS count, \n" +
-            "                \n" +
-            "                SUM((IF (status = 2 OR status = 3 ,1,0))) AS successCount, \n" +
-            "                SUM(amount) AS amount, \n" +
-            "                SUM((if(status = 2 OR status = 3 ,amount,0))) as successAmount \n" +
-            "             from pay_order where DATE_SUB(CURDATE(),INTERVAL 7 DAY) <= DATE(created_at) \n" +
-            "             GROUP BY name;")
+    @Select("select  WEEKDAY(created_at)+1 AS name, " +
+            "                            COUNT(*) AS count,  " +
+            "                            SUM((IF (status = 2 OR status = 3 ,1,0))) AS successCount,   " +
+            "                            SUM(amount) AS amount,   " +
+            "                            SUM((if(status = 2 OR status = 3 ,amount,0))) as successAmount   " +
+            "                         from pay_order WHERE YEARWEEK(DATE_FORMAT(created_at,'%Y%m%d')) = YEARWEEK(NOW()) -1 " +
+            "                         GROUP BY name;")
     List<CartogramDTO> sevenDay4CountAndAmount();
 
 
-    @Select("select  DATE_FORMAT(created_at,'%d') AS name,\n" +
-            "    COUNT(*) AS count,\n" +
-            "    SUM((IF (status = 2 OR status = 3 ,1,0))) AS successCount,\n" +
-            "    SUM(amount) AS amount,\n" +
-            "    SUM((if(status = 2 OR status = 3 ,amount,0))) as successAmount\n" +
-            " from pay_order where DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m') \n" +
+    @Select("select  DATE_FORMAT(created_at,'%d') AS name, " +
+            "    COUNT(*) AS count, " +
+            "    SUM((IF (status = 2 OR status = 3 ,1,0))) AS successCount, " +
+            "    SUM(amount) AS amount, " +
+            "    SUM((if(status = 2 OR status = 3 ,amount,0))) as successAmount " +
+            " from pay_order where DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')  " +
             " GROUP BY name;")
     List<CartogramDTO> currentMonth4CountAndAmount();
 

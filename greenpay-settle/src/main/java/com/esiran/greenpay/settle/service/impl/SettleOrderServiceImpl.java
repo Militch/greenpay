@@ -528,7 +528,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 //                cartogramDTO.setAmount(0l);
 //                times.add(cartogramDTO);
 //            }
-        for (int i = 7; i >0; i--){
+        for (int i = 6; i >=0; i--){
             long dayTime = System.currentTimeMillis() - ((1000 * 60 * 60 * 24) * (i));
             String time = sdf.format(dayTime);
             List<CartogramDTO> collect1 = cartograms.stream().filter(cartogramDTO ->
