@@ -124,12 +124,12 @@ public interface OrderMapper extends BaseMapper<Order> {
     List<CartogramDTO> upSevenDayAllAmount();
 
 
-    @Select("select  WEEKDAY(created_at)+1 AS name, " +
+    @Select("select  WEEKDAY(created_at)+1  AS name, " +
             "                            COUNT(*) AS count,  " +
             "                            SUM((IF (status = 2 OR status = 3 ,1,0))) AS successCount,   " +
             "                            SUM(amount) AS amount,   " +
             "                            SUM((if(status = 2 OR status = 3 ,amount,0))) as successAmount   " +
-            "                         from pay_order WHERE YEARWEEK(DATE_FORMAT(created_at,'%Y%m%d')) = YEARWEEK(NOW()) -1 " +
+            "                         from pay_order WHERE YEARWEEK(date_format(created_at,'%Y-%m-%d')- INTERVAL 1 DAY) = YEARWEEK(now()) " +
             "                         GROUP BY name;")
     List<CartogramDTO> sevenDay4CountAndAmount();
 
