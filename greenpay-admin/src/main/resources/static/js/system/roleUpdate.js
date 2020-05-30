@@ -92,6 +92,7 @@
             util = layui.util;
 
             //渲染
+            let a =  listToTreeJson(data);
             var inst1 = tree.render({
                 id: 'demoId1',
                 elem: '#perm', //指定元素
@@ -176,6 +177,6 @@
             // return JSON.stringify(getJsonTree(data,''));
             return getJsonTree(data, 0);
         }
-        //console.log(JSON.stringify(getJsonTree(data,'')));
+        // console.log(JSON.stringify(getJsonTree(data,'')));
 
     }}());

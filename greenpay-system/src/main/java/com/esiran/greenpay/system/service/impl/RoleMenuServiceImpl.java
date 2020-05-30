@@ -1,6 +1,7 @@
 package com.esiran.greenpay.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.esiran.greenpay.system.entity.RoleMenu;
 import com.esiran.greenpay.system.mapper.RoleMenuMapper;
 import com.esiran.greenpay.system.service.IRoleMenuService;
@@ -22,9 +23,11 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
 
     @Override
     public List<RoleMenu> selectRleMenusByRoleId(Integer roleId) {
-        LambdaQueryWrapper<RoleMenu> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(RoleMenu::getRoleId, roleId);
-        List<RoleMenu> list = list(lambdaQueryWrapper);
+//        LambdaQueryWrapper<RoleMenu> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        lambdaQueryWrapper.eq(RoleMenu::getRoleId, roleId);
+//        LambdaQueryWrapper<RoleMenu> qw = Wrappers.<RoleMenu>lambdaQuery().eq(RoleMenu::getRoleId, roleId).and(u -> u.lt(RoleMenu::get, 40).or().isNotNull(RoleMenu::getEmail));
+        List<RoleMenu> list = this.baseMapper.selectRleMenusByRoleId(roleId);
+
         return list;
     }
 }

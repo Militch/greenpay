@@ -71,6 +71,7 @@ public class AdminSystemRoleController {
             throw new PostResourceException("未找到角色");
         }
         List<RoleMenu> roleMenus = iRoleMenuService.selectRleMenusByRoleId(id);
+
         List<Integer> collect = roleMenus.stream().map(userRole -> userRole.getMenuId()).collect(Collectors.toList());
         modelMap.addAttribute("role", role);
         modelMap.addAttribute("userRoles", collect);
