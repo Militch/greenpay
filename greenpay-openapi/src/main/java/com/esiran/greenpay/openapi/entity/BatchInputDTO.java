@@ -12,7 +12,7 @@ public class BatchInputDTO {
      * 批次号
      */
     @NotEmpty(message = "批次号不能为空")
-    private String batchNo;
+    private String outBatchNo;
     /**
      * 总金额（单位：分）
      */

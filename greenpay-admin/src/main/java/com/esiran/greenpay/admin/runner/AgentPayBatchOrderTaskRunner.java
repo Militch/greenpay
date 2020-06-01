@@ -12,25 +12,26 @@ import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
 import com.esiran.greenpay.message.delayqueue.DelayQueueTaskRunner;
 import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.google.gson.Gson;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
-public class AgentPayBatchOrderTaskRunner implements DelayQueueTaskRunner {
-    private final Gson g = new Gson();
-    private final IAgentPayOrderService agentPayOrderService;
-    private final IPrepaidAccountService prepaidAccountService;
-    private final RedisDelayQueueClient redisDelayQueueClient;
-    public AgentPayBatchOrderTaskRunner(IAgentPayOrderService agentPayOrderService, IPrepaidAccountService prepaidAccountService, RedisDelayQueueClient redisDelayQueueClient) {
-        this.agentPayOrderService = agentPayOrderService;
-        this.prepaidAccountService = prepaidAccountService;
-        this.redisDelayQueueClient = redisDelayQueueClient;
-    }
-
-    @Override
-    public void exec(String content) {
-//        agentPayOrderService
+public class AgentPayBatchOrderTaskRunner {
+    private static final Logger logger = LoggerFactory.getLogger(AgentPayBatchOrderTaskRunner.class);
+    @KafkaListener(topics = "grennpay_agentpay_batch_order_create")
+    public void exec(ConsumerRecord<?, String> record) {
+        Optional<String> kafkaMessage = Optional.ofNullable(record.value());
+        if (!kafkaMessage.isPresent()){
+            return;
+        }
+        String msg = kafkaMessage.get();
+        logger.info("消息来了----:{}",msg);
     }
 }

@@ -36,6 +36,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -61,6 +62,7 @@ public class TransferService implements ITransferService {
     private final PluginLoader pluginLoader;
     private final IPrepaidAccountService prepaidAccountService;
     private final RedisDelayQueueClient redisDelayQueueClient;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     public TransferService(
             IdWorker idWorker,
             IMerchantService merchantService,
@@ -69,7 +71,8 @@ public class TransferService implements ITransferService {
             IInterfaceService interfaceService,
             IAgentPayOrderService orderService,
             PluginLoader pluginLoader,
-            IPrepaidAccountService prepaidAccountService, RedisDelayQueueClient redisDelayQueueClient) {
+            IPrepaidAccountService prepaidAccountService, RedisDelayQueueClient redisDelayQueueClient,
+            KafkaTemplate<String, String> kafkaTemplate) {
         this.idWorker = idWorker;
         this.merchantService = merchantService;
         this.agentPayBatchService = agentPayBatchService;
@@ -80,6 +83,7 @@ public class TransferService implements ITransferService {
         this.pluginLoader = pluginLoader;
         this.prepaidAccountService = prepaidAccountService;
         this.redisDelayQueueClient = redisDelayQueueClient;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
@@ -212,8 +216,12 @@ public class TransferService implements ITransferService {
     public void batch(BatchInputDTO batchInputDTO, Integer mchId) throws APIException {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         String recipients = batchInputDTO.getRecipients();
-        List<BatchOrder> list = gson.fromJson(recipients, new TypeToken<List<BatchOrder>>() {
-        }.getType());
+        List<BatchOrder> list;
+        try {
+            list = gson.fromJson(recipients, new TypeToken<List<BatchOrder>>(){}.getType());
+        }catch (Exception e){
+            throw new APIException("收款对象列表格式错误","RECIPIENTS_FORMAT_ERROR");
+        }
         if (batchInputDTO.getTotalCount() != list.size()){
             throw new APIException("代付总笔数与实际总笔数不符","");
         }
@@ -277,6 +285,15 @@ public class TransferService implements ITransferService {
         agentPayBatch.setAgentpayPassageAccId(account.getId());
         agentPayBatch.setPayInterfaceId(ints.getId());
         agentPayBatchService.save(agentPayBatch);
-        redisDelayQueueClient.sendDelayMessage("agentpay:batch:order:create",agentPayBatch.getBatchNo(),0);
+        for (BatchOrder batchOrder : list) {
+            AgentPayOrder agentPayOrder = modelMapper.map(batchOrder,AgentPayOrder.class);
+            agentPayOrder.setPayTypeCode(ints.getPayTypeCode());
+            agentPayOrder.setAgentpayPassageId(payPassage.getId());
+            agentPayOrder.setAgentpayPassageAccId(account.getId());
+            agentPayOrder.setPayInterfaceId(ints.getId());
+            agentPayOrder.setPayInterfaceAttr(account.getInterfaceAttr());
+            agentPayOrder.setBatchNo(agentPayBatch.getBatchNo());
+            kafkaTemplate.send("grennpay_agentpay_batch_order_create",gson.toJson(agentPayOrder));
+        }
     }
 }
