@@ -1,5 +1,6 @@
 package com.esiran.greenpay.admin.config;
 
+import com.esiran.greenpay.admin.runner.AgentPayQueryTaskRunner;
 import com.esiran.greenpay.admin.runner.OrderACPayTaskRunner;
 import com.esiran.greenpay.admin.runner.OrderNotifyTaskRunner;
 import com.esiran.greenpay.common.util.IdWorker;
@@ -28,12 +29,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final OrderNotifyTaskRunner orderNotifyTaskRunner;
     private final OrderExpireTaskRunner orderExpireTaskRunner;
     private final OrderACPayTaskRunner orderACPayTaskRunner;
+    private final AgentPayQueryTaskRunner agentPayQueryTaskRunner;
     public WebMvcConfig(BaseInterceptor baseInterceptor,
-                        OrderNotifyTaskRunner orderNotifyTaskRunner, OrderExpireTaskRunner orderExpireTaskRunner, OrderACPayTaskRunner orderACPayTaskRunner) {
+                        OrderNotifyTaskRunner orderNotifyTaskRunner, OrderExpireTaskRunner orderExpireTaskRunner, OrderACPayTaskRunner orderACPayTaskRunner, AgentPayQueryTaskRunner agentPayQueryTaskRunner) {
         this.baseInterceptor = baseInterceptor;
         this.orderNotifyTaskRunner = orderNotifyTaskRunner;
         this.orderExpireTaskRunner = orderExpireTaskRunner;
         this.orderACPayTaskRunner = orderACPayTaskRunner;
+        this.agentPayQueryTaskRunner = agentPayQueryTaskRunner;
     }
 
     @Bean
@@ -70,6 +73,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         delayQueueTaskRegister.register("order:expire",orderExpireTaskRunner);
         delayQueueTaskRegister.register("order:acpay",orderACPayTaskRunner);
         delayQueueTaskRegister.register("order:notify",orderNotifyTaskRunner);
+        delayQueueTaskRegister.register("agentpay:query",agentPayQueryTaskRunner);
         return delayQueueTaskRegister;
     }
 

@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +47,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -150,6 +152,8 @@ public class APICashiers {
                 "/v1/helper/qr/builder?codeUrl=%s&style=w260h260",
                 URLEncoder.encode(qrCodeUrl, "UTF-8"));
         modelMap.addAttribute("style",style);
+        OrderDTO orderDTO = orderService.getByOrderNo(orderNo);
+        modelMap.addAttribute("order",orderDTO);
         modelMap.addAttribute("qrCodeImgUrl",qrCodeImgUrl);
         return "cashier/qr_pc";
     }
@@ -254,6 +258,31 @@ public class APICashiers {
         }else {
             throw new APIException("支付场景暂不支持该渠道支付","REQUEST_ERROR");
         }
+        return String.format("redirect:/v1/cashiers/pc/orders/%s",orderNo);
+    }
+    @GetMapping("/pc/orders/{orderNo}")
+    public String pcOrder(
+            HttpServletResponse response,
+            @PathVariable String orderNo) throws Exception {
+        Order order = orderService.getOneByOrderNo(orderNo);
+        OrderDetail orderDetail = orderDetailService.getOneByOrderNo(orderNo);
+        if (order == null || orderDetail == null) {
+            response.setStatus(404);
+            return null;
+        }
+        Interface ins = interfaceService.getById(orderDetail.getPayInterfaceId());
+        Integer scenarios = ins.getScenarios();
+        if (scenarios != 2){
+            response.setStatus(404);
+            return null;
+        }
+        String payCredential = orderDetail.getPayCredential();
+        Map<String, Object> map = MapUtil.jsonString2objMap(payCredential);
+        assert map != null;
+        String form = (String) map.get("form");
+        response.setContentType("text/html; charset=utf-8");
+        PrintWriter out = response.getWriter();
+        out.println(form);
         return null;
     }
 
@@ -335,6 +364,9 @@ public class APICashiers {
         }
         return null;
     }
+
+
+
     @PostMapping("/pages")
     @ResponseBody
     public Invoice cashiersPagesPost(
@@ -481,5 +513,33 @@ public class APICashiers {
 
         }
         return redirectUrl;
+    }
+
+    @GetMapping("/query/orderStatus")
+    @ResponseBody
+    public Map<String,Object> queryStatus(String orderNo) throws APIException {
+        OrderDetail orderDetail = orderDetailService.getOneByOrderNo(orderNo);
+        PayOrder payOrder = new PayOrder();
+        payOrder.setOrderDetail(orderDetail);
+        PayOrderFlow payOrderFlow = new PayOrderFlow(payOrder);
+        Interface ins = interfaceService.getById(orderDetail.getPayInterfaceId());
+        try {
+            Plugin<PayOrder> payOrderPlugin =
+                    pluginLoader.loadForClassPath(ins.getInterfaceImpl());
+            payOrderPlugin.apply(payOrderFlow);
+            payOrderFlow.execDependent("query");
+            Map<String, Object> results = payOrderFlow.getResults();
+            results.put("url",String.format("%s/v1/cashiers/success/%s",webHostname,orderNo));
+            return results;
+        }catch (Exception e) {
+            throw new APIException("查询订单状态失败","REQUEST_ERROR");
+        }
+    }
+    @GetMapping("/success/{orderNo}")
+    public String success(@PathVariable String orderNo
+            , ModelMap modelMap){
+        OrderDTO order = orderService.getByOrderNo(orderNo);
+        modelMap.addAttribute("order",order);
+        return "cashier/success";
     }
 }

@@ -23,5 +23,6 @@ public class TransferInputDTO {
     private String bankNumber;
     @NotBlank(message = "通知地址不能为空")
     private String notifyUrl;
+    private String batchNo;
     private String extra;
 }

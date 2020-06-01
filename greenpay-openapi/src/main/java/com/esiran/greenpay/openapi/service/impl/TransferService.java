@@ -3,10 +3,12 @@ package com.esiran.greenpay.openapi.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.esiran.greenpay.actuator.Plugin;
 import com.esiran.greenpay.actuator.PluginLoader;
+import com.esiran.greenpay.agentpay.entity.AgentPayBatch;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassage;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccount;
 import com.esiran.greenpay.agentpay.plugin.AgentPayOrderFlow;
+import com.esiran.greenpay.agentpay.service.IAgentPayBatchService;
 import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageAccountService;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
@@ -19,6 +21,8 @@ import com.esiran.greenpay.merchant.entity.MerchantAgentPayPassage;
 import com.esiran.greenpay.merchant.entity.PrepaidAccount;
 import com.esiran.greenpay.merchant.service.IMerchantService;
 import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
+import com.esiran.greenpay.openapi.entity.BatchInputDTO;
+import com.esiran.greenpay.openapi.entity.BatchOrder;
 import com.esiran.greenpay.openapi.entity.Transfer;
 import com.esiran.greenpay.openapi.entity.TransferInputDTO;
 import com.esiran.greenpay.openapi.service.ITransferService;
@@ -26,15 +30,20 @@ import com.esiran.greenpay.pay.entity.Interface;
 import com.esiran.greenpay.pay.service.IInterfaceService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class TransferService implements ITransferService {
@@ -43,6 +52,7 @@ public class TransferService implements ITransferService {
     private static final Gson gson = new GsonBuilder().create();
     private final IdWorker idWorker;
     private final IMerchantService merchantService;
+    private final IAgentPayBatchService agentPayBatchService;
     private final IAgentPayPassageService agentPayPassageService;
     private final IAgentPayPassageAccountService agentPayPassageAccountService;
     private final IInterfaceService interfaceService;
@@ -52,7 +62,7 @@ public class TransferService implements ITransferService {
     public TransferService(
             IdWorker idWorker,
             IMerchantService merchantService,
-            IAgentPayPassageService agentPayPassageService,
+            IAgentPayBatchService agentPayBatchService, IAgentPayPassageService agentPayPassageService,
             IAgentPayPassageAccountService agentPayPassageAccountService,
             IInterfaceService interfaceService,
             IAgentPayOrderService orderService,
@@ -60,6 +70,7 @@ public class TransferService implements ITransferService {
             IPrepaidAccountService prepaidAccountService) {
         this.idWorker = idWorker;
         this.merchantService = merchantService;
+        this.agentPayBatchService = agentPayBatchService;
         this.agentPayPassageService = agentPayPassageService;
         this.agentPayPassageAccountService = agentPayPassageAccountService;
         this.interfaceService = interfaceService;
@@ -90,26 +101,8 @@ public class TransferService implements ITransferService {
         if(payPassage == null||!payPassage.getStatus()){
             throw new APIException("通道不存在或未开启，无法创建订单","PASSAGE_NOT_SUPPORTED");
         }
-        AgentPayPassageAccount account = agentPayPassageAccountService.schedulerAgentPayPassageAcc(payPassage.getId());
-        if(account == null||!account.getStatus()){
-            throw new APIException("通道账户不存在或未开启，无法创建订单","PASSAGE_ACC_NOT_SUPPORTED");
-        }
-        Interface ints = interfaceService.getByCode(payPassage.getInterfaceCode());
-        if (ints == null || !ints.getStatus()){
-            throw new APIException("支付接口不存在或未开启，无法创建订单","PAY_INTERFACE_NOT_SUPPORTED");
-        }
-        LambdaQueryWrapper<AgentPayOrder> orderQueryWrapper = new LambdaQueryWrapper<>();
-        orderQueryWrapper.eq(AgentPayOrder::getMchId,mchId);
-        orderQueryWrapper.eq(AgentPayOrder::getOutOrderNo,inputDTO.getOutOrderNo());
-        AgentPayOrder oldOrder = orderService.getOne(orderQueryWrapper);
-        if (oldOrder != null) throw new APIException("支付接口不存在或未开启，无法创建订单","PAY_INTERFACE_NOT_SUPPORTED");
-        // 订单支付渠道初始化
-        agentPayOrder.setAgentpayPassageId(payPassage.getId());
-        agentPayOrder.setAgentpayPassageName(payPassage.getPassageName());
-        agentPayOrder.setAgentpayPassageAccId(account.getId());
-        agentPayOrder.setPayInterfaceId(ints.getId());
-        agentPayOrder.setPayTypeCode(ints.getPayTypeCode());
-        agentPayOrder.setPayInterfaceAttr(account.getInterfaceAttr());
+
+
         // 订单金额以及手续费初始化
         Integer feeType = mapp.getFeeType();
         if (feeType == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
@@ -135,12 +128,34 @@ public class TransferService implements ITransferService {
         }else {
             throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
         }
+        AgentPayPassageAccount account = agentPayPassageAccountService.schedulerAgentPayPassageAcc(payPassage.getId(),orderAmount+orderFee);
+        if(account == null||!account.getStatus()){
+            throw new APIException("通道账户不存在或未开启，无法创建订单","PASSAGE_ACC_NOT_SUPPORTED");
+        }
+        Interface ints = interfaceService.getByCode(payPassage.getInterfaceCode());
+        if (ints == null || !ints.getStatus()){
+            throw new APIException("支付接口不存在或未开启，无法创建订单","PAY_INTERFACE_NOT_SUPPORTED");
+        }
+        LambdaQueryWrapper<AgentPayOrder> orderQueryWrapper = new LambdaQueryWrapper<>();
+        orderQueryWrapper.eq(AgentPayOrder::getMchId,mchId);
+        orderQueryWrapper.eq(AgentPayOrder::getOutOrderNo,inputDTO.getOutOrderNo());
+        AgentPayOrder oldOrder = orderService.getOne(orderQueryWrapper);
+        if (oldOrder != null) throw new APIException("支付接口不存在或未开启，无法创建订单","PAY_INTERFACE_NOT_SUPPORTED");
+        // 订单支付渠道初始化
+        agentPayOrder.setAgentpayPassageId(payPassage.getId());
+        agentPayOrder.setAgentpayPassageName(payPassage.getPassageName());
+        agentPayOrder.setAgentpayPassageAccId(account.getId());
+        agentPayOrder.setPayInterfaceId(ints.getId());
+        agentPayOrder.setPayTypeCode(ints.getPayTypeCode());
+        agentPayOrder.setPayInterfaceAttr(account.getInterfaceAttr());
+
         PrepaidAccount pa = prepaidAccountService.getByMerchantId(mchId);
         if (pa == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
         int r = prepaidAccountService.updateBalance(mchId,(orderAmount+orderFee),-(orderAmount+orderFee));
         if (r <= 0){
             throw new APIException("账户可用余额不足，无法创建订单","ACCOUNT_AVAIL_BALANCE_NOT_ENOUGH",401);
         }
+        agentPayOrder.setMchId(mchId);
         agentPayOrder.setFee(orderFee);
         agentPayOrder.setStatus(1);
         agentPayOrder.setCreatedAt(LocalDateTime.now());
@@ -148,14 +163,64 @@ public class TransferService implements ITransferService {
         orderService.save(agentPayOrder);
         AgentPayOrderFlow agentPayOrderFlow = new AgentPayOrderFlow(agentPayOrder);
         try {
-            Plugin<AgentPayOrder> plugin = pluginLoader.loadForClassPath(ints.getInterfaceImpl());
+
+            String impl = ints.getInterfaceImpl();
+            Pattern pattern = Pattern.compile("(^|;)corder:(.+?)(;|$)");
+            Matcher m = pattern.matcher(impl);
+            if (!m.find())
+                throw new IllegalAccessException("接口调用失败");
+            Plugin<AgentPayOrder> plugin = pluginLoader.loadForClassPath(m.group(2));
             plugin.apply(agentPayOrderFlow);
             agentPayOrderFlow.execDependent("create");
         } catch (Exception e) {
             if (e instanceof APIException)
                 throw new APIException(e.getMessage(),((APIException) e).getCode(),((APIException) e).getStatus());
+            if (!StringUtils.isEmpty(e.getMessage())){
+                throw new APIException(e.getMessage(),"CALL_AGENT_PAY_PASSAGE_ERROR",500);
+            }
+            throw new APIException("系统错误，调用代付通道接口执行失败","CALL_AGENT_PAY_PASSAGE_ERROR",500);
+        }
+        AgentPayOrder order = orderService.getOneByOrderNo(agentPayOrder.getOrderNo());
+        return modelMapper.map(order,Transfer.class);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batch(BatchInputDTO batchInputDTO, Integer mchId) throws APIException {
+        String extra = batchInputDTO.getExtra();
+        List<BatchOrder> list = gson.fromJson(extra, new TypeToken<List<BatchOrder>>() {
+        }.getType());
+        if (batchInputDTO.getTotalCount() != list.size()){
+            throw new APIException("代付总笔数与实际总笔数不符","");
+        }
+        int  totalAmount= list.stream().mapToInt(BatchOrder::getAmount).sum();
+        if (batchInputDTO.getTotalAmount() != totalAmount){
+            throw new APIException("代付总金额与实际总金额不符","");
+        }
+        for (BatchOrder batchOrder : list) {
+            if (StringUtils.isEmpty(batchOrder.getOutOrderNo()) || batchOrder.getOutOrderNo().length() > 20){
+                throw new APIException("扩展参数订单号异常","");
+            }else if (StringUtils.isEmpty(batchOrder.getAccountName())){
+                throw new APIException(String.format("扩展参数订单号%s: 账户名异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getAccountType())){
+                throw new APIException(String.format("扩展参数订单号%s: 账户类型异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getAmount()) || batchOrder.getAmount() <= 0){
+                throw new APIException(String.format("扩展参数订单号%s: 订单金额异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getAccountNumber())){
+                throw new APIException(String.format("扩展参数订单号%s: 账户号异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getBankName())){
+                throw new APIException(String.format("扩展参数订单号%s: 开户行异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getBankNumber())){
+                throw new APIException(String.format("扩展参数订单号%s: 联行号异常",batchOrder.getOutOrderNo()),"");
+            }else if (StringUtils.isEmpty(batchOrder.getNotifyUrl())){
+                throw new APIException(String.format("扩展参数订单号%s: 通知地址异常",batchOrder.getOutOrderNo()),"");
+            }
+            batchOrder.setBatchNo(batchInputDTO.getBatchNo());
+            TransferInputDTO transferInputDTO = modelMapper.map(batchOrder, TransferInputDTO.class);
+            createOneByInput(mchId, transferInputDTO);
             throw new APIException("系统错误，调用代付通道执行失败","CALL_",401);
         }
-        return null;
+        AgentPayBatch agentPayBatch = modelMapper.map(batchInputDTO, AgentPayBatch.class);
+        agentPayBatchService.save(agentPayBatch);
     }
 }

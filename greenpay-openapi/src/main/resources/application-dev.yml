@@ -22,7 +22,7 @@ spring:
         content:
           enabled: true
 
-
+host: http://s7buy.esiran.com
 greenpay:
   web:
     hostname: http://s7buy.esiran.com

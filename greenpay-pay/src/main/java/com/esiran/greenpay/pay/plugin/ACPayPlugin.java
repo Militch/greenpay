@@ -110,7 +110,10 @@ public class ACPayPlugin implements Plugin<PayOrder> {
                 String result = (String) objectMap.get("result");
                 String msg = (String) objectMap.get("msg");
                 if (result.equals("paying")){
-                    redisDelayQueueClient.sendDelayMessage("order:acpay",orderDetail.getOrderNo(),5*1000);
+                    Map<String,String> messagePayload = new HashMap<>();
+                    messagePayload.put("orderNo", order.getOrderNo());
+                    messagePayload.put("count", "1");
+                    redisDelayQueueClient.sendDelayMessage("order:acpay",g.toJson(messagePayload),5*1000);
                 }else if (result.equals("success")){
                     LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
                     wrapper.set(Order::getStatus,2)
