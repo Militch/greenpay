@@ -21,6 +21,7 @@ import com.esiran.greenpay.merchant.entity.MerchantAgentPayPassage;
 import com.esiran.greenpay.merchant.entity.PrepaidAccount;
 import com.esiran.greenpay.merchant.service.IMerchantService;
 import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
+import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.esiran.greenpay.openapi.entity.BatchInputDTO;
 import com.esiran.greenpay.openapi.entity.BatchOrder;
 import com.esiran.greenpay.openapi.entity.Transfer;
@@ -59,6 +60,7 @@ public class TransferService implements ITransferService {
     private final IAgentPayOrderService orderService;
     private final PluginLoader pluginLoader;
     private final IPrepaidAccountService prepaidAccountService;
+    private final RedisDelayQueueClient redisDelayQueueClient;
     public TransferService(
             IdWorker idWorker,
             IMerchantService merchantService,
@@ -67,7 +69,7 @@ public class TransferService implements ITransferService {
             IInterfaceService interfaceService,
             IAgentPayOrderService orderService,
             PluginLoader pluginLoader,
-            IPrepaidAccountService prepaidAccountService) {
+            IPrepaidAccountService prepaidAccountService, RedisDelayQueueClient redisDelayQueueClient) {
         this.idWorker = idWorker;
         this.merchantService = merchantService;
         this.agentPayBatchService = agentPayBatchService;
@@ -77,6 +79,7 @@ public class TransferService implements ITransferService {
         this.orderService = orderService;
         this.pluginLoader = pluginLoader;
         this.prepaidAccountService = prepaidAccountService;
+        this.redisDelayQueueClient = redisDelayQueueClient;
     }
 
     @Override
@@ -184,43 +187,96 @@ public class TransferService implements ITransferService {
         return modelMapper.map(order,Transfer.class);
     }
 
+    private void checkBatchOneOrder(BatchOrder batchOrder) throws APIException {
+        if (StringUtils.isEmpty(batchOrder.getOutOrderNo()) || batchOrder.getOutOrderNo().length() > 20){
+            throw new APIException("扩展参数订单号异常","");
+        }else if (StringUtils.isEmpty(batchOrder.getAccountName())){
+            throw new APIException(String.format("扩展参数订单号%s: 账户名异常",batchOrder.getOutOrderNo()),"");
+        }else if (StringUtils.isEmpty(batchOrder.getAccountType())){
+            throw new APIException(String.format("扩展参数订单号%s: 账户类型异常",batchOrder.getOutOrderNo()),"");
+        }else if (StringUtils.isEmpty(batchOrder.getAmount()) || batchOrder.getAmount() <= 0){
+            throw new APIException(String.format("扩展参数订单号%s: 订单金额异常",batchOrder.getOutOrderNo()),"");
+        }else if (StringUtils.isEmpty(batchOrder.getAccountNumber())){
+            throw new APIException(String.format("扩展参数订单号%s: 账户号异常",batchOrder.getOutOrderNo()),"");
+        }else if (StringUtils.isEmpty(batchOrder.getBankName())){
+            throw new APIException(String.format("扩展参数订单号%s: 开户行异常",batchOrder.getOutOrderNo()),"");
+        }else if (StringUtils.isEmpty(batchOrder.getBankNumber())){
+            throw new APIException(String.format("扩展参数订单号%s: 联行号异常",batchOrder.getOutOrderNo()),"");
+        }else if (StringUtils.isEmpty(batchOrder.getNotifyUrl())){
+            throw new APIException(String.format("扩展参数订单号%s: 通知地址异常",batchOrder.getOutOrderNo()),"");
+        }
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void batch(BatchInputDTO batchInputDTO, Integer mchId) throws APIException {
-        String extra = batchInputDTO.getExtra();
-        List<BatchOrder> list = gson.fromJson(extra, new TypeToken<List<BatchOrder>>() {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        String recipients = batchInputDTO.getRecipients();
+        List<BatchOrder> list = gson.fromJson(recipients, new TypeToken<List<BatchOrder>>() {
         }.getType());
         if (batchInputDTO.getTotalCount() != list.size()){
             throw new APIException("代付总笔数与实际总笔数不符","");
         }
-        int  totalAmount= list.stream().mapToInt(BatchOrder::getAmount).sum();
+        int totalAmount = 0;
+        for (BatchOrder batchOrder : list) {
+            checkBatchOneOrder(batchOrder);
+            totalAmount += batchOrder.getAmount();
+        }
         if (batchInputDTO.getTotalAmount() != totalAmount){
             throw new APIException("代付总金额与实际总金额不符","");
         }
-        for (BatchOrder batchOrder : list) {
-            if (StringUtils.isEmpty(batchOrder.getOutOrderNo()) || batchOrder.getOutOrderNo().length() > 20){
-                throw new APIException("扩展参数订单号异常","");
-            }else if (StringUtils.isEmpty(batchOrder.getAccountName())){
-                throw new APIException(String.format("扩展参数订单号%s: 账户名异常",batchOrder.getOutOrderNo()),"");
-            }else if (StringUtils.isEmpty(batchOrder.getAccountType())){
-                throw new APIException(String.format("扩展参数订单号%s: 账户类型异常",batchOrder.getOutOrderNo()),"");
-            }else if (StringUtils.isEmpty(batchOrder.getAmount()) || batchOrder.getAmount() <= 0){
-                throw new APIException(String.format("扩展参数订单号%s: 订单金额异常",batchOrder.getOutOrderNo()),"");
-            }else if (StringUtils.isEmpty(batchOrder.getAccountNumber())){
-                throw new APIException(String.format("扩展参数订单号%s: 账户号异常",batchOrder.getOutOrderNo()),"");
-            }else if (StringUtils.isEmpty(batchOrder.getBankName())){
-                throw new APIException(String.format("扩展参数订单号%s: 开户行异常",batchOrder.getOutOrderNo()),"");
-            }else if (StringUtils.isEmpty(batchOrder.getBankNumber())){
-                throw new APIException(String.format("扩展参数订单号%s: 联行号异常",batchOrder.getOutOrderNo()),"");
-            }else if (StringUtils.isEmpty(batchOrder.getNotifyUrl())){
-                throw new APIException(String.format("扩展参数订单号%s: 通知地址异常",batchOrder.getOutOrderNo()),"");
-            }
-            batchOrder.setBatchNo(batchInputDTO.getBatchNo());
-            TransferInputDTO transferInputDTO = modelMapper.map(batchOrder, TransferInputDTO.class);
-            createOneByInput(mchId, transferInputDTO);
-            throw new APIException("系统错误，调用代付通道执行失败","CALL_",401);
+        MerchantAgentPayPassage mapp = merchantService.schedulerAgentPayPassage(mchId);
+        if (mapp == null){
+            throw new APIException("当前商户没有可用的通道","MERCHANT_NO_AVAILABLE_PASSAGE");
+        }
+        AgentPayPassage payPassage = agentPayPassageService.getById(mapp.getPassageId());
+        if(payPassage == null||!payPassage.getStatus()){
+            throw new APIException("通道不存在或未开启，无法创建订单","PASSAGE_NOT_SUPPORTED");
+        }
+        // 订单金额以及手续费初始化
+        Integer feeType = mapp.getFeeType();
+        if (feeType == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+        Integer orderFee;
+        if (feeType == 1){
+            // 当手续费类型为百分比收费时，根据订单金额计算手续费
+            BigDecimal feeRate = mapp.getFeeRate();
+            if (feeRate == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+            orderFee = NumberUtil.calculateAmountFee(totalAmount,feeRate);
+        }else if (feeType == 2){
+            // 当手续费类型为固定收费时，手续费为固定金额
+            Integer feeAmount = mapp.getFeeAmount();
+            if (feeAmount == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+            orderFee = feeAmount;
+        }else if(feeType == 3){
+            // 当手续费类型为百分比加固定收费时，根据订单金额计算手续费然后加固定手续费
+            BigDecimal feeRate = mapp.getFeeRate();
+            Integer feeAmount = mapp.getFeeAmount();
+            if (feeRate == null||feeAmount == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+            orderFee = NumberUtil.calculateAmountFee(totalAmount,feeRate);
+            orderFee += feeAmount;
+        }else {
+            throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+        }
+        int r = prepaidAccountService.updateBalance(mchId,(totalAmount+orderFee),-(totalAmount+orderFee));
+        if (r <= 0){
+            throw new APIException("账户可用余额不足，无法创建订单","ACCOUNT_AVAIL_BALANCE_NOT_ENOUGH",401);
+        }
+        AgentPayPassageAccount account = agentPayPassageAccountService.schedulerAgentPayPassageAcc(payPassage.getId(),totalAmount+orderFee);
+        if(account == null||!account.getStatus()){
+            throw new APIException("通道账户不存在或未开启，无法创建订单","PASSAGE_ACC_NOT_SUPPORTED");
+        }
+        Interface ints = interfaceService.getByCode(payPassage.getInterfaceCode());
+        if (ints == null || !ints.getStatus()){
+            throw new APIException("支付接口不存在或未开启，无法创建订单","PAY_INTERFACE_NOT_SUPPORTED");
         }
         AgentPayBatch agentPayBatch = modelMapper.map(batchInputDTO, AgentPayBatch.class);
+        agentPayBatch.setBatchNo(String.valueOf(idWorker.nextId()));
+        agentPayBatch.setMchId(mchId);
+        agentPayBatch.setPayTypeCode(ints.getPayTypeCode());
+        agentPayBatch.setAgentpayPassageId(payPassage.getId());
+        agentPayBatch.setAgentpayPassageAccId(account.getId());
+        agentPayBatch.setPayInterfaceId(ints.getId());
         agentPayBatchService.save(agentPayBatch);
+        redisDelayQueueClient.sendDelayMessage("agentpay:batch:order:create",agentPayBatch.getBatchNo(),0);
     }
 }

@@ -29,7 +29,7 @@ public class BatchInputDTO {
      * 扩展参数
      */
     @NotEmpty(message = "扩展参数不能为空")
-    private String extra;
+    private String recipients;
 
     /**
      * 订单回调地址
