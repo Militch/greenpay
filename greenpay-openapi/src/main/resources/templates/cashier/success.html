@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付成功</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body,html{
+            background-color: #F5F5F5;
+        }
+        .content{
+            width: 70%;
+            margin: 50px auto;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            padding: 50px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 8px 1px #ccc;
+        }
+        .content h2{
+            line-height: 66px;
+            color: rgb(70, 70, 70);
+        }
+        .content img{
+            width: 150px;
+        }
+        ul{
+            max-width: 450px;
+            width: 100%;
+        }
+        li{
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            align-items: center;
+            justify-content: space-between;
+            color: #666;
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div>
+            <img src="/img/paysuccess.png" alt="">
+        </div>
+        <h2>支付成功</h2>
+        <!-- <div>信息</div> -->
+        <ul>
+            <li>
+                <span>商品名称</span>
+                <span th:text="${order.subject}"></span>
+            </li>
+            <li>
+                <span>订单流水号</span>
+                <span th:text="${order.outOrderNo}">值</span>
+            </li>
+            <li>
+                <span>订单编号</span>
+                <span th:text="${order.orderNo}">值值值</span>
+            </li>
+            <li>
+                <span>订单金额(元)</span>
+                <span th:text="${order.amountDisplay}"></span>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

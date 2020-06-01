@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>绿呗支付演示</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #fafafa!important;
+        }
+        #app {
+            position: relative;
+            padding-top: 130px;
+        }
+        .main{
+            width: 450px;
+            margin: 0 auto;
+        }
+        .main > .main-title {
+            text-align: center;
+        }
+        .main > .main-title > h1 {
+            font-weight: 100;
+        }
+    </style>
+</head>
+
+<body>
+<div id="app">
+    <div class="main">
+        <div class="main-title">
+            <h1>绿呗支付演示</h1>
+        </div>
+        <el-card class="box-card ">
+            <div slot="header" class="clearfix">
+                <span>创建订单</span>
+            </div>
+            <el-form
+                    :rules="rules"
+                    ref="orderForm"
+                    :model="form"
+                    action=""
+                    target="_blank"
+                    method="post"
+                    label-width="80px">
+                <el-form-item
+                        label="应用ID"
+                        prop="appId">
+                    <el-input
+                            v-model="form.appId"
+                            name="appId"
+                            placeholder="输入应用ID">
+                    </el-input>
+                </el-form-item>
+                <el-form-item
+                        label="商户订单号"
+                        prop="outOrderNo">
+                    <el-input
+                            v-model="form.outOrderNo"
+                            name="outOrderNo"
+                            placeholder="请输入商户订单号">
+                    </el-input>
+                </el-form-item>
+                <el-form-item
+                        label="订单金额"
+                        prop="amount">
+                    <el-input
+                            v-model="form.amount"
+                            name="amount"
+                            placeholder="请输入金额，单位：元">
+                    </el-input>
+                </el-form-item>
+                <el-form-item
+                        label="商品标题"
+                        prop="subject">
+                    <el-input
+                            v-model="form.subject"
+                            name="subject"
+                            placeholder="请输入商品标题">
+                    </el-input>
+                </el-form-item>
+                <el-form-item
+                        label="支付方式"
+                        prop="channel">
+                    <el-select
+                            v-model="form.channel"
+                            placeholder="请选择支付方式">
+                        <el-option
+                                v-for="item in form.allChannels"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <input type="hidden" name="channel" v-model="form.channel">
+                    <el-button
+                            native-type="submit"
+                            @click.native="doCreate"
+                            type="primary">
+                        创建订单
+                    </el-button>
+                </el-form-item>
+            </el-form>
+        </el-card>
+    </div>
+
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                form: {
+                    appId: '',
+                    outOrderNo: '',
+                    amount: '',
+                    subject: '',
+                    channel: '',
+                    allChannels: [
+                        {
+                            value: 'wx_jsapi',
+                            label: '微信公众号扫码支付'
+                        },{
+                            value: 'ali_jsapi',
+                            label: '支付宝服务窗扫码支付'
+                        },{
+                            value: 'wx_qr',
+                            label: '微信扫码支付'
+                        },{
+                            value: 'ali_qr',
+                            label: '支付宝扫码支付'
+                        },{
+                            value: 'wx_scan',
+                            label: '微信付款码支付'
+                        },{
+                            value: 'ali_scan',
+                            label: '支付宝付款码支付'
+                        }
+                    ],
+                },
+                rules: {
+                    amount: [
+                        {
+                            required: true,
+                            message: '请输入订单金额',
+                            trigger: 'blur'
+                        }, {
+                            validator: function(rule, value, callback){
+                                var reg = /^([1-9]\d{0,9}|0)(\.\d{1,2})?$/;
+                                if (!reg.test(value)){
+                                    callback(new Error('请输入正确的金额'));
+                                }else{
+                                    callback();
+                                }
+                            },
+                            trigger: 'blur'
+                        }, {
+                            validator: function(rule, value, callback){
+                                const amount = parseFloat(value);
+                                if (amount < 0.01){
+                                    callback(new Error('订单金额不能小于1分'));
+                                }else {
+                                    callback();
+                                }
+                            },
+                            trigger: 'blur',
+                        }
+                    ],
+                    channel: [
+                        {
+                         required: true,
+                         message: '请选择支付方式',
+                         trigger: 'change'
+                        },
+                    ]
+                }
+            }
+        },
+        methods: {
+            doCreate(e) {
+                this.$refs['orderForm'].validate((valid) => {
+                    if (valid) {
+                        let params = {
+                         channel: this.form.channel,
+                         appId: this.form.appId,
+                         outOrderNo: this.form.outOrderNo,
+                         amount: this.form.amount,
+                         subject: this.form.subject,
+                         };
+                        console.log(params);
+                        $.ajax({
+                            type: "post",
+                            url: "/v1/cashiers/qr/orders",
+                            data: params,
+                            contentType:"application/x-www-form-urlencoded",
+                            success: function (response) {
+                            }
+                        });
+                        // e.preventDefault();
+                        return true;
+                    } else {
+                        e.preventDefault();
+                    }
+                });
+            },
+        //     doCreate() {
+        //
+        //         let params = {
+        //             channel: this.form.channel,
+        //             appId: this.form.appId,
+        //             outOrderNo: this.form.outOrderNo,
+        //             amount: this.form.amount,
+        //             subject: this.form.subject,
+        //         };
+        //         console.log(params);
+        //                 $.ajax({
+        //                     type: "post",
+        //                     url: "/v1/cashiers/qr/orders",
+        //                     data: params,
+        //                     dataType: "json",
+        //                     success: function (response) {
+        //                     }
+        //                 });
+        //             }
+        }
+    })
+</script>
+</body>
+
+</html>

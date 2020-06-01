@@ -30,9 +30,8 @@ public class APITransfers {
         return t;
     }
     @PostMapping("/batch")
-    public void batch(@Valid BatchInputDTO batchInputDTO){
-
-        String extra = batchInputDTO.getExtra();
-
+    public void batch(@Valid BatchInputDTO batchInputDTO) throws APIException {
+        Merchant merchant = OpenAPISecurityUtils.getSubject();
+        transferService.batch(batchInputDTO,merchant.getId());
     }
 }
