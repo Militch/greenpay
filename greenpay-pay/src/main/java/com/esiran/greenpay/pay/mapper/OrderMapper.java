@@ -134,7 +134,7 @@ public interface OrderMapper extends BaseMapper<Order> {
     List<CartogramDTO> sevenDay4CountAndAmount();
 
 
-    @Select("select  DATE_FORMAT(created_at,'%d') AS name, " +
+    @Select("select  DATE_FORMAT(created_at,'%e') AS name, " +
             "    COUNT(*) AS count, " +
             "    SUM((IF (status = 2 OR status = 3 ,1,0))) AS successCount, " +
             "    SUM(amount) AS amount, " +

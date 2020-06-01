@@ -7,6 +7,7 @@ import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
 import com.esiran.greenpay.common.util.EncryptUtil;
 import com.esiran.greenpay.common.util.IdWorker;
+import com.esiran.greenpay.common.util.MoneyFormatUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.common.util.PercentCount;
 import com.esiran.greenpay.merchant.entity.Merchant;
@@ -28,6 +29,7 @@ import com.esiran.greenpay.settle.entity.SettleOrderQueryDto;
 import com.esiran.greenpay.settle.mapper.SettleOrderMapper;
 import com.esiran.greenpay.settle.service.ISettleOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.support.ManagedMap;
@@ -462,7 +464,11 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         List<CartogramDTO> weekList = transfer(cartogramDTOList, 1,7);
         cartogramDTOList.addAll(weekList);
         Collections.sort(cartogramDTOList);
-        data.put("name", "一周交易趋势");
+            cartogramDTOList.stream().forEach(cartogramDTO -> {
+                int name = NumberUtils.toInt(cartogramDTO.getName());
+                cartogramDTO.setName("星期" + (name <7 ? MoneyFormatUtil.formatFractionalPart(name) : "日"));
+            });
+        data.put("name", "本周交易趋势");
         data.put("val", cartogramDTOList);
         map.put("weekList", data);
 
@@ -472,6 +478,12 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         List<CartogramDTO> monthList = transfer(month4CountAndAmount,1, getCurrentMonthLastDay());
         month4CountAndAmount.addAll(monthList);
         Collections.sort(month4CountAndAmount);
+        Calendar calendar = Calendar.getInstance();
+        month4CountAndAmount.stream().forEach( cartogramDTO -> {
+            String name = cartogramDTO.getName();
+            name = (calendar.get(Calendar.MONTH) + 1) + "-" +name;
+            cartogramDTO.setName(name);
+        });
         data.put("name", "当月交易趋势");
         data.put("val", month4CountAndAmount);
         map.put("monthList", data);
