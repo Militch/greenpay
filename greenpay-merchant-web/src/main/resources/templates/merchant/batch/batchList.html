@@ -83,7 +83,7 @@
         //第一个实例
         table.render({
             elem: '#replaceList',
-            url: '/api/v1/agentpay/orders', //数据接口
+            url: '/api/v1/agentpay/batch', //数据接口
             page: true,//开启分页
             parseData: function (res) { //res 即为原始返回的数据
                 return {
@@ -99,17 +99,11 @@
             }
             , cols: [[ //表头
                 {type: 'checkbox', fixed: 'left'}
-                , {field: 'mchId', title: '商户ID', width: "5%",align:'center'}
-                , {field: 'accountName', title: '账户名', width: "15%",align:'center'}
-                , {field: 'accountNumber', title: '账户号', width: "15%",align:'center'}
-                , {field: 'orderNo', title: '代付订单号', width: "15%",align:'center'}
-                , {field: 'outOrderNo', title: '商户订单号', width: "15%",align:'center'}
-                , {field: 'amount', title: '订单金额（单位：分）', width: "10%",align:'center'}
-                , {field: 'fee', title: '订单金额（单位：分）', width: "10%",align:'center'}
-                , {field: 'status', title: '状态', width: "15%" ,templet: "#statusTpl",align:'center'}
-                , {field: 'bankName', title: '开户行', width: "10%",align:'center'}
-                , {field: 'bankNumber', title: '联行号', width: "10%",align:'center'}
-                , {field: 'agentpayPassageName', title: '代付通道名称', width: "15%",align:'center'}
+                , {field: 'mchId', title: '商户ID', width: "10%",align:'center'}
+                , {field: 'batchNo', title: '交易批次号', width: "10%",align:'center'}
+                , {field: 'outBatchNo', title: '商户交易批次号', width: "15%",align:'center'}
+                , {field: 'totalAmount', title: '订单金额（单位：分）', width: "15%",align:'center'}
+                , {field: 'totalCount', title: '总笔数', width: "10%",align:'center'}
                 , {field: 'updatedAt', title: '创建时间', width: "15%",align:'center'}
                 , {field: 'createdAt', title: '创建时间', width: "15%",align:'center'}
 

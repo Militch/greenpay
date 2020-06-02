@@ -16,10 +16,10 @@
                         <div class="layui-card-header">账户信息</div>
                         <div class="layui-card-body">
                             <div class="layui-carousel layadmin-carousel layadmin-backlog" lay-anim=""
-                                 style="width: 100%; height: 280px;">
+                                 style="width: 100%; height: 200px;">
                                 <div carousel-item="">
                                     <ul class="layui-row layui-col-space10 layui-this">
-                                        <li class="layui-col-xs4">
+                                        <li class="layui-col-xs3">
                                             <a lay-href="" class="layadmin-backlog-body">
                                                 <h3>账户可用余额</h3>
                                                 <p>
@@ -27,7 +27,7 @@
                                                 </p>
                                             </a>
                                         </li>
-                                        <li class="layui-col-xs4">
+                                        <li class="layui-col-xs3">
                                             <a lay-href="" class="layadmin-backlog-body">
                                                 <h3>账户冻结余额</h3>
                                                 <p>
@@ -35,22 +35,22 @@
                                                 </p>
                                             </a>
                                         </li>
-<!--                                        <li class="layui-col-xs4">-->
-<!--                                            <a lay-href="" class="layadmin-backlog-body">-->
-<!--                                                <h3>账户代付余额</h3>-->
-<!--                                                <p>-->
-<!--                                                    <cite th:text="${homeData.prepaidAccountDTO.availBalanceDisplay}"></cite> 元-->
-<!--                                                </p>-->
-<!--                                            </a>-->
-<!--                                        </li>-->
-<!--                                        <li class="layui-col-xs4">-->
-<!--                                            <a lay-href="" class="layadmin-backlog-body">-->
-<!--                                                <h3>账户代付冻结余额</h3>-->
-<!--                                                <p>-->
-<!--                                                    <cite th:text="${homeData.prepaidAccountDTO.freezeBalanceDisplay}"></cite> 元-->
-<!--                                                </p>-->
-<!--                                            </a>-->
-<!--                                        </li>-->
+                                        <li class="layui-col-xs3">
+                                            <a lay-href="" class="layadmin-backlog-body">
+                                                <h3>账户代付余额</h3>
+                                                <p>
+                                                    <cite th:text="${homeData.prepaidAccountDTO.availBalanceDisplay}"></cite> 元
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li class="layui-col-xs3">
+                                            <a lay-href="" class="layadmin-backlog-body">
+                                                <h3>账户代付冻结余额</h3>
+                                                <p>
+                                                    <cite th:text="${homeData.prepaidAccountDTO.freezeBalanceDisplay}"></cite> 元
+                                                </p>
+                                            </a>
+                                        </li>
 <!--                                        <li class="layui-col-xs4">-->
 <!--                                            <a lay-href="" class="layadmin-backlog-body">-->
 <!--                                                <h3>不可用代付余额</h3>-->
@@ -80,54 +80,54 @@
                                      style="width: 100%; height: 250px;">
                                     <div carousel-item="">
                                         <ul class="layui-row layui-col-space10 layui-this">
-                                            <li class="layui-col-xs2">
+                                            <li class="layui-col-xs3">
                                                 <a lay-href="" class="layadmin-backlog-body">
                                                     <h3>今日收单总数</h3>
                                                     <p><cite th:text="${homeData.totalCount}"></cite> 个</p>
                                                 </a>
                                             </li>
-                                            <li class="layui-col-xs2">
+                                            <li class="layui-col-xs3">
                                                 <a lay-href="" class="layadmin-backlog-body">
                                                     <h3>今日收单总额</h3>
                                                     <p><cite th:text="${homeData.totalMoney}"></cite> 元</p>
                                                 </a>
                                             </li>
-                                            <li class="layui-col-xs2">
+                                            <li class="layui-col-xs3">
                                                 <a lay-href="" class="layadmin-backlog-body">
                                                     <h3>今日成交笔数</h3>
                                                     <p><cite th:text="${homeData.successCount}"></cite> 个</p>
                                                 </a>
                                             </li>
-                                            <li class="layui-col-xs2">
+                                            <li class="layui-col-xs3">
                                                 <a lay-href="" class="layadmin-backlog-body">
                                                     <h3>今日成交总额</h3>
                                                     <p><cite th:text="${homeData.successMoney}"></cite> 元</p>
                                                 </a>
                                             </li>
-<!--                                            <li class="layui-col-xs2">-->
-<!--                                                <a lay-href="" class="layadmin-backlog-body">-->
-<!--                                                    <h3>今日代付订单</h3>-->
-<!--                                                    <p><cite>0</cite> 个</p>-->
-<!--                                                </a>-->
-<!--                                            </li>-->
-<!--                                            <li class="layui-col-xs2">-->
-<!--                                                <a lay-href="" class="layadmin-backlog-body">-->
-<!--                                                    <h3>今日代付总额</h3>-->
-<!--                                                    <p><cite>0</cite> 元</p>-->
-<!--                                                </a>-->
-<!--                                            </li>-->
-<!--                                            <li class="layui-col-xs2">-->
-<!--                                                <a lay-href="" class="layadmin-backlog-body">-->
-<!--                                                    <h3>昨日收款订单</h3>-->
-<!--                                                    <p><cite>0</cite> 个</p>-->
-<!--                                                </a>-->
-<!--                                            </li>-->
-<!--                                            <li class="layui-col-xs2">-->
-<!--                                                <a lay-href="" class="layadmin-backlog-body">-->
-<!--                                                    <h3>昨日收款总额</h3>-->
-<!--                                                    <p><cite>0</cite> 元</p>-->
-<!--                                                </a>-->
-<!--                                            </li>-->
+                                            <li class="layui-col-xs3">
+                                                <a lay-href="" class="layadmin-backlog-body">
+                                                    <h3>今日代付收单笔数</h3>
+                                                    <p><cite th:text="${homeData.intraDayOrdersCount}">0</cite> 个</p>
+                                                </a>
+                                            </li>
+                                            <li class="layui-col-xs3">
+                                                <a lay-href="" class="layadmin-backlog-body">
+                                                    <h3>今日代付收单总额</h3>
+                                                    <p><cite th:text="${homeData.intrDayOrderAmounts}">0</cite> 元</p>
+                                                </a>
+                                            </li>
+                                            <li class="layui-col-xs3">
+                                                <a lay-href="" class="layadmin-backlog-body">
+                                                    <h3>今日代付成交总额</h3>
+                                                    <p><cite th:text="${homeData.intrDayOrderAmountSucces}">0</cite>元</p>
+                                                </a>
+                                            </li>
+                                            <li class="layui-col-xs3">
+                                                <a lay-href="" class="layadmin-backlog-body">
+                                                    <h3>昨日代付成交总额</h3>
+                                                    <p><cite th:text="${homeData.yesterDayOrdersAmountSucces}">0</cite> 元</p>
+                                                </a>
+                                            </li>
 <!--                                            <li class="layui-col-xs2">-->
 <!--                                                <a lay-href="" class="layadmin-backlog-body">-->
 <!--                                                    <h3>昨日充值订单</h3>-->

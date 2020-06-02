@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassage;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccount;
+import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
@@ -28,7 +30,6 @@ import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -56,6 +57,7 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
     private final IMerchantAgentPayPassageService mchAgentPayPassageService;
     private final IAgentPayPassageService agentPayPassageService;
     private final IOrderService orderService;
+    private final IAgentPayOrderService iAgentPayOrderService;
     private static final ModelMapper modelMapper = new ModelMapper();
 
     public MerchantServiceImpl(
@@ -64,7 +66,7 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
             IMerchantProductService merchantProductService,
             IMerchantProductPassageService merchantProductPassageService, IPassageAccountService passageAccountService, IApiConfigService apiConfigService,
             IPayAccountService payAccountService,
-            IPrepaidAccountService prepaidAccountService, ISettleAccountService settleAccountService, IPassageService passageService, IMerchantAgentPayPassageService mchAgentPayPassageService, IAgentPayPassageService agentPayPassageService, IOrderService orderService) {
+            IPrepaidAccountService prepaidAccountService, ISettleAccountService settleAccountService, IPassageService passageService, IMerchantAgentPayPassageService mchAgentPayPassageService, IAgentPayPassageService agentPayPassageService, IOrderService orderService, IAgentPayOrderService iAgentPayOrderService) {
         this.iTypeService = iTypeService;
         this.productService = productService;
         this.merchantProductService = merchantProductService;
@@ -78,6 +80,7 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
         this.mchAgentPayPassageService = mchAgentPayPassageService;
         this.agentPayPassageService = agentPayPassageService;
         this.orderService = orderService;
+        this.iAgentPayOrderService = iAgentPayOrderService;
     }
 
     @Override
@@ -477,6 +480,20 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
         int totalMoney = orders.stream().mapToInt(Order::getAmount).sum();
         int successCount = (int) orders.stream().filter(order -> 2 == order.getStatus()).count();
         int successMoney = orders.stream().filter(order -> 2 == order.getStatus()).mapToInt(Order::getAmount).sum();
+
+
+        //今日相关
+        List<AgentPayOrderDTO> intradayOrders = iAgentPayOrderService.findIntradayOrders(mchId);
+        //昨日相关
+        List<AgentPayOrderDTO> yesterdayOrders = iAgentPayOrderService.findYesterdayOrders(mchId);
+        Integer intraDayOrdersCount = intradayOrders.size();
+
+        Integer intrDayOrderAmounts = intradayOrders.stream().mapToInt(AgentPayOrderDTO::getAmount).sum();
+
+        Integer  intrDayOrderAmountSucces = intradayOrders.stream().filter(agentPayOrderDTO -> agentPayOrderDTO.getStatus()==3).mapToInt(AgentPayOrderDTO::getAmount).sum();
+
+        Integer yesterDayOrdersAmountSucces = yesterdayOrders.stream().mapToInt(AgentPayOrderDTO::getAmount).sum();;
+
         HomeData homeData = new HomeData();
         homeData.setPayAccountDTO(payAccountDTO);
         homeData.setPrepaidAccountDTO(prepaidAccountDTO);
@@ -484,8 +501,16 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
         homeData.setSuccessCount(successCount);
         homeData.setTotalMoney(NumberUtil.amountFen2Yuan(totalMoney));
         homeData.setSuccessMoney(NumberUtil.amountFen2Yuan(successMoney));
+
+        homeData.setIntraDayOrdersCount(intraDayOrdersCount);
+        homeData.setIntrDayOrderAmounts(NumberUtil.amountFen2Yuan(intrDayOrderAmounts));
+        homeData.setIntrDayOrderAmountSucces(NumberUtil.amountFen2Yuan(intrDayOrderAmountSucces));
+        homeData.setYesterDayOrdersAmountSucces(NumberUtil.amountFen2Yuan(yesterDayOrdersAmountSucces));
+
+
         return homeData;
     }
+
 
 
 

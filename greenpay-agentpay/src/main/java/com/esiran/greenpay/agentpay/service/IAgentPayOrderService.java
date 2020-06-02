@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
 import com.esiran.greenpay.pay.entity.OrderDTO;
 
+import java.util.List;
+
 /**
  * <p>
  * 代付订单表 服务类
@@ -22,6 +24,10 @@ public interface IAgentPayOrderService extends IService<AgentPayOrder> {
     AgentPayOrderDTO getbyOrderNo(String orderNo);
 
     AgentPayOrder getOneByOrderNo(String orderNo);
+
 //    AgentPayOrder
+    List<AgentPayOrderDTO> findIntradayOrders(Integer  mchId);
+
+    List<AgentPayOrderDTO> findYesterdayOrders(Integer  mchId);
 
 }

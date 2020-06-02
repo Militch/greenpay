@@ -11,6 +11,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenpay.pay.entity.OrderDTO;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 代付订单表 服务实现类
@@ -42,5 +44,19 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
         LambdaQueryWrapper<AgentPayOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AgentPayOrder::getOrderNo,orderNo);
         return this.getOne(wrapper);
+    }
+
+
+
+    @Override
+    public List<AgentPayOrderDTO> findIntradayOrders(Integer mchId) {
+        List<AgentPayOrderDTO> intradayOrders = this.baseMapper.findIntradayOrders(mchId);
+        return intradayOrders;
+    }
+
+    @Override
+    public List<AgentPayOrderDTO> findYesterdayOrders(Integer mchId) {
+        List<AgentPayOrderDTO> yesterdayOrders = this.baseMapper.findYesterdayOrders(mchId);
+        return yesterdayOrders;
     }
 }

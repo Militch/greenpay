@@ -1,4 +1,4 @@
-package com.esiran.greenpay.admin.controller.agentpay;
+package com.esiran.greenpay.merchant.controller.batch;
 
 import com.esiran.greenpay.pay.entity.OrderDTO;
 import com.esiran.greenpay.pay.entity.OrderDetailDTO;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/agentpay/batch")
+@RequestMapping("/batch")
 public class AdminAgentPayBatchController {
     private final IOrderService orderService;
     private final IOrderDetailService orderDetailService;
@@ -25,7 +25,7 @@ public class AdminAgentPayBatchController {
 
     @GetMapping("/list")
     public String list(){
-        return "admin/agentpay/batch/list";
+        return "merchant/batch/batchList";
     }
 
     @GetMapping("/list/{orderNo}/detail")

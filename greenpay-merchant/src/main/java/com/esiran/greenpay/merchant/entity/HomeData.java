@@ -15,4 +15,13 @@ public class HomeData {
     private String totalMoney;
 
     private String successMoney;
+
+
+    private Integer intraDayOrdersCount;
+
+    private String intrDayOrderAmounts;
+
+    private String intrDayOrderAmountSucces;
+
+    private String yesterDayOrdersAmountSucces;
 }

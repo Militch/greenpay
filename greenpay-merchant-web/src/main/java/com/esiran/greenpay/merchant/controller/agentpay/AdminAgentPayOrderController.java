@@ -1,4 +1,4 @@
-package com.esiran.greenpay.admin.controller.agentpay;
+package com.esiran.greenpay.merchant.controller.agentpay;
 
 import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
 import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;

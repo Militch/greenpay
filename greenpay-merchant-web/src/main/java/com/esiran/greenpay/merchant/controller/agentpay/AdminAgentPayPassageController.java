@@ -1,6 +1,6 @@
-package com.esiran.greenpay.admin.controller.agentpay;
+package com.esiran.greenpay.merchant.controller.agentpay;
 
-import com.esiran.greenpay.admin.controller.CURDBaseController;
+
 import com.esiran.greenpay.agentpay.entity.AgentPayPassage;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccount;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccountInputDTO;
@@ -10,10 +10,10 @@ import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
+import com.esiran.greenpay.merchant.controller.CURDBaseController;
 import com.esiran.greenpay.pay.entity.*;
 import com.esiran.greenpay.pay.service.IInterfaceService;
-import com.esiran.greenpay.pay.service.IPassageAccountService;
-import com.esiran.greenpay.pay.service.IPassageService;
+
 import com.esiran.greenpay.pay.service.ITypeService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
