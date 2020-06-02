@@ -19,6 +19,7 @@ import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.merchant.entity.Merchant;
 import com.esiran.greenpay.merchant.entity.MerchantAgentPayPassage;
 import com.esiran.greenpay.merchant.entity.PrepaidAccount;
+import com.esiran.greenpay.merchant.entity.PrepaidAccountDTO;
 import com.esiran.greenpay.merchant.service.IMerchantService;
 import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
 import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
@@ -32,6 +33,7 @@ import com.esiran.greenpay.pay.service.IInterfaceService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import io.swagger.models.auth.In;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
@@ -43,7 +45,9 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -204,10 +208,6 @@ public class TransferService implements ITransferService {
             throw new APIException(String.format("扩展参数订单号%s: 账户号异常",batchOrder.getOutOrderNo()),"");
         }else if (StringUtils.isEmpty(batchOrder.getBankName())){
             throw new APIException(String.format("扩展参数订单号%s: 开户行异常",batchOrder.getOutOrderNo()),"");
-        }else if (StringUtils.isEmpty(batchOrder.getBankNumber())){
-            throw new APIException(String.format("扩展参数订单号%s: 联行号异常",batchOrder.getOutOrderNo()),"");
-        }else if (StringUtils.isEmpty(batchOrder.getNotifyUrl())){
-            throw new APIException(String.format("扩展参数订单号%s: 通知地址异常",batchOrder.getOutOrderNo()),"");
         }
     }
 
@@ -242,29 +242,30 @@ public class TransferService implements ITransferService {
             throw new APIException("通道不存在或未开启，无法创建订单","PASSAGE_NOT_SUPPORTED");
         }
         // 订单金额以及手续费初始化
-        Integer feeType = mapp.getFeeType();
-        if (feeType == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
-        Integer orderFee;
-        if (feeType == 1){
-            // 当手续费类型为百分比收费时，根据订单金额计算手续费
-            BigDecimal feeRate = mapp.getFeeRate();
-            if (feeRate == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
-            orderFee = NumberUtil.calculateAmountFee(totalAmount,feeRate);
-        }else if (feeType == 2){
-            // 当手续费类型为固定收费时，手续费为固定金额
-            Integer feeAmount = mapp.getFeeAmount();
-            if (feeAmount == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
-            orderFee = feeAmount;
-        }else if(feeType == 3){
-            // 当手续费类型为百分比加固定收费时，根据订单金额计算手续费然后加固定手续费
-            BigDecimal feeRate = mapp.getFeeRate();
-            Integer feeAmount = mapp.getFeeAmount();
-            if (feeRate == null||feeAmount == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
-            orderFee = NumberUtil.calculateAmountFee(totalAmount,feeRate);
-            orderFee += feeAmount;
-        }else {
-            throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
-        }
+//        Integer feeType = mapp.getFeeType();
+//        if (feeType == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+//        Integer orderFee;
+//        if (feeType == 1){
+//            // 当手续费类型为百分比收费时，根据订单金额计算手续费
+//            BigDecimal feeRate = mapp.getFeeRate();
+//            if (feeRate == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+//            orderFee = NumberUtil.calculateAmountFee(totalAmount,feeRate);
+//        }else if (feeType == 2){
+//            // 当手续费类型为固定收费时，手续费为固定金额
+//            Integer feeAmount = mapp.getFeeAmount();
+//            if (feeAmount == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+//            orderFee = feeAmount;
+//        }else if(feeType == 3){
+//            // 当手续费类型为百分比加固定收费时，根据订单金额计算手续费然后加固定手续费
+//            BigDecimal feeRate = mapp.getFeeRate();
+//            Integer feeAmount = mapp.getFeeAmount();
+//            if (feeRate == null||feeAmount == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+//            orderFee = NumberUtil.calculateAmountFee(totalAmount,feeRate);
+//            orderFee += feeAmount;
+//        }else {
+//            throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+//        }
+        Integer orderFee = OrderFee(mapp, totalAmount, batchInputDTO.getTotalCount());
         int r = prepaidAccountService.updateBalance(mchId,(totalAmount+orderFee),-(totalAmount+orderFee));
         if (r <= 0){
             throw new APIException("账户可用余额不足，无法创建订单","ACCOUNT_AVAIL_BALANCE_NOT_ENOUGH",401);
@@ -288,6 +289,8 @@ public class TransferService implements ITransferService {
         for (BatchOrder batchOrder : list) {
             AgentPayOrder agentPayOrder = modelMapper.map(batchOrder,AgentPayOrder.class);
             agentPayOrder.setPayTypeCode(ints.getPayTypeCode());
+            Integer fee = OrderFee(mapp, totalAmount, batchInputDTO.getTotalCount());
+            agentPayOrder.setFee(fee);
             agentPayOrder.setAgentpayPassageId(payPassage.getId());
             agentPayOrder.setAgentpayPassageAccId(account.getId());
             agentPayOrder.setPayInterfaceId(ints.getId());
@@ -296,4 +299,47 @@ public class TransferService implements ITransferService {
             kafkaTemplate.send("grennpay_agentpay_batch_order_create",gson.toJson(agentPayOrder));
         }
     }
+
+    @Override
+    public String queryAmount(Integer mchId) {
+        PrepaidAccountDTO prepaidAccount = prepaidAccountService.findByMerchantId(mchId);
+        Map<String,String> result = new HashMap<>();
+        if (prepaidAccount == null ){
+            result.put("code","error");
+            result.put("msg","商户不存在");
+        }else {
+            result.put("code","success");
+            result.put("availBalance",prepaidAccount.getAvailBalanceDisplay());
+            result.put("freezeBalance",prepaidAccount.getFreezeBalanceDisplay());
+        }
+        return gson.toJson(result);
+    }
+
+    public Integer OrderFee(MerchantAgentPayPassage mapp, Integer amount,Integer count) throws APIException {
+        Integer feeType = mapp.getFeeType();
+        if (feeType == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+        Integer orderFee;
+        if (feeType == 1){
+            // 当手续费类型为百分比收费时，根据订单金额计算手续费
+            BigDecimal feeRate = mapp.getFeeRate();
+            if (feeRate == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+            orderFee = NumberUtil.calculateAmountFee(amount,feeRate);
+        }else if (feeType == 2){
+            // 当手续费类型为固定收费时，手续费为固定金额
+            Integer feeAmount = mapp.getFeeAmount();
+            if (feeAmount == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+            orderFee = feeAmount;
+        }else if(feeType == 3){
+            // 当手续费类型为百分比加固定收费时，根据订单金额计算手续费然后加固定手续费
+            BigDecimal feeRate = mapp.getFeeRate();
+            Integer feeAmount = mapp.getFeeAmount();
+            if (feeRate == null||feeAmount == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+            orderFee = NumberUtil.calculateAmountFee(amount,feeRate);
+            orderFee += feeAmount * count;
+        }else {
+            throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
+        }
+        return orderFee;
+    }
+
 }

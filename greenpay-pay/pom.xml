@@ -41,11 +41,17 @@
             <artifactId>greenpay-message</artifactId>
         </dependency>
         <!-- 支付接口配置 -->
+<!--        <dependency>-->
+<!--            <groupId>com.alipay.sdk</groupId>-->
+<!--            <artifactId>alipay-sdk-java</artifactId>-->
+<!--            <version>4.10.0.ALL</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.alipay.sdk</groupId>
             <artifactId>alipay-sdk-java</artifactId>
-            <version>4.10.0.ALL</version>
+            <version>3.4.49.ALL</version>
         </dependency>
+
 
         <!-- 支付接口需要依赖commons-logging:jar:1.1.1 -->
         <!-- https://mvnrepository.com/artifact/commons-logging/commons-logging -->

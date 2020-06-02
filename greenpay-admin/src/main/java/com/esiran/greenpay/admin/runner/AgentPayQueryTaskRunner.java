@@ -65,6 +65,9 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
                             .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
                             .eq(AgentPayOrder::getId,agentPayOrder.getId());
                     agentPayOrderService.update(updateWrapperwrapper);
+                    prepaidAccountService.updateBalance(agentPayOrder.getMchId()
+                            ,-(agentPayOrder.getAmount()+agentPayOrder.getFee())
+                            ,agentPayOrder.getAmount()+agentPayOrder.getFee());
                 }
                 if (map.get("Status").equals("20")){
                     LambdaUpdateWrapper<AgentPayOrder> updateWrapperwrapper = new LambdaUpdateWrapper<>();
@@ -72,6 +75,9 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
                             .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
                             .eq(AgentPayOrder::getId,agentPayOrder.getId());
                     agentPayOrderService.update(updateWrapperwrapper);
+                    prepaidAccountService.updateBalance(agentPayOrder.getMchId()
+                            ,0
+                            ,agentPayOrder.getAmount()+agentPayOrder.getFee());
                 }
                 if (!(map.get("Status").equals("30") && map.get("Status").equals("20"))){
                     int i = Integer.parseInt(count);
@@ -79,6 +85,15 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
                         queryMap.put("count",String.valueOf(i+1));
                         String queryMsg = g.toJson(queryMap);
                         redisDelayQueueClient.sendDelayMessage("agentpay:query",queryMsg,30 * 1000);
+                    }else {
+                        LambdaUpdateWrapper<AgentPayOrder> updateWrapperwrapper = new LambdaUpdateWrapper<>();
+                        updateWrapperwrapper.set(AgentPayOrder::getStatus,-1)
+                                .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
+                                .eq(AgentPayOrder::getId,agentPayOrder.getId());
+                        agentPayOrderService.update(updateWrapperwrapper);
+                        prepaidAccountService.updateBalance(agentPayOrder.getMchId()
+                                ,-(agentPayOrder.getAmount()+agentPayOrder.getFee())
+                                ,agentPayOrder.getAmount()+agentPayOrder.getFee());
                     }
                 }
             }

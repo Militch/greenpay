@@ -13,6 +13,7 @@ import com.esiran.greenpay.bank.pingan.entity.QueryOnceAgentPay;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
+import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
 import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
@@ -26,10 +27,12 @@ import java.util.Map;
 public class PingAnPlugin implements Plugin<AgentPayOrder> {
     private static final Gson g = new Gson();
     private static IAgentPayOrderService agentPayOrderService;
+    private static IPrepaidAccountService prepaidAccountService;
     private static RedisDelayQueueClient redisDelayQueueClient;
     private PingAnPlugin(IAgentPayOrderService agentPayOrderService,RedisDelayQueueClient redisDelayQueueClient){
         this.agentPayOrderService = agentPayOrderService;
         this.redisDelayQueueClient = redisDelayQueueClient;
+        this.prepaidAccountService = prepaidAccountService;
     }
     private static final class OrderCreateTask implements Task<AgentPayOrder> {
 
@@ -95,6 +98,9 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
                                 .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
                                 .eq(AgentPayOrder::getId,data.getId());
                         agentPayOrderService.update(updateWrapperwrapper);
+                        prepaidAccountService.updateBalance(data.getMchId()
+                                ,-(data.getAmount()+data.getFee())
+                                ,data.getAmount()+data.getFee());
                     }
                     if (map.get("Status").equals("20")){
                         LambdaUpdateWrapper<AgentPayOrder> updateWrapperwrapper = new LambdaUpdateWrapper<>();
@@ -102,6 +108,9 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
                                 .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
                                 .eq(AgentPayOrder::getId,data.getId());
                         agentPayOrderService.update(updateWrapperwrapper);
+                        prepaidAccountService.updateBalance(data.getMchId()
+                                ,0
+                                ,data.getAmount()+data.getFee());
                     }
                     if (!(map.get("Status").equals("30") && map.get("Status").equals("20"))){
                         Map<String,String> queryMap = new HashMap<>();

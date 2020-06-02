@@ -7,6 +7,7 @@ import com.esiran.greenpay.openapi.entity.Transfer;
 import com.esiran.greenpay.openapi.entity.TransferInputDTO;
 import com.esiran.greenpay.openapi.security.OpenAPISecurityUtils;
 import com.esiran.greenpay.openapi.service.ITransferService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +24,11 @@ public class APITransfers {
         this.transferService = transferService;
     }
 
+    @GetMapping("/query")
+    public String queryAmount(){
+        Merchant merchant = OpenAPISecurityUtils.getSubject();
+        return transferService.queryAmount(merchant.getId());
+    }
     @PostMapping
     public Transfer create(@Valid TransferInputDTO inputDTO) throws APIException {
         Merchant m = OpenAPISecurityUtils.getSubject();

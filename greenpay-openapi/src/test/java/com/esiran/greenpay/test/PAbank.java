@@ -1,9 +1,6 @@
 package com.esiran.greenpay.test;
 
-import com.alipay.api.AlipayApiException;
-import com.alipay.api.DefaultAlipayClient;
-import com.alipay.api.request.AlipayTradeAppMergePayRequest;
-import com.alipay.api.response.AlipayTradeAppMergePayResponse;
+
 import com.esiran.greenpay.bank.pingan.entity.PATradeCode;
 import com.esiran.greenpay.common.util.Map2Xml;
 import com.esiran.greenpay.common.util.NumberUtil;
@@ -244,27 +241,5 @@ public class PAbank {
 
         String code = PATradeCode.ONCE_AGENTPAY.getCode();
     }
-    @Test
-    public void aliPay() throws AlipayApiException {
-        DefaultAlipayClient alipayClient = new DefaultAlipayClient("",
-                "",
-                "",
-                "json",
-                "UTF-8",
-                "",
-                "RSA2");
-        AlipayTradeAppMergePayRequest request = new AlipayTradeAppMergePayRequest();
-        HashMap<String, String> requestMap = new HashMap<>();
-        requestMap.put("out_trade_no","123123124234121");
-        requestMap.put("scene","bar_code");
-        requestMap.put("auth_code","");
-        requestMap.put("subject","测试");
-        requestMap.put("store_id","");
-        requestMap.put("total_amount", "");
-        requestMap.put("timeout_express","2m");
-        String requestMsg = g.toJson(requestMap);
-        request.setBizContent(requestMsg);
-        AlipayTradeAppMergePayResponse execute = alipayClient.execute(request);
-        System.out.println(execute.getBody());
-    }
+
 }
