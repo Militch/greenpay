@@ -2,6 +2,7 @@ package com.esiran.greenpay.openapi.controller;
 
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.merchant.entity.Merchant;
+import com.esiran.greenpay.openapi.entity.BatchInputDTO;
 import com.esiran.greenpay.openapi.entity.Transfer;
 import com.esiran.greenpay.openapi.entity.TransferInputDTO;
 import com.esiran.greenpay.openapi.security.OpenAPISecurityUtils;
@@ -15,6 +16,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/v1/transfers")
 public class APITransfers {
+
     private final ITransferService transferService;
 
     public APITransfers(ITransferService transferService) {
@@ -26,5 +28,10 @@ public class APITransfers {
         Merchant m = OpenAPISecurityUtils.getSubject();
         Transfer t = transferService.createOneByInput(m.getId(),inputDTO);
         return t;
+    }
+    @PostMapping("/batch")
+    public void batch(@Valid BatchInputDTO batchInputDTO) throws APIException {
+        Merchant merchant = OpenAPISecurityUtils.getSubject();
+        transferService.batch(batchInputDTO,merchant.getId());
     }
 }

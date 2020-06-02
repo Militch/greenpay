@@ -49,8 +49,13 @@ public class OrderACPayTaskRunner implements DelayQueueTaskRunner {
 
     @Override
     public void exec(String content) {
-        Order order = orderService.getOneByOrderNo(content);
-        OrderDetail orderDetail = orderDetailService.getOneByOrderNo(content);
+        Map<String, String> contentMap = MapUtil.jsonString2stringMap(content);
+        if (contentMap == null ) return;
+        String orderNo = contentMap.get("orderNo");
+        int count = Integer.parseInt(contentMap.get("count"));
+        logger.info("ACPay order status, orderNo: {}, handle count: {}",orderNo,count);
+        Order order = orderService.getOneByOrderNo(orderNo);
+        OrderDetail orderDetail = orderDetailService.getOneByOrderNo(orderNo);
         String extra = orderDetail.getUpstreamExtra();
         RequestBody selectRequestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), extra);
         Request selectRequest = new Request.Builder()
@@ -75,7 +80,19 @@ public class OrderACPayTaskRunner implements DelayQueueTaskRunner {
             Map<String, Object> stringObjectMap = arrayList.get(0);
             String payStatus = (String) stringObjectMap.get("payStatus");
             if (payStatus.equals("paying")){
-                redisDelayQueueClient.sendDelayMessage("order:acpay",orderDetail.getOrderNo(),5*1000);
+                redisDelayQueueClient.sendDelayMessage("order:acpay",content,5*1000);
+            }else if (payStatus.equals("abnormal")){
+               contentMap.put("count",String.valueOf(count + 1));
+               redisDelayQueueClient.sendDelayMessage("order:acpay",content,5*1000);
+               if (count > 5){
+                   LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
+                   wrapper.set(Order::getStatus,-2)
+                           .set(Order::getPaidAt, LocalDateTime.now())
+                           .eq(Order::getOrderNo,content);
+                   orderService.update(wrapper);
+                   logger.info("Response Redisacpay orderNo: {}", content);
+                   logger.info("Response Redisacpay payStatus: {}", payStatus);
+               }
             }else if (payStatus.equals("payed")){
                 LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
                 wrapper.set(Order::getStatus,2)
@@ -89,7 +106,7 @@ public class OrderACPayTaskRunner implements DelayQueueTaskRunner {
                 messagePayload.put("mchId", String.valueOf(order.getMchId()));
                 messagePayload.put("count", "1");
                 redisDelayQueueClient.sendDelayMessage("order:notify",g.toJson(messagePayload),0);
-            }else if (payStatus.equals("notPay") || payStatus.equals("fail") || payStatus.equals("abnormal")){
+            }else if (payStatus.equals("notPay") || payStatus.equals("fail")){
                 LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
                 wrapper.set(Order::getStatus,-2)
                         .set(Order::getPaidAt, LocalDateTime.now())

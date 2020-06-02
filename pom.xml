@@ -22,6 +22,7 @@
         <module>greenpay-settle</module>
         <module>greenpay-agentpay</module>
         <module>greenpay-framework</module>
+        <module>greenpay-bank</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -48,6 +49,7 @@
         <swagger2.version>2.9.2</swagger2.version>
         <shiro.version>1.5.2</shiro.version>
         <guava.version>29.0-jre</guava.version>
+        <spring-kafka.version>2.3.8.RELEASE</spring-kafka.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -133,6 +135,12 @@
             <dependency>
                 <groupId>com.esiran</groupId>
                 <artifactId>greenpay-framework</artifactId>
+                <version>${greenpay.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.esiran</groupId>
+                <artifactId>greenpay-bank</artifactId>
                 <version>${greenpay.version}</version>
             </dependency>
             <dependency>
@@ -240,6 +248,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+                <version>${spring-kafka.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

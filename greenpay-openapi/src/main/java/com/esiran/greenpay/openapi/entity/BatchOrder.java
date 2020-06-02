@@ -2,24 +2,29 @@ package com.esiran.greenpay.openapi.entity;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
-public class Transfer {
-    private String orderNo;
-    private String orderSn;
+public class BatchOrder {
+
+    private String batchNo;
+
     private String outOrderNo;
-    private Integer mchId;
+
     private Integer amount;
-    private Integer fee;
+
     private Integer accountType;
+
     private String accountName;
+
     private String accountNumber;
+
     private String bankName;
+
     private String bankNumber;
+
     private String notifyUrl;
-    private String extra;
-    private Boolean status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+
 }

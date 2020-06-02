@@ -12,7 +12,14 @@ spring:
     active: dev
   mvc:
     static-path-pattern: /**
-
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    consumer:
+      group-id: 0
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      missing-topics-fatal: false
 delay_queue:
   redis:
     default_key: 'greenpay:delay_queue'

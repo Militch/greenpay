@@ -16,9 +16,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class SimpleTest {
 
@@ -49,6 +51,49 @@ public class SimpleTest {
 
     @Test
     public void test2() throws UnsupportedEncodingException {
+
+
+
+
+//        List<Map<String,Object>> dataList = new ArrayList<>();
+//        Map<String,Object> map1 = new HashMap<>();
+//        map1.put("t","0520");
+//        map1.put("data",250);
+//        dataList.add(map1);
+//        Map<String,Object> map2 = new HashMap<>();
+//        map2.put("t","0521");
+//        map2.put("data",250);
+//        dataList.add(map2);
+//        SimpleDateFormat sdf = new SimpleDateFormat("MMdd");
+//        sdf.format(new Date());
+//
+//
+//        List<Map<String,Object>> out = new ArrayList<>();
+//        for (int i=0;i<7;i++){
+//            long s = System.currentTimeMillis()-((1000*60*60*24) * (i));
+//            String a = sdf.format(new Date(s));
+//            List<Map<String,Object>> targetList = dataList.stream().filter(item->{
+//                String t = (String) item.get("t");
+//                return t.equals(a);
+//            }).collect(Collectors.toList());
+//            Map<String,Object> data = null;
+//            if (targetList.size() == 0){
+//                data = new HashMap<>();
+//                data.put("t",a);
+//                data.put("data",0);
+//            }else {
+//                data = targetList.get(0);
+//            }
+//            out.add(data);
+//        }
+//        System.out.println(out);
+
+
+//
+//        int[] day = new int[]{};
+//        for (){}
+
+
 
 
         String s = "123465789";

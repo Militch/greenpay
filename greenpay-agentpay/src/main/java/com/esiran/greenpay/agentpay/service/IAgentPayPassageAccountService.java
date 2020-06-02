@@ -25,5 +25,8 @@ public interface IAgentPayPassageAccountService extends IService<AgentPayPassage
     boolean updateById(Integer id, AgentPayPassageAccountInputDTO passageAccountInputDTO) throws PostResourceException, ResourceNotFoundException;
     void delByIds(List<Integer> ids) throws PostResourceException;
     List<AgentPayPassageAccount> listAvailableByPassageId(Integer passageId);
+    List<AgentPayPassageAccount> filterAppa(List<AgentPayPassageAccount> accounts,Integer orderAmount);
+    Integer getAppaBalance(AgentPayPassageAccount appa);
     AgentPayPassageAccount schedulerAgentPayPassageAcc(Integer passageId);
+    AgentPayPassageAccount schedulerAgentPayPassageAcc(Integer passageId, Integer orderAmount);
 }

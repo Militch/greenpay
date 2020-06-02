@@ -22,7 +22,6 @@ public interface IAgentPayOrderService extends IService<AgentPayOrder> {
     AgentPayOrderDTO getbyOrderNo(String orderNo);
 
     AgentPayOrder getOneByOrderNo(String orderNo);
-
 //    AgentPayOrder
 
 }
