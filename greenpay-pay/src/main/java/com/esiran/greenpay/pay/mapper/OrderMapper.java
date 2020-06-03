@@ -68,7 +68,7 @@ public interface OrderMapper extends BaseMapper<Order> {
             "                   COUNT(IF(status = 3, 1, 0)) AS successCount   " +
             "            FROM pay_order   " +
             "            WHERE  date_format(created_at, '%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d')   " +
-            "            GROUP BY name;;")
+            "            GROUP BY name;")
     List<CartogramDTO> hourAllData();
 
 

@@ -13,6 +13,7 @@ import com.esiran.greenpay.pay.entity.Product;
 import io.swagger.models.auth.In;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -39,7 +40,7 @@ public interface IMerchantService extends IService<Merchant> {
     PassageAndSubAccount scheduler(Integer mchId, Integer productId);
     MerchantAgentPayPassage schedulerAgentPayPassage(Integer mchId);
     AgentPayPassageAccount schedulerAgentPayPassageAcc(Integer mchId, Integer passageId);
-    HomeData homeData(Integer mchId);
+    HashMap<String,Object> homeData(Integer mchId);
 
     Boolean delMerchant(Integer mchid) throws PostResourceException;
 

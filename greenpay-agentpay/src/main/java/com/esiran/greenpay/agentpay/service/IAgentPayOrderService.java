@@ -1,10 +1,13 @@
 package com.esiran.greenpay.agentpay.service;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
+import com.esiran.greenpay.agentpay.entity.AgentPayOrderInputVO;
+import com.esiran.greenpay.pay.entity.Order;
 import com.esiran.greenpay.pay.entity.OrderDTO;
 
 import java.util.List;
@@ -26,8 +29,12 @@ public interface IAgentPayOrderService extends IService<AgentPayOrder> {
     AgentPayOrder getOneByOrderNo(String orderNo);
 
 //    AgentPayOrder
+    List<AgentPayOrderDTO> agentPayOrderList(Page<AgentPayOrderDTO> page, AgentPayOrderInputVO agentPayOrderInputVO);
+
     List<AgentPayOrderDTO> findIntradayOrders(Integer  mchId);
 
     List<AgentPayOrderDTO> findYesterdayOrders(Integer  mchId);
+
+
 
 }

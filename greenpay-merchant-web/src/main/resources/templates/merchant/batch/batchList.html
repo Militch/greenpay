@@ -35,15 +35,16 @@
                                                 </div>
                                                 <div class="layui-input-inline">
                                                     <input type="text" name="replaceId" id="replaceId"
-                                                           placeholder="代付单号" autocomplete="off" class="layui-input">
+                                                           placeholder="批次单号" autocomplete="off" class="layui-input">
                                                 </div>
                                                 <div class="layui-input-inline">
                                                     <div class="layui-input-block">
                                                         <select name="status" id="status" lay-verify="required">
-                                                            <option value="-99">状态</option>
-                                                            <option value="1">审核通过</option>
-                                                            <option value="0">待审核</option>
-                                                            <option value="-1">审核失败</option>
+                                                            <option value="0">状态</option>
+                                                            <option value="1">待处理</option>
+                                                            <option value="2">处理中</option>
+                                                            <option value="3">处理成功</option>
+                                                            <option value="-1">处理失败</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -79,9 +80,41 @@
     !function(){
         let layer = layui.layer
             ,table = layui.table
-            ,laydate = layui.laydate;
+            ,laydate = layui.laydate
+            ,$ = layui.$;
+
+        //列表搜索
+        let active = {
+            reload : function () {
+                let batchNo =  $('#replaceId');
+                let status = $('#status');
+                let startTime = $('#createTimeStart');
+                let endTime = $('#createTimeEnd');
+                //执行重载
+                table.reload('loadDatas',{
+                    page: {
+                        current:1 //重新从第1页开始
+                    },
+                    where: {
+                        // key: {
+                        //
+                        // }
+                        batchNo : batchNo.val(),
+                        status : status.val(),
+                        startTime : startTime.val(),
+                        endTime : endTime.val()
+
+                    }
+                },'data');
+            }
+        };
+        $('.layui-form-item .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
         //第一个实例
         table.render({
+            id:   'loadDatas',
             elem: '#replaceList',
             url: '/api/v1/agentpay/batch', //数据接口
             page: true,//开启分页
@@ -90,7 +123,7 @@
                     "code": 0,
                     "msg": res.message,
                     "count": res.total,
-                    "data": res.records
+                    "data": res
                 };
             }
             , request: {

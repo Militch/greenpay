@@ -14,6 +14,7 @@ import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
 import com.esiran.greenpay.common.util.EncryptUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
+import com.esiran.greenpay.common.util.PercentCount;
 import com.esiran.greenpay.common.util.RSAUtil;
 import com.esiran.greenpay.merchant.entity.*;
 import com.esiran.greenpay.merchant.mapper.MerchantMapper;
@@ -30,6 +31,7 @@ import java.math.BigDecimal;
 import java.security.KeyPair;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -472,27 +474,108 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
     }
 
     @Override
-    public HomeData homeData(Integer mchId) {
+    public HashMap<String,Object> homeData(Integer mchId) {
+
+        HashMap<String, Object> map = new HashMap<>();
+        HashMap<String, Object> data = new HashMap<>();
+        List<HashMap<String,Object>> statistics = new ArrayList<>();
+
+
         PayAccountDTO payAccountDTO = payAccountService.findByMerchantId(mchId);
         PrepaidAccountDTO prepaidAccountDTO = prepaidAccountService.findByMerchantId(mchId);
         List<Order> orders = orderService.getByDay(mchId);
+
+        //收单总数
         int totalCount = orders.size();
+        //收单总额
         int totalMoney = orders.stream().mapToInt(Order::getAmount).sum();
         int successCount = (int) orders.stream().filter(order -> 2 == order.getStatus()).count();
         int successMoney = orders.stream().filter(order -> 2 == order.getStatus()).mapToInt(Order::getAmount).sum();
 
 
-        //今日相关
+        //今日所有订单
         List<AgentPayOrderDTO> intradayOrders = iAgentPayOrderService.findIntradayOrders(mchId);
-        //昨日相关
+        //昨日所有订单
         List<AgentPayOrderDTO> yesterdayOrders = iAgentPayOrderService.findYesterdayOrders(mchId);
+
+        //今日收单笔数
         Integer intraDayOrdersCount = intradayOrders.size();
 
+        //今日收单总额
         Integer intrDayOrderAmounts = intradayOrders.stream().mapToInt(AgentPayOrderDTO::getAmount).sum();
 
+        //今日成交笔数
+        Long  intrDayOrderCountSucces = intradayOrders.stream().filter(agentPayOrderDTO -> agentPayOrderDTO.getStatus()==3).count();
+        //今日成交总额
         Integer  intrDayOrderAmountSucces = intradayOrders.stream().filter(agentPayOrderDTO -> agentPayOrderDTO.getStatus()==3).mapToInt(AgentPayOrderDTO::getAmount).sum();
 
-        Integer yesterDayOrdersAmountSucces = yesterdayOrders.stream().mapToInt(AgentPayOrderDTO::getAmount).sum();;
+
+        //昨日收单笔数
+        Integer yesterDayOrdersCount = intradayOrders.size();
+        //昨日成交笔数
+        Long yesterDayOrdersCountSucces = yesterdayOrders.stream().filter(agentPayOrderDTO -> agentPayOrderDTO.getStatus()==3).count();
+        //昨日成交总额
+        Integer yesterDayOrdersAmountSucces = yesterdayOrders.stream().filter(agentPayOrderDTO -> agentPayOrderDTO.getStatus()==3).mapToInt(AgentPayOrderDTO::getAmount).sum();
+        //同比昨日
+        String format = percentBigDecimal(new BigDecimal( intraDayOrdersCount), new BigDecimal(yesterDayOrdersCount));
+
+
+        data.put("name", "今日收单笔数");
+        data.put("val",intraDayOrdersCount);
+        data.put("val2",format);
+        data.put("rightHint", "日同比");
+        data.put("leftHint","昨日");
+        data.put("upDay",yesterDayOrdersCount);
+        statistics.add(data);
+
+
+
+        //转换率 订单总数
+        BigDecimal a = new BigDecimal(intrDayOrderCountSucces);
+        BigDecimal b = new BigDecimal(yesterDayOrdersCountSucces);
+        String percent4Count = p.percentBigDecimal(a, b);
+
+
+        data = new HashMap<>();
+        data.put("name", "今日成交笔数");
+        data.put("val", intrDayOrderCountSucces);
+        data.put("val2",percent4Count);
+        data.put("rightHint", "日同比");
+        data.put("leftHint","昨日");
+        data.put("upDay",yesterDayOrdersCountSucces);
+        statistics.add(data);
+
+
+
+        a = new BigDecimal(yesterDayOrdersAmountSucces);
+        b = new BigDecimal(intrDayOrderAmountSucces);
+        String percent4Amount = p.percentBigDecimal(a, b);
+
+        data = new HashMap<>();
+        data.put("name", "今日成交总额");
+        data.put("val", NumberUtil.amountFen2Yuan(intrDayOrderAmountSucces));
+
+        data.put("val2", percent4Amount);
+        data.put("rightHint", "日同比");
+        data.put("leftHint","昨日");
+        data.put("upDay",yesterDayOrdersAmountSucces);
+        statistics.add(data);
+
+
+        map.put("statistics", statistics);
+        //交易趋势
+
+        //交易趋势
+
+
+        //订单总额
+
+
+        //七日订单数据
+
+
+        //七日订单数据
+
 
         HomeData homeData = new HomeData();
         homeData.setPayAccountDTO(payAccountDTO);
@@ -508,11 +591,17 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
         homeData.setYesterDayOrdersAmountSucces(NumberUtil.amountFen2Yuan(yesterDayOrdersAmountSucces));
 
 
-        return homeData;
+        return map;
     }
 
 
 
+    private PercentCount p = new PercentCount();
+    private String percentBigDecimal(BigDecimal total,BigDecimal num){
+
+        String percent = p.percentBigDecimal(total,num);
+        return percent;
+    }
 
 
     @Override

@@ -8,6 +8,8 @@ import com.esiran.greenpay.merchant.service.IPayAccountService;
 import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
 import com.esiran.greenpay.pay.entity.Order;
 import com.esiran.greenpay.pay.service.IOrderService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.LongStream;
 
@@ -32,6 +35,8 @@ public class MerchantController extends CURDBaseController{
     private final IPrepaidAccountService prepaidAccountService;
     private final IOrderService orderService;
     private final IMerchantService merchantService;
+
+    private static final Gson gson = new GsonBuilder().create();
 
     public MerchantController(IPayAccountService payAccountService, IPrepaidAccountService prepaidAccountService, IOrderService orderService, IMerchantService merchantService) {
         this.payAccountService = payAccountService;
@@ -46,9 +51,9 @@ public class MerchantController extends CURDBaseController{
     @GetMapping("/home")
     public String home(Model model){
         Merchant m = theUser();
-        HomeData homeData = merchantService.homeData(m.getId());
-        model.addAttribute("homeData",homeData);
-        return "merchant/index";
+        HashMap<String,Object> homeData = merchantService.homeData(m.getId());
+        model.addAttribute("homeDataJson",gson.toJson(homeData));
+        return "merchant/home";
     }
     @GetMapping("/user/profile")
     public String user(Model model){

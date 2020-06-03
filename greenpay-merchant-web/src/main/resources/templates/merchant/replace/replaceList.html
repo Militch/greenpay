@@ -21,7 +21,7 @@
                             <div class="layui-tab-content">
                                 <div class="layui-tab-item layui-show">
                                     <div class="layui-row">
-                                        <div class="layui-form" style="float:right; margin-bottom: 10px;">
+                                        <div  style="float:right; margin-bottom: 10px;" lay-filter="component-form-group" id="search_submits" onsubmit="return false" >
                                             <div class="layui-form-item" style="margin:0;">
                                                 <div class="layui-input-inline">
                                                     <input type="text" name="createTimeStart" id="createTimeStart"
@@ -35,15 +35,16 @@
                                                 </div>
                                                 <div class="layui-input-inline">
                                                     <input type="text" name="replaceId" id="replaceId"
-                                                           placeholder="代付单号" autocomplete="off" class="layui-input">
+                                                           placeholder="代付单号" autocomplete="off" class="layui-input" >
                                                 </div>
                                                 <div class="layui-input-inline">
                                                     <div class="layui-input-block">
                                                         <select name="status" id="status" lay-verify="required">
-                                                            <option value="-99">状态</option>
-                                                            <option value="1">审核通过</option>
-                                                            <option value="0">待审核</option>
-                                                            <option value="-1">审核失败</option>
+                                                            <option value="0">状态</option>
+                                                            <option value="1">待处理</option>
+                                                            <option value="2">处理中</option>
+                                                            <option value="3">处理成功</option>
+                                                            <option value="-1">处理失败</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -54,12 +55,14 @@
                                     <div>
                                         <table id="replaceList" lay-filter="replace"></table>
                                         <script type="text/html" id="statusTpl">
-                                            {{#  if(d.status == 0){ }}
-                                            <button class="layui-btn layui-btn-warm layui-btn-xs">待审核</button>
-                                            {{#  } if(d.status == 1) { }}
-                                            <button class="layui-btn layui-btn-xs">审核通过</button>
-                                            {{#  } if(d.status == -1) { }}
-                                            <button class="layui-btn layui-btn-normal layui-btn-xs">审核失败</button>
+                                            {{#  if(d.status == 1){ }}
+                                            <button class="layui-btn layui-btn-warm layui-btn-xs">待处理</button>
+                                            {{#  } if(d.status == 2) { }}
+                                            <button class="layui-btn layui-btn-xs">处理中</button>
+                                            {{#  } if(d.status == 3) { }}
+                                            <button class="layui-btn layui-btn-normal layui-btn-xs">处理成功</button>
+                                            {{#  } if(d.status == -1){ }}
+                                            <button class="layui-btn layui-btn-warm layui-btn-xs">处理失败</button>
                                             {{#  } }}
                                         </script>
                                     </div>
@@ -79,9 +82,41 @@
     !function(){
         let layer = layui.layer
             ,table = layui.table
-            ,laydate = layui.laydate;
-        //第一个实例
+            ,form = layui.form
+            ,laydate = layui.laydate
+            ,$ = layui.$;
+        //列表搜索
+         let active = {
+             reload : function () {
+                 let orderNo =  $('#replaceId');
+                 let status = $('#status');
+                 let startTime = $('#createTimeStart');
+                 let endTime = $('#createTimeEnd');
+              //执行重载
+                 table.reload('loadDatas',{
+                     page: {
+                         current:1 //重新从第1页开始
+                     },
+                     where: {
+                         // key: {
+                         //
+                         // }
+                         orderNo : orderNo.val(),
+                         status : status.val(),
+                         startTime : startTime.val(),
+                         endTime : endTime.val()
+
+                     }
+                 },'data');
+             }
+         };
+        $('.layui-form-item .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
         table.render({
+            id:   'loadDatas',
             elem: '#replaceList',
             url: '/api/v1/agentpay/orders', //数据接口
             page: true,//开启分页
@@ -90,7 +125,7 @@
                     "code": 0,
                     "msg": res.message,
                     "count": res.total,
-                    "data": res.records
+                    "data": res
                 };
             }
             , request: {
@@ -100,18 +135,14 @@
             , cols: [[ //表头
                 {type: 'checkbox', fixed: 'left'}
                 , {field: 'mchId', title: '商户ID', width: "5%",align:'center'}
-                , {field: 'accountName', title: '账户名', width: "15%",align:'center'}
-                , {field: 'accountNumber', title: '账户号', width: "15%",align:'center'}
+                , {field: 'accountName', title: '账户名', width: "10%",align:'center'}
+                , {field: 'accountNumber', title: '账户号', width: "10%",align:'center'}
                 , {field: 'orderNo', title: '代付订单号', width: "15%",align:'center'}
-                , {field: 'outOrderNo', title: '商户订单号', width: "15%",align:'center'}
-                , {field: 'amount', title: '订单金额（单位：分）', width: "10%",align:'center'}
-                , {field: 'fee', title: '订单金额（单位：分）', width: "10%",align:'center'}
-                , {field: 'status', title: '状态', width: "15%" ,templet: "#statusTpl",align:'center'}
-                , {field: 'bankName', title: '开户行', width: "10%",align:'center'}
-                , {field: 'bankNumber', title: '联行号', width: "10%",align:'center'}
-                , {field: 'agentpayPassageName', title: '代付通道名称', width: "15%",align:'center'}
-                , {field: 'updatedAt', title: '创建时间', width: "15%",align:'center'}
-                , {field: 'createdAt', title: '创建时间', width: "15%",align:'center'}
+                , {field: 'amount', title: '订单金额', width: "10%",align:'center'}
+                , {field: 'fee', title: '订单金额', width: "10%",align:'center'}
+                , {field: 'status', title: '状态', width: "10%" ,templet: "#statusTpl",align:'center'}
+                , {field: 'createdAt', title: '创建时间', width: "13%",align:'center'}
+                , {field: 'updatedAt', title: '更新时间', width: "13%",align:'center'}
 
             ]]
         });
