@@ -13,6 +13,7 @@ import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
 import com.esiran.greenpay.common.util.EncryptUtil;
+import com.esiran.greenpay.common.util.MoneyFormatUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.common.util.PercentCount;
 import com.esiran.greenpay.common.util.RSAUtil;
@@ -22,17 +23,24 @@ import com.esiran.greenpay.merchant.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenpay.pay.entity.*;
 import com.esiran.greenpay.pay.service.*;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.security.KeyPair;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -59,6 +67,7 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
     private final IMerchantAgentPayPassageService mchAgentPayPassageService;
     private final IAgentPayPassageService agentPayPassageService;
     private final IOrderService orderService;
+
     private final IAgentPayOrderService iAgentPayOrderService;
     private static final ModelMapper modelMapper = new ModelMapper();
 
@@ -82,6 +91,7 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
         this.mchAgentPayPassageService = mchAgentPayPassageService;
         this.agentPayPassageService = agentPayPassageService;
         this.orderService = orderService;
+
         this.iAgentPayOrderService = iAgentPayOrderService;
     }
 
@@ -473,30 +483,72 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
         return null;
     }
 
+
     @Override
-    public HashMap<String,Object> homeData(Integer mchId) {
+    public HomeData homeData(Integer mchId) {
+        PayAccountDTO payAccountDTO = payAccountService.findByMerchantId(mchId);
+        PrepaidAccountDTO prepaidAccountDTO = prepaidAccountService.findByMerchantId(mchId);
+        List<Order> orders = orderService.getByDay(mchId);
+        int totalCount = orders.size();
+        int totalMoney = orders.stream().mapToInt(Order::getAmount).sum();
+        int successCount = (int) orders.stream().filter(order -> 2 == order.getStatus()).count();
+        int successMoney = orders.stream().filter(order -> 2 == order.getStatus()).mapToInt(Order::getAmount).sum();
+
+
+        //今日相关
+        List<AgentPayOrderDTO> intradayOrders = iAgentPayOrderService.findIntradayOrdersByMchId(mchId);
+        //昨日相关
+        List<AgentPayOrderDTO> yesterdayOrders = iAgentPayOrderService.findYesterdayOrdersByMchId(mchId);
+        Integer intraDayOrdersCount = intradayOrders.size();
+
+        Integer intrDayOrderAmounts = intradayOrders.stream().mapToInt(AgentPayOrderDTO::getAmount).sum();
+
+        Integer  intrDayOrderAmountSucces = intradayOrders.stream().filter(agentPayOrderDTO -> agentPayOrderDTO.getStatus()==3).mapToInt(AgentPayOrderDTO::getAmount).sum();
+
+        Integer yesterDayOrdersAmountSucces = yesterdayOrders.stream().mapToInt(AgentPayOrderDTO::getAmount).sum();;
+
+        HomeData homeData = new HomeData();
+        homeData.setPayAccountDTO(payAccountDTO);
+        homeData.setPrepaidAccountDTO(prepaidAccountDTO);
+        homeData.setTotalCount(totalCount);
+        homeData.setSuccessCount(successCount);
+        homeData.setTotalMoney(NumberUtil.amountFen2Yuan(totalMoney));
+        homeData.setSuccessMoney(NumberUtil.amountFen2Yuan(successMoney));
+
+        homeData.setIntraDayOrdersCount(intraDayOrdersCount);
+        homeData.setIntrDayOrderAmounts(NumberUtil.amountFen2Yuan(intrDayOrderAmounts));
+        homeData.setIntrDayOrderAmountSucces(NumberUtil.amountFen2Yuan(intrDayOrderAmountSucces));
+        homeData.setYesterDayOrdersAmountSucces(NumberUtil.amountFen2Yuan(yesterDayOrdersAmountSucces));
+
+
+        return homeData;
+    }
+
+
+    @Override
+    public HashMap<String,Object> agentPayInfo() {
 
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> data = new HashMap<>();
         List<HashMap<String,Object>> statistics = new ArrayList<>();
 
 
-        PayAccountDTO payAccountDTO = payAccountService.findByMerchantId(mchId);
-        PrepaidAccountDTO prepaidAccountDTO = prepaidAccountService.findByMerchantId(mchId);
-        List<Order> orders = orderService.getByDay(mchId);
-
-        //收单总数
-        int totalCount = orders.size();
-        //收单总额
-        int totalMoney = orders.stream().mapToInt(Order::getAmount).sum();
-        int successCount = (int) orders.stream().filter(order -> 2 == order.getStatus()).count();
-        int successMoney = orders.stream().filter(order -> 2 == order.getStatus()).mapToInt(Order::getAmount).sum();
+//        PayAccountDTO payAccountDTO = payAccountService.findByMerchantId(mchId);
+//        PrepaidAccountDTO prepaidAccountDTO = prepaidAccountService.findByMerchantId(mchId);
+//        List<Order> orders = iAgentPayOrderService.findIntradayOrders(mchId);
+//
+//        //收单总数
+//        int totalCount = orders.size();
+//        //收单总额
+//        int totalMoney = orders.stream().mapToInt(Order::getAmount).sum();
+//        int successCount = (int) orders.stream().filter(order -> 2 == order.getStatus()).count();
+//        int successMoney = orders.stream().filter(order -> 2 == order.getStatus()).mapToInt(Order::getAmount).sum();
 
 
         //今日所有订单
-        List<AgentPayOrderDTO> intradayOrders = iAgentPayOrderService.findIntradayOrders(mchId);
+        List<AgentPayOrderDTO> intradayOrders = iAgentPayOrderService.findIntradayOrders();
         //昨日所有订单
-        List<AgentPayOrderDTO> yesterdayOrders = iAgentPayOrderService.findYesterdayOrders(mchId);
+        List<AgentPayOrderDTO> yesterdayOrders = iAgentPayOrderService.findYesterdayOrders();
 
         //今日收单笔数
         Integer intraDayOrdersCount = intradayOrders.size();
@@ -558,44 +610,271 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
         data.put("val2", percent4Amount);
         data.put("rightHint", "日同比");
         data.put("leftHint","昨日");
-        data.put("upDay",yesterDayOrdersAmountSucces);
+        data.put("upDay",NumberUtil.amountFen2Yuan(yesterDayOrdersAmountSucces));
         statistics.add(data);
 
 
         map.put("statistics", statistics);
-        //交易趋势
-
-        //交易趋势
 
 
-        //订单总额
+        //上周成交总额
+        List<CartogramDTO> cartogramDTOS = iAgentPayOrderService.upWeekAllData();
+        long upSevenSucAmount = cartogramDTOS.stream().mapToLong(CartogramDTO::getAmount).sum();
+        a = new BigDecimal(yesterDayOrdersAmountSucces);
+        b = new BigDecimal(upSevenSucAmount);
+        String upServen = p.percentBigDecimal(a, b);
+        data = new HashMap<>();
+        data.put("name", "昨日成交总额");
+        data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(yesterDayOrdersAmountSucces)));
+        data.put("val2", upServen);
+        data.put("rightHint", "周同比");
+        statistics.add(data);
+        //end
+
+        map.put("statistics", statistics);
+        //end
 
 
-        //七日订单数据
+        data = new HashMap<>();
+        List<CartogramPayDTO> cartogramPayDTOS = iAgentPayOrderService.payRanking();
+        data.put("payOrder", "支付产品排行");
+        data.put("var", cartogramPayDTOS);
+        map.put("payOrder", data);
+        //end
 
 
-        //七日订单数据
+        data = new HashMap<>();
+        StatisticDTO statisticDTO = sevenDaycartogram();
+        data.put("name", "一周统计");
+        data.put("val", statisticDTO);
+        map.put("sevenDay", data);
+        //--end
 
 
-        HomeData homeData = new HomeData();
-        homeData.setPayAccountDTO(payAccountDTO);
-        homeData.setPrepaidAccountDTO(prepaidAccountDTO);
-        homeData.setTotalCount(totalCount);
-        homeData.setSuccessCount(successCount);
-        homeData.setTotalMoney(NumberUtil.amountFen2Yuan(totalMoney));
-        homeData.setSuccessMoney(NumberUtil.amountFen2Yuan(successMoney));
+        //24小时交易金额
+        data = new HashMap<>();
+        List<CartogramDTO> hourAmount = iAgentPayOrderService.hourAllData();
 
-        homeData.setIntraDayOrdersCount(intraDayOrdersCount);
-        homeData.setIntrDayOrderAmounts(NumberUtil.amountFen2Yuan(intrDayOrderAmounts));
-        homeData.setIntrDayOrderAmountSucces(NumberUtil.amountFen2Yuan(intrDayOrderAmountSucces));
-        homeData.setYesterDayOrdersAmountSucces(NumberUtil.amountFen2Yuan(yesterDayOrdersAmountSucces));
+
+        List<CartogramDTO> dtoList = transfer(hourAmount, 0,23);
+        hourAmount.addAll(dtoList);
+        Collections.sort(hourAmount);
+        data.put("name", "交易趋势");
+        data.put("val", hourAmount);
+        map.put("orderAmount", data);
+
+
+        //一周交易趋势
+        data = new ManagedMap<>();
+        List<CartogramDTO> cartogramDTOList = iAgentPayOrderService.sevenDay4CountAndAmount();
+        List<CartogramDTO> weekList = transfer(cartogramDTOList, 1,7);
+        cartogramDTOList.addAll(weekList);
+        Collections.sort(cartogramDTOList);
+        cartogramDTOList.stream().forEach(cartogramDTO -> {
+            int name = NumberUtils.toInt(cartogramDTO.getName());
+            cartogramDTO.setName("星期" + (name <7 ? MoneyFormatUtil.formatFractionalPart(name) : "日"));
+        });
+        data.put("name", "本周交易趋势");
+        data.put("val", cartogramDTOList);
+        map.put("weekList", data);
+
+
+        //一月交易趋势
+        data = new ManagedMap<>();
+        List<CartogramDTO> month4CountAndAmount = iAgentPayOrderService.currentMonth4CountAndAmount();
+        List<CartogramDTO> monthList = transfer(month4CountAndAmount,1, getCurrentMonthLastDay());
+        month4CountAndAmount.addAll(monthList);
+        Collections.sort(month4CountAndAmount);
+        Calendar calendar = Calendar.getInstance();
+        month4CountAndAmount.stream().forEach( cartogramDTO -> {
+            String name = cartogramDTO.getName();
+            name = (calendar.get(Calendar.MONTH) + 1) + "-" +name;
+            cartogramDTO.setName(name);
+        });
+        data.put("name", "当月交易趋势");
+        data.put("val", month4CountAndAmount);
+        map.put("monthList", data);
+
+
+        //转化率
+        data = new ManagedMap<>();
+        List<CartogramPayStatusVo> payStatusVos = iAgentPayOrderService.payCRV();
+        List<CartogramPayStatusVo> tmpList = new ArrayList<>();
+        List<Integer> status = payStatusVos.stream().map(cartogramPayStatusVo -> cartogramPayStatusVo.getStatus()).collect(Collectors.toList());
+        for (int i = -1; i < 4; i++) {
+            if (i == 0) {
+                continue;
+            }
+            if (status.contains(i)) {
+                continue;
+            }
+            CartogramPayStatusVo cartogramPayStatusVo = new CartogramPayStatusVo();
+            cartogramPayStatusVo.setCount(0);
+            cartogramPayStatusVo.setStatus(i);
+            tmpList.add(cartogramPayStatusVo);
+        }
+        payStatusVos.addAll(tmpList);
+        int count =payStatusVos.size();
+        data.put("name", "转化率");
+        data.put("val", payStatusVos);
+        data.put("count", count);
+        map.put("precent", data);
+        //--end
+
+
+
+//        HomeData homeData = new HomeData();
+//        homeData.setPayAccountDTO(payAccountDTO);
+//        homeData.setPrepaidAccountDTO(prepaidAccountDTO);
+//        homeData.setTotalCount(totalCount);
+//        homeData.setSuccessCount(successCount);
+//        homeData.setTotalMoney(NumberUtil.amountFen2Yuan(totalMoney));
+//        homeData.setSuccessMoney(NumberUtil.amountFen2Yuan(successMoney));
+//
+//        homeData.setIntraDayOrdersCount(intraDayOrdersCount);
+//        homeData.setIntrDayOrderAmounts(NumberUtil.amountFen2Yuan(intrDayOrderAmounts));
+//        homeData.setIntrDayOrderAmountSucces(NumberUtil.amountFen2Yuan(intrDayOrderAmountSucces));
+//        homeData.setYesterDayOrdersAmountSucces(NumberUtil.amountFen2Yuan(yesterDayOrdersAmountSucces));
 
 
         return map;
     }
 
 
+    /**
+     * 取得当月天数
+     * */
+    public static int getCurrentMonthLastDay()
+    {
+        Calendar a = Calendar.getInstance();
+        a.set(Calendar.DATE, 1);//把日期设置为当月第一天
+        a.roll(Calendar.DATE, -1);//日期回滚一天，也就是最后一天
+        int maxDate = a.get(Calendar.DATE);
+        return maxDate;
+    }
+    private List<CartogramDTO> transfer(List<CartogramDTO> sources,int start, int addNum) {
+        List<String> collect = sources.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
+        List<CartogramDTO> addData = new ArrayList<>();
+        for (int i = start; i <= addNum; i++) {
+            String time = String.valueOf(i);
+            if (collect.contains(time)) {
+                continue;
+            }
 
+            CartogramDTO cartogramDTO = new CartogramDTO();
+            cartogramDTO.setName(time);
+            cartogramDTO.setCount(0);
+            cartogramDTO.setSuccessCount(0);
+            cartogramDTO.setAmount(0l);
+            cartogramDTO.setSuccessAmount(0l);
+            addData.add(cartogramDTO);
+
+        }
+
+        return addData;
+    }
+
+    public StatisticDTO sevenDaycartogram(){
+        StatisticDTO statisticDTO = new StatisticDTO();
+
+
+        List<CartogramDTO> cartogram = iAgentPayOrderService.sevenDayAllData();
+
+
+        addTime(cartogram);
+
+
+
+        ArrayList<Map<String, Object>> list = new ArrayList<>();
+
+
+        for (int i = 0; i < cartogram.size(); i++) {
+            CartogramDTO allCount = cartogram.get(i);
+
+
+            HashMap<String, Object> map = new HashMap<>();
+
+            map.put("time",allCount.getName());
+            //收单总数
+            List<HashMap<String, Object>> datas = new ArrayList<>();
+
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("title", "收单笔数");
+            data.put("data",allCount.getCount());
+            datas.add(data);
+
+            data = new HashMap<>();
+            data.put("title", "成交笔数");
+            data.put("data",allCount.getSuccessCount());
+            datas.add(data);
+
+            data = new HashMap<>();
+            data.put("title", "收单总额");
+            data.put("data",allCount.getAmount());
+            datas.add(data);
+
+            data = new HashMap<>();
+            data.put("title", "成交总额");
+            data.put("data",allCount.getSuccessAmount());
+            datas.add(data);
+
+            map.put("data", datas);
+
+            list.add(map);
+
+
+        }
+        statisticDTO.setData(list);
+        return statisticDTO;
+    }
+
+    private void addTime(List<CartogramDTO> cartograms){
+        List<CartogramDTO> cartogramDTOList = new ArrayList<>();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
+
+//        List<String> collect = cartograms.stream().map(time -> time.getName()).collect(Collectors.toList());
+//        List<CartogramDTO> times = new ArrayList<>();
+//        Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。
+
+//        cal.setTime(new Date());
+//            for (int i = 0; i < 6; i++) {
+//                cal.add(Calendar.DATE, -1);//取当前日期的前一天.
+//                String format = sdf.format(cal.getTime());
+//                if (collect.contains(format)) {
+//                    continue;
+//                }
+//                CartogramDTO cartogramDTO = new CartogramDTO();
+//                cartogramDTO.setName(format);
+//                cartogramDTO.setCount(0);
+//                cartogramDTO.setAmount(0l);
+//                times.add(cartogramDTO);
+//            }
+        for (int i = 6; i >=0; i--){
+            long dayTime = System.currentTimeMillis() - ((1000 * 60 * 60 * 24) * (i));
+            String time = sdf.format(dayTime);
+            List<CartogramDTO> collect1 = cartograms.stream().filter(cartogramDTO ->
+                    cartogramDTO.getName().equals(time)
+            ).collect(Collectors.toList());
+
+            if (CollectionUtils.isEmpty(collect1)) {
+                CartogramDTO cartogramDTO = new CartogramDTO();
+                cartogramDTO.setName(time);
+                cartogramDTO.setCount(0);
+                cartogramDTO.setAmount(0l);
+                cartogramDTO.setSuccessCount(0);
+                cartogramDTO.setSuccessAmount(0l);
+                cartogramDTOList.add(cartogramDTO);
+            }else {
+                cartogramDTOList.add(collect1.get(0));
+
+            }
+
+        }
+
+        cartograms.clear();
+        cartograms.addAll(cartogramDTOList);
+    }
     private PercentCount p = new PercentCount();
     private String percentBigDecimal(BigDecimal total,BigDecimal num){
 

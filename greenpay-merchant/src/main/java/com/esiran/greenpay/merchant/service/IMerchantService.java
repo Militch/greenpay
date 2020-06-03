@@ -40,7 +40,8 @@ public interface IMerchantService extends IService<Merchant> {
     PassageAndSubAccount scheduler(Integer mchId, Integer productId);
     MerchantAgentPayPassage schedulerAgentPayPassage(Integer mchId);
     AgentPayPassageAccount schedulerAgentPayPassageAcc(Integer mchId, Integer passageId);
-    HashMap<String,Object> homeData(Integer mchId);
+    HomeData homeData(Integer mchId);
+    public HashMap<String,Object> agentPayInfo();
 
     Boolean delMerchant(Integer mchid) throws PostResourceException;
 

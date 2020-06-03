@@ -6,6 +6,8 @@ import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
 import com.esiran.greenpay.pay.entity.CartogramDTO;
+import com.esiran.greenpay.pay.entity.CartogramPayDTO;
+import com.esiran.greenpay.pay.entity.CartogramPayStatusVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -22,18 +24,24 @@ import java.util.List;
 public interface AgentPayOrderMapper extends BaseMapper<AgentPayOrder> {
     //查询当天订单总数
     @Select("SELECT * FROM agentpay_order WHERE DATEDIFF(now(),created_at) = 0  AND mch_id = #{mchId}")
-    List<AgentPayOrderDTO> findIntradayOrders(Integer mchId);
+    List<AgentPayOrderDTO> findIntradayOrdersByMchId(Integer mchId);
 
     //查询昨天成功订单总数
     @Select("SELECT * FROM agentpay_order WHERE DATEDIFF(now(),created_at) = 1 AND mch_id = #{mchId} ")
-    List<AgentPayOrderDTO>  findYesterdayOrders(Integer mchId);
+    List<AgentPayOrderDTO> findYesterdayOrdersByMchId(Integer mchId);
+
+    @Select("SELECT * FROM agentpay_order WHERE DATEDIFF(now(),created_at) = 0 ")
+    List<AgentPayOrderDTO> findIntradayOrders();
+
+    @Select("SELECT * FROM agentpay_order WHERE DATEDIFF(now(),created_at) = 1 ")
+    List<AgentPayOrderDTO> findYesterdayOrders();
 
     List<AgentPayOrder> agentPayOrderList(@Param(Constants.WRAPPER) Wrapper<AgentPayOrder> wrapper,Long page,Long size);
 
 
 
     //24小时数据
-    @Select("SELECT DATE_FORMAT(created_at,'%H:00') AS name,     " +
+    @Select("SELECT DATE_FORMAT(created_at,'%H') AS name,     " +
             "                               SUM(amount) as amount,     " +
             "                               COUNT(1) AS count,     " +
             "                               SUM((IF(status = 3, amount, 0))) AS successAmount,     " +
@@ -77,7 +85,7 @@ public interface AgentPayOrderMapper extends BaseMapper<AgentPayOrder> {
     List<CartogramDTO> sevenDay4CountAndAmount();
 
     //本月的数据
-    @Select("select  DATE_FORMAT(created_at,'%c-%e') AS name,   " +
+    @Select("select  DATE_FORMAT(created_at,'%e') AS name,   " +
             "COUNT(*) AS count,   " +
             "SUM((IF (status = 3 ,1,0 ))) AS successCount,   " +
             "SUM(amount) AS amount,   " +
@@ -85,4 +93,14 @@ public interface AgentPayOrderMapper extends BaseMapper<AgentPayOrder> {
             "from agentpay_order where DATE_FORMAT(created_at,'%Y%m') = DATE_FORMAT(CURDATE(),'%Y%m')    " +
             "GROUP BY name;")
     List<CartogramDTO> currentMonth4CountAndAmount();
+
+
+    //支付排行
+    @Select("SELECT agentpay_passage_name AS payname,COUNT(*) AS count, SUM(amount) as amount FROM agentpay_order WHERE DATE_SUB(CURDATE(),INTERVAL 7 day)<= DATE(created_at) GROUP BY payname ORDER BY amount DESC")
+    List<CartogramPayDTO> payRanking();
+
+    //转化率
+    @Select("SELECT status,COUNT(*) as count FROM agentpay_order WHERE DATEDIFF(now(),created_at) = 0 group by status")
+    List<CartogramPayStatusVo> payCRV();
+
 }

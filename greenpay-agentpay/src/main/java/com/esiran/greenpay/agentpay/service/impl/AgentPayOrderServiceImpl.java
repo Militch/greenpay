@@ -1,8 +1,6 @@
 package com.esiran.greenpay.agentpay.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
@@ -11,14 +9,14 @@ import com.esiran.greenpay.agentpay.entity.AgentPayOrderInputVO;
 import com.esiran.greenpay.agentpay.mapper.AgentPayOrderMapper;
 import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.esiran.greenpay.pay.entity.Order;
-import com.esiran.greenpay.pay.entity.OrderDTO;
+import com.esiran.greenpay.pay.entity.CartogramDTO;
+import com.esiran.greenpay.pay.entity.CartogramPayDTO;
+import com.esiran.greenpay.pay.entity.CartogramPayStatusVo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * <p>
@@ -79,14 +77,62 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
 
 
     @Override
-    public List<AgentPayOrderDTO> findIntradayOrders(Integer mchId) {
-        List<AgentPayOrderDTO> intradayOrders = this.baseMapper.findIntradayOrders(mchId);
+    public List<AgentPayOrderDTO> findIntradayOrdersByMchId(Integer mchId) {
+        List<AgentPayOrderDTO> intradayOrders = this.baseMapper.findIntradayOrdersByMchId(mchId);
         return intradayOrders;
     }
 
     @Override
-    public List<AgentPayOrderDTO> findYesterdayOrders(Integer mchId) {
-        List<AgentPayOrderDTO> yesterdayOrders = this.baseMapper.findYesterdayOrders(mchId);
+    public List<AgentPayOrderDTO> findYesterdayOrdersByMchId(Integer mchId) {
+        List<AgentPayOrderDTO> yesterdayOrders = this.baseMapper.findYesterdayOrdersByMchId(mchId);
         return yesterdayOrders;
+    }
+
+    @Override
+    public List<AgentPayOrderDTO> findIntradayOrders() {
+        List<AgentPayOrderDTO> intradayOrders = this.baseMapper.findIntradayOrders();
+        return intradayOrders;
+    }
+
+    @Override
+    public List<AgentPayOrderDTO> findYesterdayOrders() {
+        List<AgentPayOrderDTO> yesterdayOrders = this.baseMapper.findYesterdayOrders();
+        return yesterdayOrders;
+    }
+
+
+    @Override
+    public List<CartogramDTO> hourAllData() {
+        return this.baseMapper.hourAllData();
+    }
+
+    @Override
+    public List<CartogramDTO> sevenDayAllData() {
+        return this.baseMapper.sevenDayAllData();
+    }
+
+    @Override
+    public List<CartogramDTO> upWeekAllData() {
+        return this.baseMapper.upWeekAllData();
+    }
+
+    @Override
+    public List<CartogramDTO> sevenDay4CountAndAmount() {
+        return this.baseMapper.sevenDay4CountAndAmount();
+    }
+
+    @Override
+    public List<CartogramDTO> currentMonth4CountAndAmount() {
+        return this.baseMapper.currentMonth4CountAndAmount();
+    }
+
+    @Override
+    public List<CartogramPayDTO> payRanking() {
+        return this.baseMapper.payRanking();
+    }
+
+    @Override
+    public List<CartogramPayStatusVo> payCRV() {
+        return this.baseMapper.payCRV();
     }
 }

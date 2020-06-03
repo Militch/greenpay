@@ -23,4 +23,5 @@ public interface IPrepaidAccountService extends IService<PrepaidAccount> {
     boolean removeByMerchantId(Integer merchantId);
 
 
+
 }
