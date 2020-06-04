@@ -16,10 +16,13 @@ import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.pay.entity.Interface;
 import com.esiran.greenpay.pay.service.IInterfaceService;
+import com.esiran.greenpay.pay.service.IMerchantPrepaidAccountService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +40,7 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
     private IAgentPayPassageService agentPayPassageService;
     private IInterfaceService interfaceService;
     private PluginLoader pluginLoader;
+
 
     public AgentPayOrderServiceImpl(IAgentPayPassageService agentPayPassageService, IInterfaceService interfaceService, PluginLoader pluginLoader) {
         this.agentPayPassageService = agentPayPassageService;
@@ -67,7 +71,8 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
     }
 
     @Override
-    public void createOneBatchOrder(AgentPayOrder agentPayOrder) {
+    @Transactional
+    public String createOneBatchOrder(AgentPayOrder agentPayOrder) throws APIException {
         agentPayOrder.setStatus(1);
         agentPayOrder.setCreatedAt(LocalDateTime.now());
         agentPayOrder.setUpdatedAt(LocalDateTime.now());
@@ -76,7 +81,6 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
         Interface ints = interfaceService.getByCode(payPassage.getInterfaceCode());
         AgentPayOrderFlow agentPayOrderFlow = new AgentPayOrderFlow(agentPayOrder);
         try {
-
             String impl = ints.getInterfaceImpl();
             Pattern pattern = Pattern.compile("(^|;)corder:(.+?)(;|$)");
             Matcher m = pattern.matcher(impl);
@@ -85,12 +89,16 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
             Plugin<AgentPayOrder> plugin = pluginLoader.loadForClassPath(m.group(2));
             plugin.apply(agentPayOrderFlow);
             agentPayOrderFlow.execDependent("create");
+            Map<String, Object> results = agentPayOrderFlow.getResults();
+            return (String) results.get("status");
         } catch (Exception e) {
             if (e instanceof APIException)
-                System.out.println(e.getMessage());
+                throw new APIException(e.getMessage(),((APIException) e).getCode(),((APIException) e).getStatus());
             if (!StringUtils.isEmpty(e.getMessage())){
-                System.out.println(e.getMessage());
+                throw new APIException(e.getMessage(),"CALL_AGENT_PAY_PASSAGE_ERROR",500);
             }
+            throw new APIException("系统错误，调用代付通道接口执行失败","CALL_AGENT_PAY_PASSAGE_ERROR",500);
         }
     }
+
 }

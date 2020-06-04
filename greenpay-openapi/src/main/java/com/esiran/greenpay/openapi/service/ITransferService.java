@@ -1,14 +1,12 @@
 package com.esiran.greenpay.openapi.service;
 
-import com.esiran.greenpay.agentpay.entity.AgentPayBatchInputDTO;
-import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
 import com.esiran.greenpay.common.entity.APIException;
-import com.esiran.greenpay.openapi.entity.BatchInputDTO;
-import com.esiran.greenpay.openapi.entity.Transfer;
-import com.esiran.greenpay.openapi.entity.TransferInputDTO;
+import com.esiran.greenpay.openapi.entity.*;
 
 public interface ITransferService {
     Transfer createOneByInput(Integer mchId, TransferInputDTO inputDTO) throws APIException;
-    void batch(BatchInputDTO batchInputDTO, Integer mchId ) throws APIException;
-    String queryAmount(Integer mchId);
+    BatchRes batch(BatchInputDTO batchInputDTO, Integer mchId ) throws APIException;
+    String queryAmount (Integer mchId) throws APIException;
+    AgentPayRes queryAgentPay(String outOrderNo, String orderNo) throws APIException;
+    BatchRes queryBatch(String outBatchNo, String batchNo) throws APIException;
 }

@@ -1,6 +1,7 @@
 package com.esiran.greenpay.openapi.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.esiran.greenpay.actuator.Plugin;
 import com.esiran.greenpay.actuator.PluginLoader;
 import com.esiran.greenpay.agentpay.entity.AgentPayBatch;
@@ -23,17 +24,13 @@ import com.esiran.greenpay.merchant.entity.PrepaidAccountDTO;
 import com.esiran.greenpay.merchant.service.IMerchantService;
 import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
 import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
-import com.esiran.greenpay.openapi.entity.BatchInputDTO;
-import com.esiran.greenpay.openapi.entity.BatchOrder;
-import com.esiran.greenpay.openapi.entity.Transfer;
-import com.esiran.greenpay.openapi.entity.TransferInputDTO;
+import com.esiran.greenpay.openapi.entity.*;
 import com.esiran.greenpay.openapi.service.ITransferService;
 import com.esiran.greenpay.pay.entity.Interface;
 import com.esiran.greenpay.pay.service.IInterfaceService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import io.swagger.models.auth.In;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
@@ -173,8 +170,8 @@ public class TransferService implements ITransferService {
         agentPayOrder.setUpdatedAt(LocalDateTime.now());
         orderService.save(agentPayOrder);
         AgentPayOrderFlow agentPayOrderFlow = new AgentPayOrderFlow(agentPayOrder);
+        AgentPayOrder order = null;
         try {
-
             String impl = ints.getInterfaceImpl();
             Pattern pattern = Pattern.compile("(^|;)corder:(.+?)(;|$)");
             Matcher m = pattern.matcher(impl);
@@ -183,16 +180,40 @@ public class TransferService implements ITransferService {
             Plugin<AgentPayOrder> plugin = pluginLoader.loadForClassPath(m.group(2));
             plugin.apply(agentPayOrderFlow);
             agentPayOrderFlow.execDependent("create");
+            Map<String, Object> results = agentPayOrderFlow.getResults();
+            String status = (String) results.get("status");
+            LambdaUpdateWrapper<AgentPayOrder> updateWrapperwrapper = new LambdaUpdateWrapper<>();
+            if (status.equals("30")){
+                updateWrapperwrapper.set(AgentPayOrder::getStatus,-1)
+                        .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
+                        .eq(AgentPayOrder::getId,agentPayOrder.getId());
+                orderService.update(updateWrapperwrapper);
+            }
+            if (status.equals("20")){
+                updateWrapperwrapper.set(AgentPayOrder::getStatus,3)
+                        .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
+                        .eq(AgentPayOrder::getId,agentPayOrder.getId());
+                orderService.update(updateWrapperwrapper);
+            }
+            if (status.equals("40")) {
+                Map<String, String> queryMap = new HashMap<>();
+                queryMap.put("orderNo", agentPayOrder.getOrderNo());
+                queryMap.put("count", "1");
+                String queryMsg = gson.toJson(queryMap);
+                redisDelayQueueClient.sendDelayMessage("agentpay:query", queryMsg, 0);
+            }
+            prepaidAccountService.updateBalance(mchId,0,(orderAmount+orderFee));
+            order = orderService.getOneByOrderNo(agentPayOrder.getOrderNo());
+            return modelMapper.map(order,Transfer.class);
         } catch (Exception e) {
             if (e instanceof APIException)
                 throw new APIException(e.getMessage(),((APIException) e).getCode(),((APIException) e).getStatus());
             if (!StringUtils.isEmpty(e.getMessage())){
                 throw new APIException(e.getMessage(),"CALL_AGENT_PAY_PASSAGE_ERROR",500);
             }
-            throw new APIException("系统错误，调用代付通道接口执行失败","CALL_AGENT_PAY_PASSAGE_ERROR",500);
+            assert order != null;
+            return modelMapper.map(order,Transfer.class);
         }
-        AgentPayOrder order = orderService.getOneByOrderNo(agentPayOrder.getOrderNo());
-        return modelMapper.map(order,Transfer.class);
     }
 
     private void checkBatchOneOrder(BatchOrder batchOrder) throws APIException {
@@ -213,7 +234,7 @@ public class TransferService implements ITransferService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void batch(BatchInputDTO batchInputDTO, Integer mchId) throws APIException {
+    public BatchRes batch(BatchInputDTO batchInputDTO, Integer mchId) throws APIException {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         String recipients = batchInputDTO.getRecipients();
         List<BatchOrder> list;
@@ -241,30 +262,6 @@ public class TransferService implements ITransferService {
         if(payPassage == null||!payPassage.getStatus()){
             throw new APIException("通道不存在或未开启，无法创建订单","PASSAGE_NOT_SUPPORTED");
         }
-        // 订单金额以及手续费初始化
-//        Integer feeType = mapp.getFeeType();
-//        if (feeType == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
-//        Integer orderFee;
-//        if (feeType == 1){
-//            // 当手续费类型为百分比收费时，根据订单金额计算手续费
-//            BigDecimal feeRate = mapp.getFeeRate();
-//            if (feeRate == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
-//            orderFee = NumberUtil.calculateAmountFee(totalAmount,feeRate);
-//        }else if (feeType == 2){
-//            // 当手续费类型为固定收费时，手续费为固定金额
-//            Integer feeAmount = mapp.getFeeAmount();
-//            if (feeAmount == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
-//            orderFee = feeAmount;
-//        }else if(feeType == 3){
-//            // 当手续费类型为百分比加固定收费时，根据订单金额计算手续费然后加固定手续费
-//            BigDecimal feeRate = mapp.getFeeRate();
-//            Integer feeAmount = mapp.getFeeAmount();
-//            if (feeRate == null||feeAmount == null) throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
-//            orderFee = NumberUtil.calculateAmountFee(totalAmount,feeRate);
-//            orderFee += feeAmount;
-//        }else {
-//            throw new APIException("系统错误，无法创建订单","SYSTEM_ERROR",500);
-//        }
         Integer orderFee = OrderFee(mapp, totalAmount, batchInputDTO.getTotalCount());
         int r = prepaidAccountService.updateBalance(mchId,(totalAmount+orderFee),-(totalAmount+orderFee));
         if (r <= 0){
@@ -285,6 +282,7 @@ public class TransferService implements ITransferService {
         agentPayBatch.setAgentpayPassageId(payPassage.getId());
         agentPayBatch.setAgentpayPassageAccId(account.getId());
         agentPayBatch.setPayInterfaceId(ints.getId());
+        agentPayBatch.setStatus(1);
         agentPayBatchService.save(agentPayBatch);
         for (BatchOrder batchOrder : list) {
             AgentPayOrder agentPayOrder = modelMapper.map(batchOrder,AgentPayOrder.class);
@@ -298,21 +296,63 @@ public class TransferService implements ITransferService {
             agentPayOrder.setBatchNo(agentPayBatch.getBatchNo());
             kafkaTemplate.send("grennpay_agentpay_batch_order_create",gson.toJson(agentPayOrder));
         }
+        BatchRes aReturn = modelMapper.map(agentPayBatch, BatchRes.class);
+        return aReturn;
     }
 
     @Override
-    public String queryAmount(Integer mchId) {
+    public String queryAmount(Integer mchId) throws APIException {
         PrepaidAccountDTO prepaidAccount = prepaidAccountService.findByMerchantId(mchId);
         Map<String,String> result = new HashMap<>();
         if (prepaidAccount == null ){
-            result.put("code","error");
-            result.put("msg","商户不存在");
+            throw new APIException("商户不存在","");
         }else {
-            result.put("code","success");
             result.put("availBalance",prepaidAccount.getAvailBalanceDisplay());
             result.put("freezeBalance",prepaidAccount.getFreezeBalanceDisplay());
         }
         return gson.toJson(result);
+    }
+
+    @Override
+    public AgentPayRes queryAgentPay(String outOrderNo, String orderNo) throws APIException {
+        LambdaQueryWrapper<AgentPayOrder> wrapper = new LambdaQueryWrapper<>();
+        if (outOrderNo == null){
+            wrapper.eq(AgentPayOrder::getOrderNo,orderNo);
+        }
+        if (orderNo == null){
+            wrapper.eq(AgentPayOrder::getOutOrderNo,outOrderNo);
+        }
+        if(orderNo != null && outOrderNo != null){
+            wrapper.eq(AgentPayOrder::getOrderNo,orderNo)
+                    .eq(AgentPayOrder::getOutOrderNo,outOrderNo);
+        }
+        AgentPayOrder agentPayOrder = orderService.getOne(wrapper);
+        if (agentPayOrder != null){
+            AgentPayRes agentPayRes = modelMapper.map(agentPayOrder, AgentPayRes.class);
+            return agentPayRes;
+        }
+        throw new APIException("订单不存在","");
+    }
+
+    @Override
+    public BatchRes queryBatch(String outBatchNo, String batchNo) throws APIException {
+        LambdaQueryWrapper<AgentPayBatch> wrapper = new LambdaQueryWrapper<>();
+        if (outBatchNo == null){
+            wrapper.eq(AgentPayBatch::getBatchNo,batchNo);
+        }
+        if (batchNo == null){
+            wrapper.eq(AgentPayBatch::getOutBatchNo,outBatchNo);
+        }
+        if(batchNo != null && outBatchNo != null){
+            wrapper.eq(AgentPayBatch::getBatchNo,batchNo)
+                    .eq(AgentPayBatch::getOutBatchNo,outBatchNo);
+        }
+        AgentPayBatch payBatch = agentPayBatchService.getOne(wrapper);
+        if (payBatch != null){
+            BatchRes batchRes = modelMapper.map(payBatch, BatchRes.class);
+            return batchRes;
+        }
+        throw new APIException("订单不存在","");
     }
 
     public Integer OrderFee(MerchantAgentPayPassage mapp, Integer amount,Integer count) throws APIException {

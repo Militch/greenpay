@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
+import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.pay.entity.OrderDTO;
 
 /**
@@ -23,5 +24,6 @@ public interface IAgentPayOrderService extends IService<AgentPayOrder> {
 
     AgentPayOrder getOneByOrderNo(String orderNo);
 //    AgentPayOrder
-    void createOneBatchOrder(AgentPayOrder agentPayOrder);
+    String createOneBatchOrder(AgentPayOrder agentPayOrder) throws APIException;
+
 }

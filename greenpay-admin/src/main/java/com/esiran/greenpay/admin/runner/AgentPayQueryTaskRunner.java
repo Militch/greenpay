@@ -31,6 +31,7 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
 
     @Override
     public void exec(String content) {
+        System.out.println("代付延时查询");
         Map<String, String> queryMap = MapUtil.jsonString2stringMap(content);
         assert queryMap != null;
         String orderNo = queryMap.get("orderNo");
@@ -39,6 +40,7 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
         wrapper.eq(AgentPayOrder::getOrderNo,orderNo);
         AgentPayOrder agentPayOrder = agentPayOrderService.getOne(wrapper);
         if (agentPayOrder == null || agentPayOrder.getStatus() != 2){
+            System.out.println("agentPayOrder 为 null");
             return;
         }
         String attr = agentPayOrder.getPayInterfaceAttr();
@@ -79,7 +81,7 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
                             ,0
                             ,agentPayOrder.getAmount()+agentPayOrder.getFee());
                 }
-                if (!(map.get("Status").equals("30") && map.get("Status").equals("20"))){
+                if (!(map.get("Status").equals("30") || map.get("Status").equals("20"))){
                     int i = Integer.parseInt(count);
                     if (i < 5){
                         queryMap.put("count",String.valueOf(i+1));

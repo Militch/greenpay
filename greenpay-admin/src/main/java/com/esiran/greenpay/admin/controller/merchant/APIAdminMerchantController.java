@@ -5,33 +5,43 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.esiran.greenpay.admin.controller.CURDBaseController;
+import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
+import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
 import com.esiran.greenpay.common.entity.APIException;
+import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
 import com.esiran.greenpay.common.util.RSAUtil;
 import com.esiran.greenpay.merchant.entity.*;
 import com.esiran.greenpay.merchant.service.IApiConfigService;
 import com.esiran.greenpay.merchant.service.IMerchantService;
+import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
+import com.esiran.greenpay.system.entity.User;
+import com.esiran.greenpay.system.service.IUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/merchants")
 @Api(tags = "商户管理")
-public class APIAdminMerchantController {
+public class APIAdminMerchantController extends CURDBaseController {
     private final IMerchantService merchantService;
+    private final IAgentPayOrderService agentPayOrderService;
+    private final IUserService userService;
+    private final IPrepaidAccountService prepaidAccountService;
     private final IApiConfigService apiConfigService;
-    public APIAdminMerchantController(IMerchantService merchantService, IApiConfigService apiConfigService) {
+    public APIAdminMerchantController(IMerchantService merchantService, IAgentPayOrderService agentPayOrderService, IUserService userService, IPrepaidAccountService prepaidAccountService, IApiConfigService apiConfigService) {
         this.merchantService = merchantService;
+        this.agentPayOrderService = agentPayOrderService;
+        this.userService = userService;
+        this.prepaidAccountService = prepaidAccountService;
         this.apiConfigService = apiConfigService;
     }
 
@@ -148,5 +158,35 @@ public class APIAdminMerchantController {
         updateWrapper.set(ApiConfig::getMchPubKey,publicKey)
                 .eq(ApiConfig::getMchId,mchId);
         apiConfigService.update(updateWrapper);
+    }
+
+    /**
+     * 代付退款
+     * @param orderNo
+     * @param supplyPass
+     * @throws Exception
+     */
+    @GetMapping
+    public void refund(@RequestParam String orderNo
+            ,@RequestParam String supplyPass) throws Exception {
+        User user = theUser();
+        try {
+            boolean result = userService.verifyTOTPPass(user.getId(),supplyPass);
+            if (!result) {
+                throw new IllegalArgumentException("动态密码校验失败");
+            }
+        }catch (Exception e){
+            throw new PostResourceException(e.getMessage());
+        }
+        AgentPayOrder agentPayOrder = agentPayOrderService.getOneByOrderNo(orderNo);
+        if (agentPayOrder == null){
+            throw new Exception("订单存在");
+        }
+        if (agentPayOrder.getStatus() != -1){
+            throw new Exception("该订单不支持退款");
+        }
+        prepaidAccountService.updateBalance(agentPayOrder.getMchId()
+                ,-(agentPayOrder.getAmount()+agentPayOrder.getFee())
+                ,0);
     }
 }

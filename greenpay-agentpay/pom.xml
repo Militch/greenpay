@@ -23,10 +23,11 @@
             <groupId>com.esiran</groupId>
             <artifactId>greenpay-bank</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.esiran</groupId>
-            <artifactId>greenpay-merchant</artifactId>
-        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>com.esiran</groupId>-->
+<!--            <artifactId>greenpay-merchant</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
 
 </project>

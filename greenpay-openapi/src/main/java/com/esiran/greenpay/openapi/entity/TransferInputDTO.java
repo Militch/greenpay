@@ -19,10 +19,7 @@ public class TransferInputDTO {
     private String accountNumber;
     @NotBlank(message = "开户行不能为空")
     private String bankName;
-    @NotBlank(message = "联行号不能为空")
     private String bankNumber;
-    @NotBlank(message = "通知地址不能为空")
     private String notifyUrl;
-    private String batchNo;
     private String extra;
 }

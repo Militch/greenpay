@@ -13,7 +13,6 @@ import com.esiran.greenpay.bank.pingan.entity.QueryOnceAgentPay;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
-import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
 import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
@@ -27,12 +26,8 @@ import java.util.Map;
 public class PingAnPlugin implements Plugin<AgentPayOrder> {
     private static final Gson g = new Gson();
     private static IAgentPayOrderService agentPayOrderService;
-    private static IPrepaidAccountService prepaidAccountService;
-    private static RedisDelayQueueClient redisDelayQueueClient;
-    private PingAnPlugin(IAgentPayOrderService agentPayOrderService,RedisDelayQueueClient redisDelayQueueClient){
+    private PingAnPlugin(IAgentPayOrderService agentPayOrderService){
         this.agentPayOrderService = agentPayOrderService;
-        this.redisDelayQueueClient = redisDelayQueueClient;
-        this.prepaidAccountService = prepaidAccountService;
     }
     private static final class OrderCreateTask implements Task<AgentPayOrder> {
 
@@ -91,33 +86,19 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
                 queryOnceAgentPay.setOrderNumber(data.getOrderNo());
                 queryOnceAgentPay.setAcctNo(attrmap.get("acctNo"));
                 Map<String, String> map = apiEx.queryOnceAgentPay(queryOnceAgentPay);
+                Map<String,Object> returns = new HashMap<>();
                 if (map != null){
                     if (map.get("Status").equals("30")){
-                        LambdaUpdateWrapper<AgentPayOrder> updateWrapperwrapper = new LambdaUpdateWrapper<>();
-                        updateWrapperwrapper.set(AgentPayOrder::getStatus,-1)
-                                .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
-                                .eq(AgentPayOrder::getId,data.getId());
-                        agentPayOrderService.update(updateWrapperwrapper);
-                        prepaidAccountService.updateBalance(data.getMchId()
-                                ,-(data.getAmount()+data.getFee())
-                                ,data.getAmount()+data.getFee());
+                        returns.put("status","30");
+                        flow.returns(returns);
                     }
                     if (map.get("Status").equals("20")){
-                        LambdaUpdateWrapper<AgentPayOrder> updateWrapperwrapper = new LambdaUpdateWrapper<>();
-                        updateWrapperwrapper.set(AgentPayOrder::getStatus,3)
-                                .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
-                                .eq(AgentPayOrder::getId,data.getId());
-                        agentPayOrderService.update(updateWrapperwrapper);
-                        prepaidAccountService.updateBalance(data.getMchId()
-                                ,0
-                                ,data.getAmount()+data.getFee());
+                        returns.put("status","20");
+                        flow.returns(returns);
                     }
-                    if (!(map.get("Status").equals("30") && map.get("Status").equals("20"))){
-                        Map<String,String> queryMap = new HashMap<>();
-                        queryMap.put("orderNo",data.getOrderNo());
-                        queryMap.put("count","1");
-                        String queryMsg = g.toJson(queryMap);
-                        redisDelayQueueClient.sendDelayMessage("agentpay:query",queryMsg,0);
+                    if (!(map.get("Status").equals("30") || map.get("Status").equals("20"))){
+                        returns.put("status","40");
+                        flow.returns(returns);
                     }
                 }else {
                     throw new APIException("代付渠道请求失败","");

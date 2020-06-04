@@ -2,15 +2,13 @@ package com.esiran.greenpay.openapi.entity;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
-public class Transfer {
+public class AgentPayRes {
     private String orderNo;
     private String orderSn;
     private String outOrderNo;
     private String batchNo;
-    private String subject;
+    private Integer mchId;
     private Integer amount;
     private Integer fee;
     private Integer accountType;
@@ -18,8 +16,26 @@ public class Transfer {
     private String accountNumber;
     private String bankName;
     private String bankNumber;
+    private String notifyUrl;
     private String extra;
+    private String payTypeCode;
+
+
+
+    private Integer agentpayPassageId;
+
+
+    private String agentpayPassageName;
+
+
+    private Integer agentpayPassageAccId;
+
+
+    private Integer payInterfaceId;
+
+
+    private String payInterfaceAttr;
+
+
     private Integer status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }
