@@ -1,16 +1,15 @@
 package com.esiran.greenpay.admin.controller.merchant;
 
 import com.esiran.greenpay.admin.controller.CURDBaseController;
+import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassage;
+import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.merchant.entity.*;
-import com.esiran.greenpay.merchant.service.IMerchantAgentPayPassageService;
-import com.esiran.greenpay.merchant.service.IMerchantProductService;
-import com.esiran.greenpay.merchant.service.IMerchantService;
-import com.esiran.greenpay.merchant.service.IMerchantProductPassageService;
+import com.esiran.greenpay.merchant.service.*;
 import com.esiran.greenpay.pay.entity.Passage;
 import com.esiran.greenpay.pay.entity.PassageAccount;
 import com.esiran.greenpay.pay.service.IPassageAccountService;
@@ -34,7 +33,9 @@ public class AdminMerchantController extends CURDBaseController {
     private static final Gson gson = new GsonBuilder().create();
     private final IUserService userService;
     private final IMerchantService merchantService;
+    private final IAgentPayOrderService agentPayOrderService;
     private final IProductService productService;
+    private final IPrepaidAccountService prepaidAccountService;
     private final ITypeService typeService;
     private final IPassageService passageService;
     private final IPassageAccountService passageAccountService;
@@ -44,8 +45,8 @@ public class AdminMerchantController extends CURDBaseController {
     private final IAgentPayPassageService agentPayPassageService;
     public AdminMerchantController(
             IUserService userService, IMerchantService merchantService,
-            IProductService productService,
-            ITypeService typeService,
+            IAgentPayOrderService agentPayOrderService, IProductService productService,
+            IPrepaidAccountService prepaidAccountService, ITypeService typeService,
             IPassageService passageService,
             IPassageAccountService passageAccountService,
             IMerchantProductService merchantProductService,
@@ -54,7 +55,9 @@ public class AdminMerchantController extends CURDBaseController {
             IAgentPayPassageService agentPayPassageService) {
         this.userService = userService;
         this.merchantService = merchantService;
+        this.agentPayOrderService = agentPayOrderService;
         this.productService = productService;
+        this.prepaidAccountService = prepaidAccountService;
         this.typeService = typeService;
         this.passageService = passageService;
         this.passageAccountService = passageAccountService;
