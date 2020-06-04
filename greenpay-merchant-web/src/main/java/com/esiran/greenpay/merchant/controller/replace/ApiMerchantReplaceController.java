@@ -4,20 +4,23 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.agentpay.entity.AgentPayBatchInputDTO;
+import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
+import com.esiran.greenpay.agentpay.entity.AgentPayOrderInputVO;
+import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
 import com.esiran.greenpay.pay.entity.ReplacepayOrder;
 import com.esiran.greenpay.pay.entity.ReplacepayRecharge;
-import com.esiran.greenpay.pay.service.IExtractService;
-import com.esiran.greenpay.pay.service.IOrderService;
 import com.esiran.greenpay.pay.service.IReplacepayOrderService;
 import com.esiran.greenpay.pay.service.IReplacepayRechargeService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,11 +28,12 @@ import java.util.Map;
 public class ApiMerchantReplaceController {
     private final IReplacepayOrderService replacepayOrderService;
     private final IReplacepayRechargeService replacepayRechargeService;
+    private final IAgentPayOrderService agentPayOrderService;
 
-
-    public ApiMerchantReplaceController(IReplacepayOrderService replacepayOrderService, IReplacepayRechargeService replacepayRechargeService) {
+    public ApiMerchantReplaceController(IReplacepayOrderService replacepayOrderService, IReplacepayRechargeService replacepayRechargeService, IAgentPayOrderService agentPayOrderService) {
         this.replacepayOrderService = replacepayOrderService;
         this.replacepayRechargeService = replacepayRechargeService;
+        this.agentPayOrderService = agentPayOrderService;
     }
 
     @GetMapping("/replaceLists")
@@ -88,5 +92,20 @@ public class ApiMerchantReplaceController {
         m.put("code",1);
         m.put("msg","提交成功");
         return m;
+    }
+
+
+    //    @GetMapping("/agentpay/orders")
+//    public IPage<AgentPayOrderDTO> list(
+//            @RequestParam(required = false,defaultValue = "1") Integer current,
+//            @RequestParam(required = false, defaultValue = "10") Integer size){
+//        return agentPayOrderService.selectPage(new Page<>(current,size),null);
+//    }
+
+    @GetMapping("/replace/orders")
+    public List<AgentPayOrderDTO> list(@RequestParam(required = false,defaultValue = "1") Integer current,
+                                       @RequestParam(required = false, defaultValue = "10") Integer size, AgentPayOrderInputVO agentPayOrderInputVO){
+
+        return agentPayOrderService.agentPayOrderList(new Page<>(current,size),  agentPayOrderInputVO);
     }
 }
