@@ -32,4 +32,10 @@ public class MerchantReplaceController {
     public String replaceExtract(){
         return "merchant/replace/replaceExtract";
     }
+
+
+    @GetMapping("/batch/list")
+    public String list(){
+        return "merchant/batch/batchList";
+    }
 }
