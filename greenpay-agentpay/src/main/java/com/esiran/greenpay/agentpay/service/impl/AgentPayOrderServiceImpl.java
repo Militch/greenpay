@@ -40,18 +40,23 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
     @Override
     public List<AgentPayOrderDTO> agentPayOrderList(Page<AgentPayOrderDTO> page , AgentPayOrderInputVO agentPayOrderInputVO) {
         LambdaQueryWrapper<AgentPayOrder> wrapper = new LambdaQueryWrapper<>();
-        if (!StringUtils.isEmpty(agentPayOrderInputVO.getOrderNo())) {
-            wrapper.eq(AgentPayOrder::getOrderNo, agentPayOrderInputVO.getOrderNo());
-        }
-        if (agentPayOrderInputVO.getStatus() != null && agentPayOrderInputVO.getStatus() != 0) {
-            wrapper.eq(AgentPayOrder::getStatus, agentPayOrderInputVO.getStatus());
-        }
-        if (!StringUtils.isEmpty(agentPayOrderInputVO.getStartTime() )) {
-            wrapper.ge(AgentPayOrder::getCreatedAt, agentPayOrderInputVO.getStartTime());
-        }
+        if (agentPayOrderInputVO != null) {
+            if (!StringUtils.isEmpty(agentPayOrderInputVO.getMchId()) && agentPayOrderInputVO.getMchId()>0){
+                wrapper.eq(AgentPayOrder::getMchId, agentPayOrderInputVO.getMchId());
+            }
+            if (!StringUtils.isEmpty(agentPayOrderInputVO.getOrderNo())) {
+                wrapper.eq(AgentPayOrder::getOrderNo, agentPayOrderInputVO.getOrderNo());
+            }
+            if (agentPayOrderInputVO.getStatus() != null && agentPayOrderInputVO.getStatus() != 0) {
+                wrapper.eq(AgentPayOrder::getStatus, agentPayOrderInputVO.getStatus());
+            }
+            if (!StringUtils.isEmpty(agentPayOrderInputVO.getStartTime() )) {
+                wrapper.ge(AgentPayOrder::getCreatedAt, agentPayOrderInputVO.getStartTime());
+            }
 
-        if (!StringUtils.isEmpty(agentPayOrderInputVO.getEndTime() )) {
-            wrapper.lt(AgentPayOrder::getCreatedAt, agentPayOrderInputVO.getEndTime());
+            if (!StringUtils.isEmpty(agentPayOrderInputVO.getEndTime() )) {
+                wrapper.lt(AgentPayOrder::getCreatedAt, agentPayOrderInputVO.getEndTime());
+            }
         }
         List<AgentPayOrder> agentPayOrder = this.baseMapper.agentPayOrderList(wrapper,((page.getCurrent()-1) * page.getSize()),page.getSize());
         List<AgentPayOrderDTO> agentPayOrderDTOStream = agentPayOrder.stream().map(AgentPayOrderDTO::convertOrderEntity).collect(Collectors.toList());

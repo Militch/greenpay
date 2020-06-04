@@ -14,7 +14,7 @@ import lombok.Data;
 public class AgentBatchInputVO {
 
     private static final long serialVersionUID = 1L;
-
+    private Integer mchId;
     /**
      * 订单状态（1：待处理，2：处理中，3：处理成功，4：处理失败）
      */
