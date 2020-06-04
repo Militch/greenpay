@@ -1,6 +1,5 @@
-package com.esiran.greenpay.merchant.controller.agentpay;
+package com.esiran.greenpay.merchant.controller.batch;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrderInputVO;
@@ -14,11 +13,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/agentpay")
-public class APIAdminAgentPayOrderController {
+public class AgentPayOrderController {
 
     private final IAgentPayOrderService agentPayOrderService;
 
-    public APIAdminAgentPayOrderController(IAgentPayOrderService agentPayOrderService) {
+    public AgentPayOrderController(IAgentPayOrderService agentPayOrderService) {
         this.agentPayOrderService = agentPayOrderService;
     }
 

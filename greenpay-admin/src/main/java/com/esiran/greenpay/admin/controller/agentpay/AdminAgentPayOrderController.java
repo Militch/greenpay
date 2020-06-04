@@ -1,9 +1,7 @@
-package com.esiran.greenpay.merchant.controller.agentpay;
+package com.esiran.greenpay.admin.controller.agentpay;
 
 import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
 import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
-import com.esiran.greenpay.pay.entity.OrderDTO;
-import com.esiran.greenpay.pay.entity.OrderDetailDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
