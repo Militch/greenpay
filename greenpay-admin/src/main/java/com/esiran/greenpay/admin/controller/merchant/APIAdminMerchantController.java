@@ -166,7 +166,7 @@ public class APIAdminMerchantController extends CURDBaseController {
      * @param supplyPass
      * @throws Exception
      */
-    @GetMapping
+    @GetMapping("/refund")
     public void refund(@RequestParam String orderNo
             ,@RequestParam String supplyPass) throws Exception {
         User user = theUser();

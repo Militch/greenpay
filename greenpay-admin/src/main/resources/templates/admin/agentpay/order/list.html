@@ -92,7 +92,8 @@
                             <script type="text/html" id="barDemo">
                                 <a th:href="@{'/agentpay/order/list/{{d.orderNo}}/detail'}"
                                    class="layui-btn layui-btn-xs layui-btn-primary">查看</a>
-                                <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-primary">补单</a>
+                                <a th:href="@{'/api/v1/agentpay/orders/supplement/{{d.orderNo}}'}"
+                                   class="layui-btn layui-btn-xs layui-btn-primary">补单</a>
                                 <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-primary">回调</a>
                             </script>
                         </div>
