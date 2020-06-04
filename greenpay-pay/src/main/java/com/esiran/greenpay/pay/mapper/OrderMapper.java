@@ -90,47 +90,47 @@ public interface OrderMapper extends BaseMapper<Order> {
 
 
 
-    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name, " +
-            "       COUNT(*) AS count, " +
-            "       SUM(amount) as amount " +
-            "FROM pay_order " +
-            "WHERE  DATE_SUB(CURDATE(),INTERVAL 6 day) <=date(created_at) " +
-            "GROUP BY name;")
+        @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name,   " +
+                "                   COUNT(*) AS count,   " +
+                "                   SUM(amount) as amount   " +
+                "            FROM pay_order   " +
+                "            WHERE YEARWEEK(date_format(created_at,'%Y-%m-%d'),1) = YEARWEEK(now(),1)  " +
+                "            GROUP BY name;")
     List<CartogramDTO> sevenDayAllCount();
 
-    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name, " +
-            " COUNT(*) AS count, " +
-            " SUM(amount) as amount " +
-            "FROM pay_order " +
-            "WHERE  DATE_SUB(CURDATE(),INTERVAL 6 day) <=date(created_at) AND IF(status = 3 OR status = 2, 1, 0) " +
-            "GROUP BY name;")
+    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name,   " +
+            "             COUNT(*) AS count,   " +
+            "             SUM(amount) as amount   " +
+            "            FROM pay_order   " +
+            "            WHERE YEARWEEK(date_format(created_at,'%Y-%m-%d'),1) = YEARWEEK(now(),1) AND IF(status = 3 OR status = 2, 1, 0)   " +
+            "            GROUP BY name;")
     List<CartogramDTO> sevenDayAllAmount();
 
 
-    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name, " +
-            "       COUNT(*) AS count, " +
-            "  SUM(amount) as amount " +
-            "FROM pay_order " +
-            "WHERE  DATE_SUB(CURDATE(),INTERVAL 13 day) <=date(created_at) " +
-            "GROUP BY name;")
+    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name,   " +
+            "                   COUNT(*) AS count,   " +
+            "              SUM(amount) as amount   " +
+            "            FROM pay_order   " +
+            "            WHERE YEARWEEK(date_format(created_at,'%Y-%m-%d'),1) = YEARWEEK(now(),1) -1   " +
+            "            GROUP BY name;")
     List<CartogramDTO> upSevenDayAllCount();
 
-    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name, " +
-            "       COUNT(*) AS count, " +
-            " SUM(amount) as amount "+
-            "FROM pay_order " +
-            "WHERE  DATE_SUB(CURDATE(),INTERVAL 13 day) <=date(created_at) AND IF(status = 3 OR status = 2, 1, 0) " +
-            "GROUP BY name;")
+    @Select("SELECT DATE_FORMAT(created_at,'%m-%d') AS name,   " +
+            "                   COUNT(*) AS count,   " +
+            "             SUM(amount) as amount  " +
+            "            FROM pay_order   " +
+            "            WHERE YEARWEEK(date_format(created_at,'%Y-%m-%d'),1) = YEARWEEK(now(),1) -1   AND IF(status = 3 OR status = 2, 1, 0)   " +
+            "            GROUP BY name;")
     List<CartogramDTO> upSevenDayAllAmount();
 
 
-    @Select("select  WEEKDAY(created_at)+1  AS name, " +
-            "                            COUNT(*) AS count,  " +
-            "                            SUM((IF (status = 2 OR status = 3 ,1,0))) AS successCount,   " +
-            "                            SUM(amount) AS amount,   " +
-            "                            SUM((if(status = 2 OR status = 3 ,amount,0))) as successAmount   " +
-            "                         from pay_order WHERE YEARWEEK(date_format(created_at,'%Y-%m-%d')- INTERVAL 1 DAY) = YEARWEEK(now()) " +
-            "                         GROUP BY name;")
+    @Select("select  WEEKDAY(created_at)+1  AS name,   " +
+            "  COUNT(*) AS count,    " +
+            "  SUM((IF (status = 2 OR status = 3 ,1,0))) AS successCount, " +
+            "  SUM(amount) AS amount, " +
+            "  SUM((if (status = 2 OR status = 3 ,amount,0))) as successAmount " +
+            "  from pay_order WHERE YEARWEEK(date_format(created_at,'%Y-%m-%d'),1) = YEARWEEK(now(),1)    " +
+            "  GROUP BY name")
     List<CartogramDTO> sevenDay4CountAndAmount();
 
 

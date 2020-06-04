@@ -563,7 +563,7 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
 
 
         //昨日收单笔数
-        Integer yesterDayOrdersCount = intradayOrders.size();
+        Integer yesterDayOrdersCount = yesterdayOrders.size();
         //昨日成交笔数
         Long yesterDayOrdersCountSucces = yesterdayOrders.stream().filter(agentPayOrderDTO -> agentPayOrderDTO.getStatus()==3).count();
         //昨日成交总额
@@ -599,8 +599,8 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
 
 
 
-        a = new BigDecimal(yesterDayOrdersAmountSucces);
-        b = new BigDecimal(intrDayOrderAmountSucces);
+        a = new BigDecimal(intrDayOrderAmountSucces );
+        b = new BigDecimal(yesterDayOrdersAmountSucces);
         String percent4Amount = p.percentBigDecimal(a, b);
 
         data = new HashMap<>();
