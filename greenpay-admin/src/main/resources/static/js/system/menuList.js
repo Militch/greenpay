@@ -6,6 +6,7 @@ let $ = layui.jquery,
     ,form = layui.form;
 !(function () {
 
+
     var table = layui.table
         ,form = layui.form,
         layer = layui.layer;
@@ -143,7 +144,9 @@ function addPerm(parentId,dataType,flag){
             $("#parentId").val(parentId);
         }
         if(dataType==2){
-            $('#radio').css('display','none')
+            layer.alert("按钮类型不能添加子节点");
+            return false;
+            // $('#radio').css('display','none')
         }else{
             $('#radio').css('display','block')
 

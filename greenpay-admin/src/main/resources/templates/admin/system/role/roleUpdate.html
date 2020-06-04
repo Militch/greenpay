@@ -76,7 +76,12 @@
 
 </div>
 <th:block th:replace="admin/footer::script"/>
-    <script src="/js/system/roleUpdate.js"  th:inline="none"></script>
+<script th:inline="javascript">
+        let userRoles = [[${userRoles}]];
+    </script>
+    <script src="/js/system/roleUpdate.js"  th:inline="none">
+
+    </script>
 
 </body>
 </html>

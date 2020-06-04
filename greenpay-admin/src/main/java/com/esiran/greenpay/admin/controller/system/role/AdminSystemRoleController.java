@@ -4,7 +4,10 @@ import com.esiran.greenpay.common.entity.APIError;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.system.entity.Role;
+import com.esiran.greenpay.system.entity.RoleMenu;
+import com.esiran.greenpay.system.entity.UserRole;
 import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
+import com.esiran.greenpay.system.service.IRoleMenuService;
 import com.esiran.greenpay.system.service.IRoleService;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -19,15 +22,17 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/system/role")
 public class AdminSystemRoleController {
     private IRoleService roleService;
+    private IRoleMenuService iRoleMenuService;
 
-
-    public AdminSystemRoleController(IRoleService roleService) {
+    public AdminSystemRoleController(IRoleService roleService, IRoleMenuService iRoleMenuService) {
         this.roleService = roleService;
+        this.iRoleMenuService = iRoleMenuService;
     }
 
 //    @GetMapping("/list")
@@ -60,17 +65,21 @@ public class AdminSystemRoleController {
 
     @GetMapping("/list/edit/{id}")
     @PageViewHandleError
-    public String edit(@NotNull HttpSession httpSession, ModelMap modelMap, @PathVariable Long id) throws PostResourceException {
+    public String edit(@NotNull HttpSession httpSession, ModelMap modelMap, @PathVariable Integer id) throws PostResourceException {
         Role role = roleService.selectById(id);
         if (role == null) {
             throw new PostResourceException("未找到角色");
         }
+        List<RoleMenu> roleMenus = iRoleMenuService.selectRleMenusByRoleId(id);
+
+        List<Integer> collect = roleMenus.stream().map(userRole -> userRole.getMenuId()).collect(Collectors.toList());
         modelMap.addAttribute("role", role);
+        modelMap.addAttribute("userRoles", collect);
         return "admin/system/role/roleUpdate";
     }
 
     @PostMapping("/list/edit/{id}")
-    public String update(@PathVariable Long id, UserRoleInputDto roleDto) throws PostResourceException {
+    public String update(@PathVariable Integer id, UserRoleInputDto roleDto) throws PostResourceException {
         if (StringUtils.isBlank(roleDto.getName())) {
             throw new PostResourceException("角色名称不能为空");
         }

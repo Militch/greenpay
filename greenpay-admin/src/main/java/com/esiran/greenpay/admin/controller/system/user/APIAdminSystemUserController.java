@@ -1,9 +1,12 @@
 package com.esiran.greenpay.admin.controller.system.user;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.admin.controller.CURDBaseController;
+import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
+import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.system.entity.Role;
 import com.esiran.greenpay.system.entity.User;
 import com.esiran.greenpay.system.entity.UserRole;
@@ -110,7 +113,7 @@ public class APIAdminSystemUserController extends CURDBaseController {
 
 
     @PostMapping
-    public ResponseEntity add(@Valid UserInputDto userInputDto) throws Exception {
+    public ResponseEntity add(@Valid UserInputDto userInputDto) throws APIException {
 
         iUserRoleService.addUserAndRole(userInputDto);
 

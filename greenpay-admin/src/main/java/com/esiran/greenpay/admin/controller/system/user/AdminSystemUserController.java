@@ -24,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/system/user")
@@ -48,12 +49,16 @@ public class AdminSystemUserController {
     public String edit( ModelMap modelMap, @PathVariable Integer userId) throws PostResourceException {
         UserDTO user = userService.selectUserById(userId);
 
+        List<UserRole> userRoles = userRoleService.selectUserRoleById(userId);
+        List<Integer> collect = userRoles.stream().map(userRole -> userRole.getRoleId()).collect(Collectors.toList());
         modelMap.addAttribute("user", user);
+        modelMap.addAttribute("userRoles", collect);
         return "admin/system/user/edit";
     }
 
 
     @PostMapping("/list/{userId}/edit")
+    @PageViewHandleError
     public String edit(@PathVariable Integer userId,@Valid UserInputDto userInputDto) throws PostResourceException {
 
         if (StringUtils.isBlank(userInputDto.getUsername()) ||
@@ -79,7 +84,6 @@ public class AdminSystemUserController {
 
 
     @GetMapping("/add")
-    @PageViewHandleError
     public String add() {
         return "admin/system/user/add";
     }

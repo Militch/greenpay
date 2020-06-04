@@ -3,7 +3,6 @@ package com.esiran.greenpay.admin.controller;
 
 import com.esiran.greenpay.admin.entity.UsernamePasswordInputDTO;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
-import com.esiran.greenpay.merchant.entity.HomeDateVo;
 import com.esiran.greenpay.merchant.service.IMerchantService;
 import com.esiran.greenpay.settle.service.ISettleOrderService;
 import com.google.gson.Gson;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 @Controller
@@ -25,9 +23,11 @@ import java.util.HashMap;
 public class AdminController extends CURDBaseController{
     private static final Gson gson = new GsonBuilder().create();
     private ISettleOrderService iSettleOrderService;
+    private IMerchantService merchantService;
 
-    public AdminController(ISettleOrderService iSettleOrderService) {
+    public AdminController(ISettleOrderService iSettleOrderService, IMerchantService merchantService) {
         this.iSettleOrderService = iSettleOrderService;
+        this.merchantService = merchantService;
     }
 
     @GetMapping
@@ -43,6 +43,18 @@ public class AdminController extends CURDBaseController{
 
         return "admin/index";
     }
+
+
+
+    @GetMapping("/merchantInfo")
+    public String merchantInfo(Model model) {
+        HashMap<String,Object> homeDate = merchantService.agentPayInfo();
+        String s = gson.toJson(homeDate);
+        model.addAttribute("homeDataJson", s);
+
+        return "admin/merchantInfo";
+    }
+
     @GetMapping("/login")
     @PageViewHandleError
     public String login(){

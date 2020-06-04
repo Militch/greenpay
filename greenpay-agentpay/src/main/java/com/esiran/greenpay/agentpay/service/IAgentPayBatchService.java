@@ -2,10 +2,13 @@ package com.esiran.greenpay.agentpay.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.esiran.greenpay.agentpay.entity.AgentBatchInputVO;
 import com.esiran.greenpay.agentpay.entity.AgentPayBatch;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.esiran.greenpay.agentpay.entity.AgentPayBatchDTO;
 import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -17,5 +20,5 @@ import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
  */
 public interface IAgentPayBatchService extends IService<AgentPayBatch> {
 
-    IPage<AgentPayBatchDTO> selectPage(Page<AgentPayBatchDTO> page, AgentPayBatchDTO batchDTO);
+    List<AgentPayBatchDTO> selectPage(Page<AgentPayBatchDTO> page, AgentBatchInputVO agentBatchInputVO);
 }

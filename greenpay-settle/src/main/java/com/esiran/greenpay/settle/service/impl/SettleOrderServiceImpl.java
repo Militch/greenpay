@@ -7,6 +7,7 @@ import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
 import com.esiran.greenpay.common.util.EncryptUtil;
 import com.esiran.greenpay.common.util.IdWorker;
+import com.esiran.greenpay.common.util.MoneyFormatUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.common.util.PercentCount;
 import com.esiran.greenpay.merchant.entity.Merchant;
@@ -28,6 +29,7 @@ import com.esiran.greenpay.settle.entity.SettleOrderQueryDto;
 import com.esiran.greenpay.settle.mapper.SettleOrderMapper;
 import com.esiran.greenpay.settle.service.ISettleOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.support.ManagedMap;
@@ -393,7 +395,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data.put("val2", percent4Amount);
         data.put("rightHint", "日同比");
         data.put("leftHint","昨日");
-        data.put("upDay",aLong);
+        data.put("upDay",NumberUtil.amountFen2Yuan(new BigDecimal(aLong).intValue()));
         statistics.add(data);
         //end
 
@@ -435,22 +437,11 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         data = new HashMap<>();
         List<CartogramDTO> hourAmount = orderService.hourData4amount();
         List<CartogramDTO> hours = new ArrayList<>();
-        List<String> collect = hourAmount.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
-        for (int i = 0; i < 24; i++) {
-            String hs = String.valueOf(i);
-            if (collect.contains(hs)) {
-                continue;
-            }
 
-            CartogramDTO cartogramDTO = new CartogramDTO();
-            cartogramDTO.setName(hs);
-            cartogramDTO.setAmount(0l);
-            cartogramDTO.setSuccessAmount(0l);
-            hours.add(cartogramDTO);
-        }
-        hourAmount.addAll(hours);
+        List<CartogramDTO> dtoList = transfer(hourAmount, 0,23);
+        hourAmount.addAll(dtoList);
         Collections.sort(hourAmount);
-        data.put("name", "定单总额");
+        data.put("name", "交易趋势");
         data.put("val", hourAmount);
         map.put("orderAmount", data);
         //--end
@@ -458,30 +449,44 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         //24小交易趋势
         data = new HashMap<>();
         hourAmount = orderService.hourData4count();
-        hours = new ArrayList<>();
 
-        //填充
-        collect = hourAmount.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
-        for (int i = 0; i < 24; i++) {
-            String hs = String.valueOf(i);
-            if (collect.contains(hs)) {
-                continue;
-            }
-
-            CartogramDTO cartogramDTO = new CartogramDTO();
-            cartogramDTO.setName(hs);
-            cartogramDTO.setCount(0);
-            cartogramDTO.setSuccessCount(0);
-            hours.add(cartogramDTO);
-        }
-
-        hourAmount.addAll(hours);
+        dtoList = transfer(hourAmount, 0,23);
+        hourAmount.addAll(dtoList);
         Collections.sort(hourAmount);
-        data.put("name", "交易趋势");
+        data.put("name", "订单数量");
         data.put("val", hourAmount);
         map.put("tradingTrends", data);
         //end
 
+        //一周交易趋势
+        data = new ManagedMap<>();
+        List<CartogramDTO> cartogramDTOList = orderService.sevenDay4CountAndAmount();
+        List<CartogramDTO> weekList = transfer(cartogramDTOList, 1,7);
+        cartogramDTOList.addAll(weekList);
+        Collections.sort(cartogramDTOList);
+            cartogramDTOList.stream().forEach(cartogramDTO -> {
+                int name = NumberUtils.toInt(cartogramDTO.getName());
+                cartogramDTO.setName("星期" + (name <7 ? MoneyFormatUtil.formatFractionalPart(name) : "日"));
+            });
+        data.put("name", "本周交易趋势");
+        data.put("val", cartogramDTOList);
+        map.put("weekList", data);
+
+        //一月交易趋势
+        data = new ManagedMap<>();
+        List<CartogramDTO> month4CountAndAmount = orderService.currentMonth4CountAndAmount();
+        List<CartogramDTO> monthList = transfer(month4CountAndAmount,1, getCurrentMonthLastDay());
+        month4CountAndAmount.addAll(monthList);
+        Collections.sort(month4CountAndAmount);
+        Calendar calendar = Calendar.getInstance();
+        month4CountAndAmount.stream().forEach( cartogramDTO -> {
+            String name = cartogramDTO.getName();
+            name = (calendar.get(Calendar.MONTH) + 1) + "-" +name;
+            cartogramDTO.setName(name);
+        });
+        data.put("name", "当月交易趋势");
+        data.put("val", month4CountAndAmount);
+        map.put("monthList", data);
 
         //转化率
         data = new ManagedMap<>();
@@ -535,7 +540,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 //                cartogramDTO.setAmount(0l);
 //                times.add(cartogramDTO);
 //            }
-        for (int i = 7; i >0; i--){
+        for (int i = 6; i >=0; i--){
             long dayTime = System.currentTimeMillis() - ((1000 * 60 * 60 * 24) * (i));
             String time = sdf.format(dayTime);
             List<CartogramDTO> collect1 = cartograms.stream().filter(cartogramDTO ->
@@ -557,6 +562,40 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
         cartograms.clear();
         cartograms.addAll(cartogramDTOList);
+    }
+
+
+    private List<CartogramDTO> transfer(List<CartogramDTO> sources,int start, int addNum) {
+        List<String> collect = sources.stream().map(cartogramDTO -> cartogramDTO.getName()).collect(Collectors.toList());
+        List<CartogramDTO> addData = new ArrayList<>();
+        for (int i = start; i <= addNum; i++) {
+            String time = String.valueOf(i);
+            if (collect.contains(time)) {
+                continue;
+            }
+
+            CartogramDTO cartogramDTO = new CartogramDTO();
+            cartogramDTO.setName(time);
+            cartogramDTO.setCount(0);
+            cartogramDTO.setSuccessCount(0);
+            cartogramDTO.setAmount(0l);
+            cartogramDTO.setSuccessAmount(0l);
+            addData.add(cartogramDTO);
+
+        }
+
+        return addData;
+    }
+    /**
+     * 取得当月天数
+     * */
+    public static int getCurrentMonthLastDay()
+    {
+        Calendar a = Calendar.getInstance();
+        a.set(Calendar.DATE, 1);//把日期设置为当月第一天
+        a.roll(Calendar.DATE, -1);//日期回滚一天，也就是最后一天
+        int maxDate = a.get(Calendar.DATE);
+        return maxDate;
     }
 
     @Override

@@ -5,6 +5,7 @@
 
 
 !(function () {
+    console.log(userRoles);
     let $ = layui.jquery;
     var tree;
     layui.use(['form', 'tree', 'layer', 'jquery'], function () {
@@ -91,6 +92,7 @@
             util = layui.util;
 
             //渲染
+            let a =  listToTreeJson(data);
             var inst1 = tree.render({
                 id: 'demoId1',
                 elem: '#perm', //指定元素
@@ -106,22 +108,22 @@
             });
 
             //按钮事件
-            util.event('lay-demo', {
-                getChecked: function (othis) {
-                    var checkedData = tree.getChecked('demoId1'); //获取选中节点的数据
-
-                    layer.alert(JSON.stringify(checkedData), {shade: 0});
-                    console.log(checkedData);
-                }
-                , setChecked: function () {
-                    tree.setChecked('demoId1', [12, 16]); //勾选指定节点
-                }
-                , reload: function () {
-                    //重载实例
-                    tree.reload('demoId1', {});
-
-                }
-            });
+            // util.event('lay-demo', {
+            //     getChecked: function (othis) {
+            //         var checkedData = tree.getChecked('demoId1'); //获取选中节点的数据
+            //
+            //         layer.alert(JSON.stringify(checkedData), {shade: 0});
+            //         console.log(checkedData);
+            //     }
+            //     , setChecked: function () {
+            //         tree.setChecked('demoId1', [12, 16]); //勾选指定节点
+            //     }
+            //     , reload: function () {
+            //         //重载实例
+            //         tree.reload('demoId1', {});
+            //
+            //     }
+            // });
         });
 
     }
@@ -158,8 +160,10 @@
                 for (var i = 0; i < data.length; i++) {
                     var node = data[i];
                     if (parentId != null && node.parentId == parentId) {
+
                         var newNode = {
                             title: node.title,
+                            checked: userRoles.includes(node.id),
                             spread: true,
                             id: node.id,
                             pid: node.parentId,
@@ -173,6 +177,6 @@
             // return JSON.stringify(getJsonTree(data,''));
             return getJsonTree(data, 0);
         }
-        //console.log(JSON.stringify(getJsonTree(data,'')));
+        // console.log(JSON.stringify(getJsonTree(data,'')));
 
     }}());

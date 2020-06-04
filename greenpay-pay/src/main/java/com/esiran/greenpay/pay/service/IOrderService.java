@@ -67,4 +67,8 @@ public interface IOrderService extends IService<Order> {
         List<CartogramDTO> hourData4count();
 
         List<CartogramPayStatusVo> PayStatuss();
+
+        List<CartogramDTO> sevenDay4CountAndAmount();
+
+        List<CartogramDTO> currentMonth4CountAndAmount();
 }
