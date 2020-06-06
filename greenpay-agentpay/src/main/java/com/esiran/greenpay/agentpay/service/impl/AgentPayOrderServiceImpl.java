@@ -61,6 +61,15 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
     public IPage<AgentPayOrderDTO> selectPage(Page<AgentPayOrderDTO> page, AgentPayOrderDTO agentPayOrderDTO) {
         LambdaQueryWrapper<AgentPayOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByDesc(AgentPayOrder::getCreatedAt);
+        if (!StringUtils.isEmpty(agentPayOrderDTO.getOrderNo())) {
+            wrapper.eq(AgentPayOrder::getOrderNo,agentPayOrderDTO.getOrderNo());
+        }
+        if (!StringUtils.isEmpty(agentPayOrderDTO.getOutOrderNo())) {
+            wrapper.eq(AgentPayOrder::getOutOrderNo,agentPayOrderDTO.getOutOrderNo());
+        }
+        if (!StringUtils.isEmpty(agentPayOrderDTO.getBatchNo())) {
+            wrapper.eq(AgentPayOrder::getBatchNo,agentPayOrderDTO.getBatchNo());
+        }
         Page<AgentPayOrder> orderPage = this.page(new Page<>(page.getCurrent(), page.getSize()), wrapper);
         return orderPage.convert(AgentPayOrderDTO::convertOrderEntity);
     }

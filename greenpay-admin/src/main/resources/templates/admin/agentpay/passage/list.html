@@ -26,8 +26,35 @@
                                     <a th:href="@{'/agentpay/passage/list/add'}" class="layui-btn">新增</a>
                                     <button type="button" class="layui-btn">删除选中</button>
                                 </div>
-                                <div th:replace="admin/compose::admin-table_header_right('请输入通道ID或名称')">
+                                <div class="admin-table_header_right">
+                                    <form class="layui-form" action="">
+                                        <div class="layui-form-item">
+                                            <div class="layui-inline">
+                                                <label for="payTypeCode">
+                                                    <input type="text" class="layui-input"
+                                                           id="payTypeCode"
+                                                           name="payTypeCode"
+                                                           placeholder="支付类型编码"
+                                                           autocomplete="off">
+                                                </label>
+                                            </div>
+                                            <div class="layui-inline">
+                                                <label for="passageName">
+                                                    <input type="text" class="layui-input"
+                                                           name="passageName"
+                                                           id="passageName"
+                                                           placeholder="通道名称"
+                                                           autocomplete="off">
+                                                </label>
+                                            </div>
+                                            <button type="submit" class="layui-btn">搜索</button>
+                                        </div>
+                                    </form>
+                                    <div style="clear:both;"></div>
                                 </div>
+<!--                                <div th:replace="admin/compose::admin-table_header_right('请输入通道ID或名称')">-->
+<!--                                    -->
+<!--                                </div>-->
                                 <div style="clear:both;"></div>
                             </div>
                             <table id="demo" lay-filter="test"></table>
@@ -61,6 +88,11 @@
     </div>
 </div>
 <th:block th:replace="admin/footer::script"/>
+<script th:inline="javascript">
+    let qs = [[${qs}]];
+    let passageName = [[${#httpServletRequest.getParameter('passageName')}]];
+    let payTypeCode = [[${#httpServletRequest.getParameter('payTypeCode')}]];
+</script>
 <script th:inline="none">
     !function(){
         let layer = layui.layer
@@ -68,14 +100,19 @@
         //第一个实例
         table.render({
             elem: '#demo'
-            ,url: '/api/v1/agentpay/passages' //数据接口
+            ,url: function () {
+                if (qs){
+                    return `/api/v1/agentpay/passages?${qs}`
+                }
+                return `/api/v1/agentpay/passages`;
+            }() //数据接口
             ,page: true //开启分页
             ,parseData: function(res){ //res 即为原始返回的数据
                 return {
                     "code": 0,
                     "msg": res.message,
                     "count": res.total,
-                    "data": res.records
+                    "data": res
                 };
             }
             ,request: {

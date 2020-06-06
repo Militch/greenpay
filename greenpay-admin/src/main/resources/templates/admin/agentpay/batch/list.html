@@ -20,24 +20,24 @@
                                 <form class="layui-form" action="">
                                     <div class="layui-form-item">
                                         <div class="layui-inline">
-                                            <label for="orderNo">
+                                            <label for="batchNo">
                                                 <input type="text" class="layui-input"
-                                                       id="orderNo"
-                                                       name="orderNo" required
+                                                       id="batchNo"
+                                                       name="batchNo"
                                                        placeholder="请输入交易批次号"
                                                        autocomplete="off">
                                             </label>
                                         </div>
                                         <div class="layui-inline">
-                                            <label for="outOrderNo">
+                                            <label for="outBatchNo">
                                                 <input type="text" class="layui-input"
-                                                       name="outOrderNo"
-                                                       id="outOrderNo"
+                                                       name="outBatchNo"
+                                                       id="outBatchNo"
                                                        placeholder="请输入商户批次号"
                                                        autocomplete="off">
                                             </label>
                                         </div>
-                                        <button type="button" class="layui-btn">搜索</button>
+                                        <button type="submit" class="layui-btn">搜索</button>
                                     </div>
                                 </form>
                                 <div style="clear:both;"></div>
@@ -94,6 +94,11 @@
     </div>
 </div>
 <th:block th:replace="admin/footer::script"/>
+<script th:inline="javascript">
+    let qs = [[${qs}]];
+    let startTime = [[${#httpServletRequest.getParameter('batchNo')}]];
+    let endTime = [[${#httpServletRequest.getParameter('outOrderNo')}]];
+</script>
 <script th:inline="none">
     !function(){
         let layer = layui.layer
@@ -101,7 +106,12 @@
         //第一个实例
         table.render({
             elem: '#demo'
-            ,url: '/api/v1/agentpay/batch' //数据接口
+            ,url: function () {
+                if (qs){
+                    return `/api/v1/agentpay/batch?${qs}`
+                }
+                return `/api/v1/agentpay/batch`;
+            }() //数据接口
             ,page: true //开启分页
             ,parseData: function(res){ //res 即为原始返回的数据
                 return {

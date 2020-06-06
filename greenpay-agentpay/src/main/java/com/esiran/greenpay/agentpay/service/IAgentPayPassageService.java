@@ -20,7 +20,7 @@ import java.util.List;
  */
 public interface IAgentPayPassageService extends IService<AgentPayPassage> {
     List<AgentPayPassage> listByPayTypeCode(String payTypeCode);
-    IPage<AgentPayPassageDTO> selectPage(IPage<AgentPayPassageDTO> page, AgentPayPassageDTO passageDTO);
+    List<AgentPayPassageDTO> selectPage(IPage<AgentPayPassageDTO> page, AgentPayPassageDTO passageDTO);
     int add(AgentPayPassageInputDTO passageInputDTO) throws PostResourceException;
     boolean updateById(Integer id, AgentPayPassageInputDTO passageInputDTO) throws PostResourceException, ResourceNotFoundException;
     void delIds(List<Integer> ids) throws PostResourceException;

@@ -491,8 +491,8 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
         List<Order> orders = orderService.getByDay(mchId);
         int totalCount = orders.size();
         int totalMoney = orders.stream().mapToInt(Order::getAmount).sum();
-        int successCount = (int) orders.stream().filter(order -> 2 == order.getStatus()).count();
-        int successMoney = orders.stream().filter(order -> 2 == order.getStatus()).mapToInt(Order::getAmount).sum();
+        int successCount = (int) orders.stream().filter(order -> 3 == order.getStatus()).count();
+        int successMoney = orders.stream().filter(order -> 3 == order.getStatus()).mapToInt(Order::getAmount).sum();
 
 
         //今日相关

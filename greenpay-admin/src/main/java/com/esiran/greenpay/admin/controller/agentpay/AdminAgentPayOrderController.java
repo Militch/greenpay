@@ -7,9 +7,11 @@ import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
 import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
+import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
 import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
+import com.esiran.greenpay.pay.entity.OrderQueryDTO;
 import com.esiran.greenpay.system.entity.User;
 import com.esiran.greenpay.system.service.IUserService;
 import com.google.gson.Gson;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +42,14 @@ public class AdminAgentPayOrderController extends CURDBaseController {
 
     @GetMapping("/list")
     @PageViewHandleError
-    public String list(){
+    public String list(HttpServletRequest request, ModelMap modelMap, OrderQueryDTO queryDTO){
+        String qs = request.getQueryString();
+        Map<String, String> qm = MapUtil.httpQueryString2map(qs);
+        String qss = null;
+        if (qm != null) {
+            qss = MapUtil.map2httpQuery(qm);
+        }
+        modelMap.put("qs", qss);
         return "admin/agentpay/order/list";
     }
 

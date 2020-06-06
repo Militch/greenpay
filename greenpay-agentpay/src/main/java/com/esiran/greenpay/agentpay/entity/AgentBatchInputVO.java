@@ -15,15 +15,28 @@ public class AgentBatchInputVO {
 
     private static final long serialVersionUID = 1L;
     private Integer mchId;
+
+    /**
+     * 订单号
+     */
+    private String orderNo;
+
+    /**
+     * 交易批次号
+     */
+    private String batchNo;
+
+    /**
+     * 商户交易批次号
+     */
+    private String outBatchNo;
+
     /**
      * 订单状态（1：待处理，2：处理中，3：处理成功，4：处理失败）
      */
     private Integer status;
 
-    /**
-     * 订单号
-     */
-    private String batchNo;
+
 
 
 

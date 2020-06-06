@@ -3,6 +3,8 @@ package com.esiran.greenpay.agentpay.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.esiran.greenpay.agentpay.entity.AgentPayBatch;
+import com.esiran.greenpay.agentpay.entity.AgentPayBatchDTO;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassage;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccount;
 import com.esiran.greenpay.agentpay.entity.AgentPayPassageDTO;
@@ -22,8 +24,10 @@ import com.esiran.greenpay.pay.service.ITypeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -56,9 +60,22 @@ public class AgentPayPassageServiceImpl extends ServiceImpl<AgentPayPassageMappe
     }
 
     @Override
-    public IPage<AgentPayPassageDTO> selectPage(IPage<AgentPayPassageDTO> page, AgentPayPassageDTO passageDTO) {
-        IPage<AgentPayPassage> interfaceDTOPage = this.page(new Page<>(page.getCurrent(),page.getSize()));
-        return interfaceDTOPage.convert(item->modelMapper.map(item, AgentPayPassageDTO.class));
+    public List<AgentPayPassageDTO> selectPage(IPage<AgentPayPassageDTO> page, AgentPayPassageDTO passageDTO) {
+        LambdaQueryWrapper<AgentPayPassage> wrapper = new LambdaQueryWrapper<>();
+        if (passageDTO != null) {
+            if (!StringUtils.isEmpty(passageDTO.getPassageName())) {
+                wrapper.eq(AgentPayPassage::getPassageName,passageDTO.getPassageName());
+            }
+            if (!StringUtils.isEmpty(passageDTO.getPayTypeCode())) {
+                wrapper.eq(AgentPayPassage::getPayTypeCode,passageDTO.getPayTypeCode());
+            }
+        }
+
+        List<AgentPayPassage> agentPayOrder = this.baseMapper.agentPayPassageList(wrapper,((page.getCurrent()-1) * page.getSize()),page.getSize());
+        List<AgentPayPassageDTO> menuTreeVos = agentPayOrder.stream()
+                .map(item -> modelMapper.map(item, AgentPayPassageDTO.class))
+                .collect(Collectors.toList());
+        return menuTreeVos;
     }
 
 
