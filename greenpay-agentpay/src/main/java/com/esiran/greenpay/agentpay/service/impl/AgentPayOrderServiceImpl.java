@@ -5,16 +5,15 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.actuator.Plugin;
 import com.esiran.greenpay.actuator.PluginLoader;
-import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
-import com.esiran.greenpay.agentpay.entity.AgentPayOrderDTO;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassage;
-import com.esiran.greenpay.agentpay.entity.AgentPayOrderInputVO;
+import com.esiran.greenpay.agentpay.entity.*;
 import com.esiran.greenpay.agentpay.mapper.AgentPayOrderMapper;
 import com.esiran.greenpay.agentpay.plugin.AgentPayOrderFlow;
 import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
+import com.esiran.greenpay.agentpay.service.IPassageRiskService;
 import com.esiran.greenpay.common.entity.APIException;
+import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.pay.entity.Interface;
 import com.esiran.greenpay.pay.service.IInterfaceService;
 import com.esiran.greenpay.pay.service.IMerchantPrepaidAccountService;
@@ -48,6 +47,7 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
 
     private IAgentPayPassageService agentPayPassageService;
     private IInterfaceService interfaceService;
+    private IPassageRiskService passageRiskService;
     private PluginLoader pluginLoader;
 
 
@@ -104,6 +104,15 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
     @Override
     @Transactional
     public String createOneBatchOrder(AgentPayOrder agentPayOrder) throws APIException {
+        PassageRisk passageRisk = passageRiskService.getByPassageId(agentPayOrder.getAgentpayPassageId());
+        if (passageRisk != null && passageRisk.getStatus() == 1){
+            if (agentPayOrder.getAmount() < passageRisk.getAmountMin()){
+                throw new APIException(String.format("订单金额不得低于%s元", NumberUtil.amountFen2Yuan(passageRisk.getAmountMin())),"PASSAGE_RISK");
+            }
+            if (agentPayOrder.getAmount() > passageRisk.getAmountMax()){
+                throw new APIException(String.format("订单金额不得低于%s元",NumberUtil.amountFen2Yuan(passageRisk.getAmountMax())),"PASSAGE_RISK");
+            }
+        }
         agentPayOrder.setStatus(1);
         agentPayOrder.setCreatedAt(LocalDateTime.now());
         agentPayOrder.setUpdatedAt(LocalDateTime.now());

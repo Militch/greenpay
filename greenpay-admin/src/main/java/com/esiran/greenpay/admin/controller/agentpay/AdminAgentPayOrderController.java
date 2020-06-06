@@ -90,7 +90,7 @@ public class AdminAgentPayOrderController extends CURDBaseController {
                 queryMap.put("orderNo", agentPayOrder.getOrderNo());
                 queryMap.put("count", "1");
                 String queryMsg = g.toJson(queryMap);
-                redisDelayQueueClient.sendDelayMessage("agentpay:query", queryMsg, 0);
+                redisDelayQueueClient.sendDelayMessage("supplement:query", queryMsg, 0);
             }
         } catch (APIException e) {
            throw new PostResourceException(e.getMessage());

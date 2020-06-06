@@ -1,11 +1,8 @@
 package com.esiran.greenpay.admin.config;
 
-import com.esiran.greenpay.admin.runner.AgentPayQueryTaskRunner;
-import com.esiran.greenpay.admin.runner.OrderACPayTaskRunner;
-import com.esiran.greenpay.admin.runner.OrderNotifyTaskRunner;
+import com.esiran.greenpay.admin.runner.*;
 import com.esiran.greenpay.common.util.IdWorker;
 import com.esiran.greenpay.message.delayqueue.DelayQueueTaskRegister;
-import com.esiran.greenpay.admin.runner.OrderExpireTaskRunner;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -30,13 +27,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final OrderExpireTaskRunner orderExpireTaskRunner;
     private final OrderACPayTaskRunner orderACPayTaskRunner;
     private final AgentPayQueryTaskRunner agentPayQueryTaskRunner;
+    private final SupplementQueryTaskRunner supplementQueryTaskRunner;
     public WebMvcConfig(BaseInterceptor baseInterceptor,
-                        OrderNotifyTaskRunner orderNotifyTaskRunner, OrderExpireTaskRunner orderExpireTaskRunner, OrderACPayTaskRunner orderACPayTaskRunner, AgentPayQueryTaskRunner agentPayQueryTaskRunner) {
+                        OrderNotifyTaskRunner orderNotifyTaskRunner, OrderExpireTaskRunner orderExpireTaskRunner, OrderACPayTaskRunner orderACPayTaskRunner, AgentPayQueryTaskRunner agentPayQueryTaskRunner, SupplementQueryTaskRunner supplementQueryTaskRunner) {
         this.baseInterceptor = baseInterceptor;
         this.orderNotifyTaskRunner = orderNotifyTaskRunner;
         this.orderExpireTaskRunner = orderExpireTaskRunner;
         this.orderACPayTaskRunner = orderACPayTaskRunner;
         this.agentPayQueryTaskRunner = agentPayQueryTaskRunner;
+        this.supplementQueryTaskRunner = supplementQueryTaskRunner;
     }
 
     @Bean
@@ -74,6 +73,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         delayQueueTaskRegister.register("order:acpay",orderACPayTaskRunner);
         delayQueueTaskRegister.register("order:notify",orderNotifyTaskRunner);
         delayQueueTaskRegister.register("agentpay:query",agentPayQueryTaskRunner);
+        delayQueueTaskRegister.register("supplement:query",supplementQueryTaskRunner);
         return delayQueueTaskRegister;
     }
 

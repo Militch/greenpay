@@ -1,15 +1,19 @@
 package com.esiran.greenpay.openapi.entity;
 
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
 public class TransferInputDTO {
+
     @NotNull(message = "订单号不能为空")
     private String outOrderNo;
     @NotNull(message = "订单金额不能为空")
+    @Min(value = 1, message = "订单金额不能小于1元")
     private Integer amount;
     @NotNull(message = "账户类型不能为空")
     private Integer accountType;

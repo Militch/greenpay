@@ -43,6 +43,7 @@
                             <script type="text/html" id="barDemo">
                                 <a th:href="@{'/agentpay/passage/list/{{d.id}}/edit'}" class="layui-btn layui-btn-xs">编辑</a>
                                 <a th:href="@{'/agentpay/passage/list/{{d.id}}/acc'}" class="layui-btn layui-btn-xs">通道子账户配置</a>
+                                <a th:href="@{'/agentpay/passage/list/{{d.id}}/risk'}" class="layui-btn layui-btn-xs">风控</a>
                                 <a href="javascript:;" class="layui-btn layui-btn-danger layui-btn-xs"
                                    onclick="document.getElementById('_del_[{{d.id}}]').submit();">
                                     删除
@@ -91,7 +92,7 @@
                 ,{field: 'status', title: '状态', width:'5%', unresize:true, templet:'#statusTemplate'}
                 ,{field: 'createdAt', title: '创建时间', width:'10%', unresize:true}
                 ,{field: 'updatedAt', title: '更新时间', width:'10%', unresize:true}
-                ,{title: '操作', align: 'left', width:'15%', toolbar: '#barDemo', unresize:true}
+                ,{title: '操作', align: 'left', width:'17%', toolbar: '#barDemo', unresize:true}
             ]]
         });
     }();

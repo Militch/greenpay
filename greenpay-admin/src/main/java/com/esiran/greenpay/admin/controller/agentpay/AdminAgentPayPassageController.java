@@ -1,25 +1,24 @@
 package com.esiran.greenpay.admin.controller.agentpay;
 
 import com.esiran.greenpay.admin.controller.CURDBaseController;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassage;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccount;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccountInputDTO;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassageInputDTO;
+import com.esiran.greenpay.agentpay.entity.*;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageAccountService;
 import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
+import com.esiran.greenpay.agentpay.service.IPassageRiskService;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
+import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.pay.entity.*;
 import com.esiran.greenpay.pay.service.IInterfaceService;
-import com.esiran.greenpay.pay.service.IPassageAccountService;
-import com.esiran.greenpay.pay.service.IPassageService;
 import com.esiran.greenpay.pay.service.ITypeService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import io.swagger.models.auth.In;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -32,17 +31,19 @@ public class AdminAgentPayPassageController extends CURDBaseController {
     private final IAgentPayPassageService passageService;
     private final IAgentPayPassageAccountService passageAccountService;
     private final IInterfaceService interfaceService;
+    private final IPassageRiskService passageRiskService;
     private final ITypeService typeService;
     private static final Gson gson = new GsonBuilder().create();
     public AdminAgentPayPassageController(
             IAgentPayPassageService passageService,
             IInterfaceService interfaceService,
             ITypeService typeService,
-            IAgentPayPassageAccountService passageAccountService) {
+            IAgentPayPassageAccountService passageAccountService, IPassageRiskService passageRiskService) {
         this.passageService = passageService;
         this.interfaceService = interfaceService;
         this.typeService = typeService;
         this.passageAccountService = passageAccountService;
+        this.passageRiskService = passageRiskService;
     }
 
     @GetMapping("/list")
@@ -141,5 +142,22 @@ public class AdminAgentPayPassageController extends CURDBaseController {
             @Valid AgentPayPassageAccountInputDTO dto) throws ResourceNotFoundException, PostResourceException {
         passageAccountService.updateById(accId,dto);
         return redirect("/admin/agentpay/passage/list/%s/acc/%s/edit",passageId,accId);
+    }
+
+    @GetMapping("/list/{passageId}/risk")
+    @PageViewHandleError
+    public String risk(@PathVariable String passageId, ModelMap modelMap){
+        PassageRisk passageRisk = passageRiskService.getByPassageId(Integer.valueOf(passageId));
+        PassageRiskDTO dto = PassageRiskDTO.convertOrderEntity(passageRisk);
+        modelMap.addAttribute("risk",dto);
+        return "admin/agentpay/passage/risk";
+    }
+
+
+    @PostMapping("/list/{passageId}/risk")
+    @PageViewHandleError
+    public String riskpsot(@PathVariable String passageId, @Valid PassageRiskInputDTO inputDTO) throws ResourceNotFoundException, PostResourceException {
+        passageRiskService.updateRisk(Integer.valueOf(passageId),inputDTO);
+        return redirect("/admin/agentpay/passage/list/%s/risk",passageId);
     }
 }

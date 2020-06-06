@@ -4,15 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.esiran.greenpay.actuator.Plugin;
 import com.esiran.greenpay.actuator.PluginLoader;
-import com.esiran.greenpay.agentpay.entity.AgentPayBatch;
-import com.esiran.greenpay.agentpay.entity.AgentPayOrder;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassage;
-import com.esiran.greenpay.agentpay.entity.AgentPayPassageAccount;
+import com.esiran.greenpay.agentpay.entity.*;
 import com.esiran.greenpay.agentpay.plugin.AgentPayOrderFlow;
-import com.esiran.greenpay.agentpay.service.IAgentPayBatchService;
-import com.esiran.greenpay.agentpay.service.IAgentPayOrderService;
-import com.esiran.greenpay.agentpay.service.IAgentPayPassageAccountService;
-import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
+import com.esiran.greenpay.agentpay.service.*;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.util.EncryptUtil;
 import com.esiran.greenpay.common.util.IdWorker;
@@ -63,6 +57,7 @@ public class TransferService implements ITransferService {
     private final PluginLoader pluginLoader;
     private final IPrepaidAccountService prepaidAccountService;
     private final RedisDelayQueueClient redisDelayQueueClient;
+    private final IPassageRiskService passageRiskService;
     private final KafkaTemplate<String, String> kafkaTemplate;
     public TransferService(
             IdWorker idWorker,
@@ -73,7 +68,7 @@ public class TransferService implements ITransferService {
             IAgentPayOrderService orderService,
             PluginLoader pluginLoader,
             IPrepaidAccountService prepaidAccountService, RedisDelayQueueClient redisDelayQueueClient,
-            KafkaTemplate<String, String> kafkaTemplate) {
+            IPassageRiskService passageRiskService, KafkaTemplate<String, String> kafkaTemplate) {
         this.idWorker = idWorker;
         this.merchantService = merchantService;
         this.agentPayBatchService = agentPayBatchService;
@@ -84,6 +79,7 @@ public class TransferService implements ITransferService {
         this.pluginLoader = pluginLoader;
         this.prepaidAccountService = prepaidAccountService;
         this.redisDelayQueueClient = redisDelayQueueClient;
+        this.passageRiskService = passageRiskService;
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -109,7 +105,15 @@ public class TransferService implements ITransferService {
         if(payPassage == null||!payPassage.getStatus()){
             throw new APIException("通道不存在或未开启，无法创建订单","PASSAGE_NOT_SUPPORTED");
         }
-
+        PassageRisk passageRisk = passageRiskService.getByPassageId(payPassage.getId());
+        if (passageRisk != null && passageRisk.getStatus() == 1){
+            if (agentPayOrder.getAmount() < passageRisk.getAmountMin()){
+                throw new APIException(String.format("订单金额不得低于%s元",NumberUtil.amountFen2Yuan(passageRisk.getAmountMin())),"PASSAGE_RISK");
+            }
+            if (agentPayOrder.getAmount() > passageRisk.getAmountMax()){
+                throw new APIException(String.format("订单金额不得高于%s元",NumberUtil.amountFen2Yuan(passageRisk.getAmountMax())),"PASSAGE_RISK");
+            }
+        }
 
         // 订单金额以及手续费初始化
         Integer feeType = mapp.getFeeType();
