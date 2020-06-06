@@ -1,7 +1,9 @@
 package com.esiran.greenpay.admin.controller.agentpay;
 
+import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.pay.entity.OrderDTO;
 import com.esiran.greenpay.pay.entity.OrderDetailDTO;
+import com.esiran.greenpay.pay.entity.OrderQueryDTO;
 import com.esiran.greenpay.pay.service.IOrderDetailService;
 import com.esiran.greenpay.pay.service.IOrderService;
 import org.springframework.stereotype.Controller;
@@ -9,6 +11,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/agentpay/batch")
@@ -24,7 +29,16 @@ public class AdminAgentPayBatchController {
     }
 
     @GetMapping("/list")
-    public String list(){
+    public String list(HttpServletRequest request,
+                       ModelMap modelMap,
+                       OrderQueryDTO orderQueryDTO) {
+        String qs = request.getQueryString();
+        Map<String,String> qm = MapUtil.httpQueryString2map(qs);
+        String qss = null;
+        if (qm != null){
+            qss = MapUtil.map2httpQuery(qm);
+        }
+        modelMap.put("qs",qss);
         return "admin/agentpay/batch/list";
     }
 

@@ -10,6 +10,7 @@ import com.esiran.greenpay.common.entity.APIException;
 
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
+import com.esiran.greenpay.pay.entity.OrderQueryDTO;
 import com.google.gson.Gson;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +34,8 @@ public class APIAdminAgentPayOrderController {
     @GetMapping
     public IPage<AgentPayOrderDTO> list(
             @RequestParam(required = false,defaultValue = "1") Integer current,
-            @RequestParam(required = false, defaultValue = "10") Integer size){
-        return agentPayOrderService.selectPage(new Page<>(current,size),null);
+            @RequestParam(required = false, defaultValue = "10") Integer size , AgentPayOrderDTO agentPayOrderDTO){
+        return agentPayOrderService.selectPage(new Page<>(current,size),agentPayOrderDTO);
     }
 //    /**
 //     * 代付订单补单

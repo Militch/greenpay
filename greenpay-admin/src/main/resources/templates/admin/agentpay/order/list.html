@@ -28,7 +28,7 @@
                                             <label for="orderNo">
                                                 <input type="text" class="layui-input"
                                                        id="orderNo"
-                                                       name="orderNo" required
+                                                       name="orderNo"
                                                        placeholder="请输入交易订单号"
                                                        autocomplete="off">
                                             </label>
@@ -51,7 +51,7 @@
                                                        autocomplete="off">
                                             </label>
                                         </div>
-                                        <button type="button" class="layui-btn">搜索</button>
+                                        <button type="submit" class="layui-btn">搜索</button>
                                     </div>
                                 </form>
                                 <div style="clear:both;"></div>
@@ -128,6 +128,12 @@
 </div>
 <th:block th:replace="admin/footer::script"/>
 <script th:inline="javascript">
+    let qs = [[${qs}]];
+    let orderNo = [[${#httpServletRequest.getParameter('orderNo')}]];
+    let outOrderNo = [[${#httpServletRequest.getParameter('outOrderNo')}]];
+    let batchNo = [[${#httpServletRequest.getParameter('batchNo')}]]
+</script>
+<script th:inline="javascript">
 
     let layer = layui.layer,
         $ = layui.$;
@@ -164,7 +170,13 @@
         //第一个实例
         table.render({
             elem: '#demo'
-            ,url: '/api/v1/agentpay/orders' //数据接口
+            ,url : function(){
+                if (qs) {
+                 return `/api/v1/agentpay/orders?${qs}`;
+                }else {
+                    return '/api/v1/agentpay/orders';
+                }
+            }()
             ,page: true //开启分页
             ,parseData: function(res){ //res 即为原始返回的数据
                 return {
