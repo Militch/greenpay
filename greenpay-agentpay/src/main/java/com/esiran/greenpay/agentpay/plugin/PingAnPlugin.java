@@ -43,6 +43,9 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
 
         @Override
         public void action(Flow<AgentPayOrder> flow) throws Exception {
+//            Map<String,Object> returns = new HashMap<>();
+//            returns.put("status","20");
+//            flow.returns(returns);
             AgentPayOrder data = flow.getData();
             if (data.getStatus() != 1){
                 throw new APIException("代付订单状态异常","");
@@ -68,7 +71,6 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
             if (data.getAmount() > blanceFen){
                 throw new APIException("代付余额不足","");
             }
-            System.out.println(queryAmount);
             OnceAgentPay onceAgentPay = new OnceAgentPay();
             onceAgentPay.setOrderNumber(data.getOrderNo());
             onceAgentPay.setTranAmount(NumberUtil.amountFen2Yuan(data.getAmount()));

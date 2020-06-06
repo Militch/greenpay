@@ -192,12 +192,14 @@ public class TransferService implements ITransferService {
                         .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
                         .eq(AgentPayOrder::getId,agentPayOrder.getId());
                 orderService.update(updateWrapperwrapper);
+                prepaidAccountService.updateBalance(mchId,0,(orderAmount+orderFee));
             }
             if (status.equals("20")){
                 updateWrapperwrapper.set(AgentPayOrder::getStatus,3)
                         .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
                         .eq(AgentPayOrder::getId,agentPayOrder.getId());
                 orderService.update(updateWrapperwrapper);
+                prepaidAccountService.updateBalance(mchId,0,(orderAmount+orderFee));
             }
             if (status.equals("40")) {
                 Map<String, String> queryMap = new HashMap<>();

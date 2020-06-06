@@ -120,8 +120,13 @@ public class AdminAgentPayOrderController extends CURDBaseController {
             throw new PostResourceException("订单不存在");
         }
         if (agentPayOrder.getStatus() != -1){
-            throw new PostResourceException("该订单不支持退款");
+            throw new PostResourceException("该订单不支持退账");
         }
+        LambdaUpdateWrapper<AgentPayOrder> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(AgentPayOrder::getStatus,-2)
+                .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
+                .eq(AgentPayOrder::getId,agentPayOrder.getId());
+        agentPayOrderService.update(updateWrapper);
         prepaidAccountService.updateBalance(agentPayOrder.getMchId()
                 ,-(agentPayOrder.getAmount()+agentPayOrder.getFee())
                 ,0);

@@ -16,7 +16,6 @@ import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.pay.entity.Interface;
 import com.esiran.greenpay.pay.service.IInterfaceService;
-import com.esiran.greenpay.pay.service.IMerchantPrepaidAccountService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -27,8 +26,6 @@ import java.util.regex.Pattern;
 import com.esiran.greenpay.pay.entity.CartogramDTO;
 import com.esiran.greenpay.pay.entity.CartogramPayDTO;
 import com.esiran.greenpay.pay.entity.CartogramPayStatusVo;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,13 +44,14 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
 
     private IAgentPayPassageService agentPayPassageService;
     private IInterfaceService interfaceService;
-    private IPassageRiskService passageRiskService;
+    private final IPassageRiskService passageRiskService;
     private PluginLoader pluginLoader;
 
 
-    public AgentPayOrderServiceImpl(IAgentPayPassageService agentPayPassageService, IInterfaceService interfaceService, PluginLoader pluginLoader) {
+    public AgentPayOrderServiceImpl(IAgentPayPassageService agentPayPassageService, IInterfaceService interfaceService, IPassageRiskService passageRiskService, PluginLoader pluginLoader) {
         this.agentPayPassageService = agentPayPassageService;
         this.interfaceService = interfaceService;
+        this.passageRiskService = passageRiskService;
         this.pluginLoader = pluginLoader;
     }
 
@@ -113,10 +111,17 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
                 throw new APIException(String.format("订单金额不得低于%s元",NumberUtil.amountFen2Yuan(passageRisk.getAmountMax())),"PASSAGE_RISK");
             }
         }
-        agentPayOrder.setStatus(1);
-        agentPayOrder.setCreatedAt(LocalDateTime.now());
-        agentPayOrder.setUpdatedAt(LocalDateTime.now());
-        this.save(agentPayOrder);
+        AgentPayOrder payOrder = this.getOneByOrderNo(agentPayOrder.getOrderNo());
+        if (payOrder == null){
+            agentPayOrder.setStatus(1);
+            agentPayOrder.setCreatedAt(LocalDateTime.now());
+            agentPayOrder.setUpdatedAt(LocalDateTime.now());
+            this.save(agentPayOrder);
+        }else {
+            agentPayOrder.setStatus(1);
+            agentPayOrder.setUpdatedAt(LocalDateTime.now());
+            this.updateById(agentPayOrder);
+        }
         AgentPayPassage payPassage = agentPayPassageService.getById(agentPayOrder.getAgentpayPassageId());
         Interface ints = interfaceService.getByCode(payPassage.getInterfaceCode());
         AgentPayOrderFlow agentPayOrderFlow = new AgentPayOrderFlow(agentPayOrder);

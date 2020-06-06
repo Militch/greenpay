@@ -68,8 +68,8 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
                             .eq(AgentPayOrder::getId,agentPayOrder.getId());
                     agentPayOrderService.update(updateWrapperwrapper);
                     prepaidAccountService.updateBalance(agentPayOrder.getMchId()
-                            ,-(agentPayOrder.getAmount()+agentPayOrder.getFee())
-                            ,agentPayOrder.getAmount()+agentPayOrder.getFee());
+                            ,0
+                            ,(agentPayOrder.getAmount()+agentPayOrder.getFee()));
                 }
                 if (map.get("Status").equals("20")){
                     LambdaUpdateWrapper<AgentPayOrder> updateWrapperwrapper = new LambdaUpdateWrapper<>();
@@ -79,7 +79,7 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
                     agentPayOrderService.update(updateWrapperwrapper);
                     prepaidAccountService.updateBalance(agentPayOrder.getMchId()
                             ,0
-                            ,agentPayOrder.getAmount()+agentPayOrder.getFee());
+                            ,(agentPayOrder.getAmount()+agentPayOrder.getFee()));
                 }
                 if (!(map.get("Status").equals("30") || map.get("Status").equals("20"))){
                     int i = Integer.parseInt(count);
@@ -94,8 +94,8 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
                                 .eq(AgentPayOrder::getId,agentPayOrder.getId());
                         agentPayOrderService.update(updateWrapperwrapper);
                         prepaidAccountService.updateBalance(agentPayOrder.getMchId()
-                                ,-(agentPayOrder.getAmount()+agentPayOrder.getFee())
-                                ,agentPayOrder.getAmount()+agentPayOrder.getFee());
+                                ,0
+                                ,(agentPayOrder.getAmount()+agentPayOrder.getFee()));
                     }
                 }
             }
