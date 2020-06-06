@@ -34,7 +34,7 @@ public class ACPayPlugin implements Plugin<PayOrder> {
     private static final OkHttpClient okHttpClient;
     private static RedisDelayQueueClient redisDelayQueueClient;
     private static IOrderService orderService;
-    private static final Logger logger = LoggerFactory.getLogger(UpacpQrJKPlugin.class);
+    private static final Logger logger = LoggerFactory.getLogger(ACPayPlugin.class);
     static {
         okHttpClient = new OkHttpClient.Builder()
                 .readTimeout(Duration.ofSeconds(180))
@@ -63,7 +63,7 @@ public class ACPayPlugin implements Plugin<PayOrder> {
 
         @Override
         public void action(Flow<PayOrder> flow) throws Exception {
-            System.out.println("付款码支付");
+            logger.info("付款码支付");
             PayOrder payOrder = flow.getData();
             Order order = payOrder.getOrder();
             OrderDetail orderDetail = payOrder.getOrderDetail();

@@ -40,7 +40,7 @@ public class AgentPayBatchOrderTaskRunner {
             return;
         }
         String msg = kafkaMessage.get();
-        logger.info("消息来了----:{}",msg);
+        logger.info("批次代付kafka消息----:{}",msg);
         AgentPayOrder agentPayOrder = g.fromJson(msg, new TypeToken<AgentPayOrder>() {
         }.getType());
         String status = agentPayOrderService.createOneBatchOrder(agentPayOrder);

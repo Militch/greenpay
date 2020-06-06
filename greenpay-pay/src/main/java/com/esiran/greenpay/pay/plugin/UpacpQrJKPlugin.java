@@ -93,7 +93,7 @@ public class UpacpQrJKPlugin implements Plugin<PayOrder> {
 
         @Override
         public void action(Flow<PayOrder> flow) throws Exception {
-            System.out.println("银联扫码");
+            logger.info("银联扫码");
             PayOrder payOrder = flow.getData();
             Order order = payOrder.getOrder();
             OrderDetail orderDetail = payOrder.getOrderDetail();

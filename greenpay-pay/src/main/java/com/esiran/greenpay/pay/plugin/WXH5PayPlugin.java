@@ -36,7 +36,7 @@ import java.util.Map;
 @Component
 public class WXH5PayPlugin implements Plugin<PayOrder> {
     private static final Gson g = new Gson();
-    private static final Logger logger = LoggerFactory.getLogger(UpacpQrJKPlugin.class);
+    private static final Logger logger = LoggerFactory.getLogger(WXH5PayPlugin.class);
     public static final class CreateOrderTask implements Task<PayOrder>{
 
         @Override
@@ -51,7 +51,7 @@ public class WXH5PayPlugin implements Plugin<PayOrder> {
 
         @Override
         public void action(Flow<PayOrder> flow) throws Exception {
-            System.out.println("微信H5支付");
+            logger.info("微信H5支付");
             PayOrder payOrder = flow.getData();
             Order order = payOrder.getOrder();
             OrderDetail orderDetail = payOrder.getOrderDetail();
@@ -83,6 +83,7 @@ public class WXH5PayPlugin implements Plugin<PayOrder> {
                 logger.info("sign{}",data.get("sign"));
                 //使用官方API请求预付订单
                 Map<String, String> response = wxPay.unifiedOrder(data);
+                logger.info("微信H5支付  返回值 : {}",g.toJson(response));
                 String returnCode = response.get("return_code");//获取返回码
                 logger.info("返回码{}",returnCode); //获取返回码
                 //若返回码为SUCCESS，则会返回一个result_code,再对该result_code进行判断

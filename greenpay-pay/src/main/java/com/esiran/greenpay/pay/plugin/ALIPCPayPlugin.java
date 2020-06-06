@@ -28,7 +28,7 @@ import java.util.Map;
 @Component
 public class ALIPCPayPlugin implements Plugin<PayOrder> {
     private static final Gson g = new Gson();
-    private static final Logger logger = LoggerFactory.getLogger(UpacpQrJKPlugin.class);
+    private static final Logger logger = LoggerFactory.getLogger(ALIPCPayPlugin.class);
     public static final class CreateOrderTask implements Task<PayOrder>{
 
         @Override
@@ -43,7 +43,7 @@ public class ALIPCPayPlugin implements Plugin<PayOrder> {
 
         @Override
         public void action(Flow<PayOrder> flow) throws Exception {
-            System.out.println("支付宝PC支付");
+            logger.info("支付宝PC支付");
             PayOrder payOrder = flow.getData();
             Order order = payOrder.getOrder();
             OrderDetail orderDetail = payOrder.getOrderDetail();
@@ -71,6 +71,7 @@ public class ALIPCPayPlugin implements Plugin<PayOrder> {
             requestMap.put("total_amount", NumberUtil.amountFen2Yuan(order.getAmount()));
             requestMap.put("subject",order.getSubject());
             String requestMsg = g.toJson(requestMap);
+            logger.info("支付宝PC支付 requestMsg : {}",requestMsg);
             request.setBizContent(requestMsg);
             String form = "";
             try {

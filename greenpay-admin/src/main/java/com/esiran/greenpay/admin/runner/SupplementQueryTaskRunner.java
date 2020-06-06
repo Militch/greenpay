@@ -12,6 +12,8 @@ import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
 import com.esiran.greenpay.message.delayqueue.DelayQueueTaskRunner;
 import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -19,6 +21,7 @@ import java.util.Map;
 
 @Component
 public class SupplementQueryTaskRunner implements DelayQueueTaskRunner {
+    private static final Logger logger = LoggerFactory.getLogger(SupplementQueryTaskRunner.class);
     private final Gson g = new Gson();
     private final IAgentPayOrderService agentPayOrderService;
     private final IPrepaidAccountService prepaidAccountService;
@@ -35,7 +38,7 @@ public class SupplementQueryTaskRunner implements DelayQueueTaskRunner {
      */
     @Override
     public void exec(String content) {
-        System.out.println("代付补单延时查询");
+        logger.info("代付补单延时查询 : {}",content);
         Map<String, String> queryMap = MapUtil.jsonString2stringMap(content);
         assert queryMap != null;
         String orderNo = queryMap.get("orderNo");
@@ -44,7 +47,7 @@ public class SupplementQueryTaskRunner implements DelayQueueTaskRunner {
         wrapper.eq(AgentPayOrder::getOrderNo,orderNo);
         AgentPayOrder agentPayOrder = agentPayOrderService.getOne(wrapper);
         if (agentPayOrder == null || agentPayOrder.getStatus() != 2){
-            System.out.println("agentPayOrder 为 null");
+            logger.info("agentPayOrder 为 null : {}",content);
             return;
         }
         String attr = agentPayOrder.getPayInterfaceAttr();
@@ -64,6 +67,7 @@ public class SupplementQueryTaskRunner implements DelayQueueTaskRunner {
         queryOnceAgentPay.setAcctNo(attrmap.get("acctNo"));
         try {
             Map<String, String> map = apiEx.queryOnceAgentPay(queryOnceAgentPay);
+            logger.info("延时代付补单查询数据: {}",g.toJson(map));
             if (map != null){
                 if (map.get("Status").equals("30")){
                     LambdaUpdateWrapper<AgentPayOrder> updateWrapperwrapper = new LambdaUpdateWrapper<>();
