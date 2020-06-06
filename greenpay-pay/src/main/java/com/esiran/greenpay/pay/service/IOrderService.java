@@ -36,18 +36,18 @@ public interface IOrderService extends IService<Order> {
 
 
         //查询当天成功订单总数
-        Integer findIntradayOrderSucc();
+        CartogramDTO findIntradayOrderAll();
         //查询昨天成功订单总数
-        Integer findYesterdayOrderSucc();
+        CartogramDTO findYesterdayOrderAll();
 
         //查询昨天0点到昨天当前时间总订单数
-        Integer yestdayRealorderData();
+//        Integer yestdayRealorderData();
         //查询今日0点到当前时间总订单数
-        Integer intradayRealorderData();
+//        Integer intradayRealorderData();
         //查询昨天0点到昨天当前时间成交额
-        Long yestdayRealmoneyData();
+//        Long yestdayRealmoneyData();
         //查询今日0点到当前时间成交额
-        Long intradayRealoneyData();
+//        Long intradayRealoneyData();
 
 
         //七天数据统计

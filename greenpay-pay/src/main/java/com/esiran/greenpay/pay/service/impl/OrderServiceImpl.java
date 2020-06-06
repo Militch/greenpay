@@ -122,35 +122,35 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return   baseMapper.findIntradayOrder(new QueryWrapper<>());
     }
 
-    //查询昨天0点到昨天当前时间总订单数
+//    //查询昨天0点到昨天当前时间总订单数
+//    @Override
+//    public Integer yestdayRealorderData() {
+//        return this.baseMapper.yestdayRealorderData();
+//    }
+//    //查询今日0点到当前时间总订单数
+//    @Override
+//    public Integer intradayRealorderData() {
+//        return this.baseMapper.intradayRealorderData();
+//    }
+//    //查询昨天0点到昨天当前时间成交额
+//    @Override
+//    public Long yestdayRealmoneyData() {
+//        return this.baseMapper.yestdayRealmoneyData();
+//    }
+//    //查询今日0点到当前时间成交额
+//    @Override
+//    public Long intradayRealoneyData() {
+//        return this.baseMapper.intradayRealmoneyData();
+//    }
+
     @Override
-    public Integer yestdayRealorderData() {
-        return this.baseMapper.yestdayRealorderData();
-    }
-    //查询今日0点到当前时间总订单数
-    @Override
-    public Integer intradayRealorderData() {
-        return this.baseMapper.intradayRealorderData();
-    }
-    //查询昨天0点到昨天当前时间成交额
-    @Override
-    public Long yestdayRealmoneyData() {
-        return this.baseMapper.yestdayRealmoneyData();
-    }
-    //查询今日0点到当前时间成交额
-    @Override
-    public Long intradayRealoneyData() {
-        return this.baseMapper.intradayRealmoneyData();
+    public CartogramDTO findIntradayOrderAll() {
+        return this.baseMapper.findIntradayOrderAll();
     }
 
     @Override
-    public Integer findIntradayOrderSucc() {
-        return this.baseMapper.findIntradayOrderSucc();
-    }
-
-    @Override
-    public Integer findYesterdayOrderSucc() {
-        return this.baseMapper.findYesterdayOrderSucc();
+    public CartogramDTO findYesterdayOrderAll() {
+        return this.baseMapper.findYesterdayOrderAll();
     }
 
     @Override
