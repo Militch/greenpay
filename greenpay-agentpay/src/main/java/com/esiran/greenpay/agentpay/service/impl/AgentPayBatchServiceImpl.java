@@ -39,18 +39,23 @@ public class AgentPayBatchServiceImpl extends ServiceImpl<AgentPayBatchMapper, A
     @Override
     public List<AgentPayBatchDTO> selectPage(Page<AgentPayBatchDTO> page, AgentBatchInputVO agentBatchInputVO) {
         LambdaQueryWrapper<AgentPayBatch> wrapper = new LambdaQueryWrapper<>();
-        if (!StringUtils.isEmpty(agentBatchInputVO.getBatchNo())) {
-            wrapper.eq(AgentPayBatch::getBatchNo, agentBatchInputVO.getBatchNo());
-        }
-        if (agentBatchInputVO.getStatus() != null && agentBatchInputVO.getStatus() != 0) {
-            wrapper.eq(AgentPayBatch::getStatus, agentBatchInputVO.getStatus());
-        }
-        if (!StringUtils.isEmpty(agentBatchInputVO.getStartTime() )) {
-            wrapper.ge(AgentPayBatch::getCreatedAt, agentBatchInputVO.getStartTime());
-        }
+        if (agentBatchInputVO != null) {
+            if (!StringUtils.isEmpty(agentBatchInputVO.getMchId()) && agentBatchInputVO.getMchId()>0){
+                wrapper.eq(AgentPayBatch::getMchId, agentBatchInputVO.getMchId());
+            }
+            if (!StringUtils.isEmpty(agentBatchInputVO.getBatchNo())) {
+                wrapper.eq(AgentPayBatch::getBatchNo, agentBatchInputVO.getBatchNo());
+            }
+            if (agentBatchInputVO.getStatus() != null && agentBatchInputVO.getStatus() != 0) {
+                wrapper.eq(AgentPayBatch::getStatus, agentBatchInputVO.getStatus());
+            }
+            if (!StringUtils.isEmpty(agentBatchInputVO.getStartTime() )) {
+                wrapper.ge(AgentPayBatch::getCreatedAt, agentBatchInputVO.getStartTime());
+            }
 
-        if (!StringUtils.isEmpty(agentBatchInputVO.getEndTime() )) {
-            wrapper.lt(AgentPayBatch::getCreatedAt, agentBatchInputVO.getEndTime());
+            if (!StringUtils.isEmpty(agentBatchInputVO.getEndTime() )) {
+                wrapper.lt(AgentPayBatch::getCreatedAt, agentBatchInputVO.getEndTime());
+            }
         }
 
         List<AgentPayBatch> agentPayOrder = this.baseMapper.agentPayBatchList(wrapper,((page.getCurrent()-1) * page.getSize()),page.getSize());
