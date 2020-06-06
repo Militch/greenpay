@@ -21,10 +21,11 @@ public class APIAdminAgentPayBatchController {
         this.agentPayBatchService = agentPayBatchService;
     }
 
+
     @GetMapping
     public List<AgentPayBatchDTO> list(
             @RequestParam(required = false,defaultValue = "1") Integer current,
-            @RequestParam(required = false, defaultValue = "10") Integer size, AgentBatchInputVO agentBatchInputVO){
-        return agentPayBatchService.selectPage(new Page<>(current,size),agentBatchInputVO);
+            @RequestParam(required = false, defaultValue = "10") Integer size){
+        return agentPayBatchService.selectPage(new Page<>(current,size),null);
     }
 }

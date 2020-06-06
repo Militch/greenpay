@@ -20,7 +20,6 @@ import com.esiran.greenpay.pay.entity.CartogramDTO;
 import com.esiran.greenpay.pay.entity.CartogramPayDTO;
 import com.esiran.greenpay.pay.entity.CartogramPayStatusVo;
 import com.esiran.greenpay.pay.entity.ExtractQueryDTO;
-import com.esiran.greenpay.pay.entity.Order;
 import com.esiran.greenpay.pay.service.IOrderService;
 import com.esiran.greenpay.settle.entity.SettleOrder;
 import com.esiran.greenpay.settle.entity.SettleOrderDTO;
@@ -43,10 +42,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -332,11 +329,15 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         HashMap<String, Object> data = new HashMap<>();
 
 
+        //查询当天成功订单总数
+        CartogramDTO intradayOrderAll = orderService.findIntradayOrderAll();
+        //查询昨天成功订单总数
+        CartogramDTO yesterdayOrderAll = orderService.findYesterdayOrderAll();
 
-        //查询昨天0点到昨天当前时间总订单数
-        Integer yestdayRealorderData = orderService.yestdayRealorderData();
-        //查询今日0点到当前时间总订单数
-        Integer intradayRealorderData = orderService.intradayRealorderData();
+        //昨天总订单数
+        Integer yestdayRealorderData = yesterdayOrderAll.getCount();
+        //今日总订单数
+        Integer intradayRealorderData = intradayOrderAll.getCount();
         //同比昨日
         String format = percentBigDecimal(new BigDecimal( intradayRealorderData), new BigDecimal(yestdayRealorderData));
 
@@ -351,51 +352,47 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
 
 
 
-        //查询当天成功订单总数
-        Integer intradayOrderSucc = orderService.findIntradayOrderSucc();
-        //查询昨天成功订单总数
-        Integer yesterdayOrderSucc = orderService.findYesterdayOrderSucc();
 
         //转换率 订单总数
-        BigDecimal a = new BigDecimal(intradayOrderSucc);
-        BigDecimal b = new BigDecimal(yesterdayOrderSucc);
+        BigDecimal a = new BigDecimal(intradayOrderAll.getSuccessCount());
+        BigDecimal b = new BigDecimal(yesterdayOrderAll.getSuccessCount());
         String percent4Count = p.percentBigDecimal(a, b);
 
 
         data = new HashMap<>();
         data.put("name", "今日成交笔数");
-        data.put("val", intradayOrderSucc);
+        data.put("val", a.intValue());
         data.put("val2",percent4Count);
         data.put("rightHint", "日同比");
         data.put("leftHint","昨日");
-        data.put("upDay",yesterdayOrderSucc);
+        data.put("upDay",b.intValue());
         statistics.add(data);
         //end
 
 
 
         //昨日当时时间成交总额
-        Long aLong = orderService.yestdayRealmoneyData();
-        if (aLong == null){
-            aLong = 0L;
+        Long yesterDaySucAmout = yesterdayOrderAll.getSuccessAmount();
+        if (yesterDaySucAmout == null){
+            yesterDaySucAmout = 0L;
         }
         //今日当时时间成交总额
-        Long dayAmount = orderService.intradayRealoneyData();
-        if (dayAmount == null){
-            dayAmount = 0L;
+        Long todaySucAmout = intradayOrderAll.getSuccessAmount();
+        if (todaySucAmout == null){
+            todaySucAmout = 0L;
         }
-        a = new BigDecimal(dayAmount);
-        b = new BigDecimal(aLong);
+        a = new BigDecimal(todaySucAmout);
+        b = new BigDecimal(yesterDaySucAmout);
         String percent4Amount = p.percentBigDecimal(a, b);
 
         data = new HashMap<>();
         data.put("name", "今日成交总额");
-        data.put("val", NumberUtil.amountFen2Yuan(dayAmount.intValue()));
+        data.put("val", NumberUtil.amountFen2Yuan(a.intValue()));
 
         data.put("val2", percent4Amount);
         data.put("rightHint", "日同比");
         data.put("leftHint","昨日");
-        data.put("upDay",NumberUtil.amountFen2Yuan(new BigDecimal(aLong).intValue()));
+        data.put("upDay",NumberUtil.amountFen2Yuan(b.intValue()));
         statistics.add(data);
         //end
 
@@ -403,12 +400,12 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         //上周成交总额
         List<CartogramDTO> cartogramDTOS = orderService.upSevenDayCartogram();
         long upSevenSucAmount = cartogramDTOS.stream().mapToLong(CartogramDTO::getAmount).sum();
-        a = new BigDecimal( aLong);
+        a = new BigDecimal( yesterDaySucAmout);
         b = new BigDecimal(upSevenSucAmount);
         String upServen = p.percentBigDecimal(a, b);
         data = new HashMap<>();
         data.put("name", "昨日成交总额");
-        data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(aLong.intValue())));
+        data.put("val", String.valueOf(NumberUtil.amountFen2Yuan(yesterDaySucAmout.intValue())));
         data.put("val2", upServen);
         data.put("rightHint", "周同比");
 
