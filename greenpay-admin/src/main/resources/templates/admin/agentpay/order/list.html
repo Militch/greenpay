@@ -25,10 +25,27 @@
                                 <form class="layui-form" action="">
                                     <div class="layui-form-item">
                                         <div class="layui-inline">
+                                            <label for="startTime">
+                                                <input type="text" class="layui-input"
+                                                       id="startTime"
+                                                       name="startTime"
+                                                       placeholder="开始时间"
+                                                       autocomplete="off">
+                                            </label>
+                                        </div>
+                                        <div class="layui-inline">
+                                            <label for="endTime">
+                                                <input id="endTime" type="text" class="layui-input"
+                                                       name="endTime"
+                                                       placeholder="结束时间">
+                                            </label>
+                                        </div>
+                                        <div class="layui-inline">
                                             <label for="orderNo">
                                                 <input type="text" class="layui-input"
                                                        id="orderNo"
                                                        name="orderNo"
+                                                       th:value="${#httpServletRequest.getParameter('orderNo')}"
                                                        placeholder="请输入交易订单号"
                                                        autocomplete="off">
                                             </label>
@@ -38,6 +55,7 @@
                                                 <input type="text" class="layui-input"
                                                        name="outOrderNo"
                                                        id="outOrderNo"
+                                                       th:value="${#httpServletRequest.getParameter('outOrderNo')}"
                                                        placeholder="请输入商户订单号"
                                                        autocomplete="off">
                                             </label>
@@ -47,6 +65,7 @@
                                                 <input type="text" class="layui-input"
                                                        name="batchNo"
                                                        id="batchNo"
+                                                       th:value="${#httpServletRequest.getParameter('batchNo')}"
                                                        placeholder="请输入交易批次号"
                                                        autocomplete="off">
                                             </label>
@@ -129,6 +148,8 @@
     let orderNo = [[${#httpServletRequest.getParameter('orderNo')}]];
     let outOrderNo = [[${#httpServletRequest.getParameter('outOrderNo')}]];
     let batchNo = [[${#httpServletRequest.getParameter('batchNo')}]]
+    let startTime = [[${#httpServletRequest.getParameter('startTime')}]]
+    let endTime = [[${#httpServletRequest.getParameter('endTime')}]]
 </script>
 <script th:inline="javascript">
 
@@ -163,7 +184,26 @@
 
     !function(){
         let layer = layui.layer
-            ,table = layui.table;
+            , table = layui.table
+            , laydate = layui.laydate;
+        laydate.render({
+            elem: '#startTime'
+            ,type: 'datetime'
+            ,value: function () {
+                if (startTime){
+                    return startTime;
+                }
+            }()
+        });
+        laydate.render({
+            elem: '#endTime'
+            ,type: 'datetime'
+            ,value: function () {
+                if (endTime){
+                    return endTime;
+                }
+            }()
+        });
         //第一个实例
         table.render({
             elem: '#demo'

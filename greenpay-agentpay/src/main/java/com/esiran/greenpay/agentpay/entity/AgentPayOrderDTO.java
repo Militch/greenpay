@@ -143,6 +143,9 @@ public class AgentPayOrderDTO {
     private LocalDateTime expiredAt;
     private String expiredAtDisplay;
 
+    private String startTime;
+    private String endTime;
+
     public static AgentPayOrderDTO convertOrderEntity(AgentPayOrder agentPayOrder){
         if (agentPayOrder == null) return null;
         AgentPayOrderDTO dto = modelMapper.map(agentPayOrder, AgentPayOrderDTO.class);
