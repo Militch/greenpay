@@ -7,11 +7,8 @@ import com.esiran.greenpay.agentpay.service.IAgentPayPassageService;
 import com.esiran.greenpay.agentpay.service.IPassageRiskService;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.exception.ResourceNotFoundException;
-<<<<<<< HEAD
 import com.esiran.greenpay.common.util.NumberUtil;
-=======
 import com.esiran.greenpay.common.util.MapUtil;
->>>>>>> dev2
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.pay.entity.*;
 import com.esiran.greenpay.pay.service.IInterfaceService;
