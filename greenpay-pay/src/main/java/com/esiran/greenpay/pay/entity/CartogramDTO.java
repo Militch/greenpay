@@ -18,11 +18,11 @@ public class CartogramDTO implements Comparable<CartogramDTO> {
 
     private Date time;
 
-    private Integer count;
-    private Integer successCount;
+    private Integer count =0;
+    private Integer successCount =0;
 
-    private Long amount;
-    private Long successAmount;
+    private Long amount =0l;
+    private Long successAmount =0l;
 
     @Override
     public int compareTo(@NotNull CartogramDTO o) {

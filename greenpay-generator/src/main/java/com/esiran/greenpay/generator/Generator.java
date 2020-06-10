@@ -54,7 +54,7 @@ public class Generator {
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
 //        dsc.setUrl("jdbc:mysql://localhost:3306/greenpay?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8");
-        dsc.setUrl("jdbc:mysql://192.168.3.158:3306/greenpay?useUnicode=true&useSSL=false&characterEncoding=utf8");
+        dsc.setUrl("jdbc:mysql://192.168.1.6:3306/greenpay?useUnicode=true&useSSL=false&characterEncoding=utf8");
 //         dsc.setSchemaName("public");
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
 //        dsc.setUsername("root");

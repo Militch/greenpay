@@ -34,6 +34,7 @@
                                                     <input type="text" class="layui-input"
                                                            id="payTypeCode"
                                                            name="payTypeCode"
+                                                           th:value="${#httpServletRequest.getParameter('payTypeCode')}"
                                                            placeholder="支付类型编码"
                                                            autocomplete="off">
                                                 </label>
@@ -43,6 +44,7 @@
                                                     <input type="text" class="layui-input"
                                                            name="passageName"
                                                            id="passageName"
+                                                           th:value="${#httpServletRequest.getParameter('passageName')}"
                                                            placeholder="通道名称"
                                                            autocomplete="off">
                                                 </label>
