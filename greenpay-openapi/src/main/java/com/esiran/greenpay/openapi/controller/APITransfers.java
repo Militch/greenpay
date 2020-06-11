@@ -19,7 +19,7 @@ public class APITransfers {
         this.transferService = transferService;
     }
 
-    @GetMapping("")
+    @GetMapping("/prepaid")
     public String queryAmount() throws APIException {
         Merchant merchant = OpenAPISecurityUtils.getSubject();
         return transferService.queryAmount(merchant.getId());
@@ -36,7 +36,7 @@ public class APITransfers {
         return t;
     }
     @GetMapping("/batches")
-    public BatchRes queryBacth(@RequestParam("batchNo") String outBatchNo,
+    public BatchRes queryBacth(@RequestParam("outBatchNo") String outBatchNo,
                                @RequestParam("batchNo") String batchNo) throws APIException {
         return transferService.queryBatch(outBatchNo,batchNo);
     }
@@ -45,4 +45,5 @@ public class APITransfers {
         Merchant merchant = OpenAPISecurityUtils.getSubject();
         return transferService.batch(batchInputDTO,merchant.getId());
     }
+
 }
