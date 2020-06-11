@@ -554,7 +554,7 @@ public class MerchantServiceImpl extends ServiceImpl<MerchantMapper, Merchant> i
         Integer intraDayOrdersCount = intradayOrders.size();
 
         //今日收单总额
-        Integer intrDayOrderAmounts = intradayOrders.stream().mapToInt(AgentPayOrderDTO::getAmount).sum();
+//        Integer intrDayOrderAmounts = intradayOrders.stream().mapToInt(AgentPayOrderDTO::getAmount).sum();
 
         //今日成交笔数
         Long  intrDayOrderCountSucces = intradayOrders.stream().filter(agentPayOrderDTO -> agentPayOrderDTO.getStatus()==3).count();
