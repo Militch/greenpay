@@ -34,8 +34,16 @@
                                                            lay-key="10">
                                                 </div>
                                                 <div class="layui-input-inline">
-                                                    <input type="text" name="replaceId" id="replaceId"
-                                                           placeholder="代付单号" autocomplete="off" class="layui-input" >
+                                                    <input type="text" name="orderNo" id="orderNo"
+                                                           placeholder="交易订单号" autocomplete="off" class="layui-input" >
+                                                </div>
+                                                <div class="layui-input-inline">
+                                                    <input type="text" name="outOrderNo" id="outOrderNo"
+                                                           placeholder="商户订单号" autocomplete="off" class="layui-input" >
+                                                </div>
+                                                <div class="layui-input-inline">
+                                                    <input type="text" name="batchNo" id="batchNo"
+                                                           placeholder="代付批次号" autocomplete="off" class="layui-input" >
                                                 </div>
                                                 <div class="layui-input-inline">
                                                     <div class="layui-input-block">
@@ -61,7 +69,7 @@
                                             <button class="layui-btn layui-btn-xs">处理中</button>
                                             {{#  } if(d.status == 3) { }}
                                             <button class="layui-btn layui-btn-normal layui-btn-xs">处理成功</button>
-                                            {{#  } if(d.status == 4){ }}
+                                            {{#  } if(d.status == -1){ }}
                                             <button class="layui-btn layui-btn-warm layui-btn-xs">处理失败</button>
                                             {{#  } }}
                                         </script>
@@ -118,7 +126,9 @@
         //列表搜索
          let active = {
              reload : function () {
-                 let orderNo =  $('#replaceId');
+                 let orderNo =  $('#orderNo');
+                 let outOrderNo =  $('#outOrderNo');
+                 let batchNo =  $('#batchNo');
                  let status = $('#status');
                  let startTime = $('#createTimeStart');
                  let endTime = $('#createTimeEnd');
@@ -138,6 +148,8 @@
                          //
                          // }
                          orderNo : orderNo.val(),
+                         outOrderNo : outOrderNo.val(),
+                         batchNo : batchNo.val(),
                          status : status.val(),
                          startTime : startTime.val(),
                          endTime : endTime.val()
@@ -170,15 +182,16 @@
             }
             , cols: [[ //表头
                 {type: 'checkbox', fixed: 'left'}
-                , {field: 'mchId', title: '商户ID', width: "5%",align:'center'}
-                , {field: 'accountName', title: '账户名', width: "10%",align:'center'}
-                , {field: 'accountNumber', title: '账户号', width: "10%",align:'center'}
-                , {field: 'orderNo', title: '代付订单号', width: "15%",align:'center'}
-                , {field: 'amount', title: '订单金额', width: "10%",align:'center'}
-                , {field: 'fee', title: '订单金额', width: "10%",align:'center'}
+                // , {field: 'mchId', title: '商户ID', width: "5%",align:'center'}
+                , {field: 'createdAt', title: '创建时间', width: "12%",align:'left'}
+                , {field: 'accountName', title: '账户名', width: "10%",align:'left'}
+                , {field: 'orderNo', title: '交易订单号', width: "15%",align:'left'}
+                , {field: 'outOrderNo', title: '商户订单号', width: "15%",align:'left'}
+                , {field: 'batchNo', title: '代付批次号', width: "15%",align:'left'}
+                , {field: 'amountDisplay', title: '订单金额', width: "10%",align:'right'}
+                , {field: 'feeDisplay', title: '订单手续费', width: "10%",align:'right'}
                 , {field: 'status', title: '状态', width: "10%" ,templet: "#statusTpl",align:'center'}
-                , {field: 'createdAt', title: '创建时间', width: "13%",align:'center'}
-                , {field: 'updatedAt', title: '更新时间', width: "13%",align:'center'}
+
 
             ]]
         });

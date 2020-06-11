@@ -100,7 +100,7 @@ public class AgentPayBatchDTO{
     public static AgentPayBatchDTO convertOrderEntity(AgentPayBatch agentPayBatch){
         if (agentPayBatch == null ) return null;
         AgentPayBatchDTO dto = modelMapper.map(agentPayBatch, AgentPayBatchDTO.class);
-        dto.setTotalAmountDisplay(NumberUtil.amountFen2Yuan(agentPayBatch.getTotalAmount()));
+        dto.setTotalAmountDisplay("￥".concat(NumberUtil.amountFen2Yuan(agentPayBatch.getTotalAmount())));
         String status = agentPayBatch.getStatus() == 1 ? "待处理"
                 : agentPayBatch.getStatus() == 2 ? "处理中"
                 : agentPayBatch.getStatus() == 3 ? "处理成功"
