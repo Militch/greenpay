@@ -25,8 +25,8 @@ public class APITransfers {
         return transferService.queryAmount(merchant.getId());
     }
     @GetMapping("/singles")
-    public AgentPayRes queryagentpay(@RequestParam("outOrderNo") String outOrderNo,
-                                     @RequestParam("orderNo") String orderNo) throws APIException {
+    public AgentPayRes queryagentpay(@RequestParam(value = "outOrderNo",required = false) String outOrderNo,
+                                     @RequestParam(value = "orderNo",required = false) String orderNo) throws APIException {
         return transferService.queryAgentPay(outOrderNo,orderNo);
     }
     @PostMapping("/singles")
@@ -36,8 +36,8 @@ public class APITransfers {
         return t;
     }
     @GetMapping("/batches")
-    public BatchRes queryBacth(@RequestParam("outBatchNo") String outBatchNo,
-                               @RequestParam("batchNo") String batchNo) throws APIException {
+    public BatchRes queryBacth(@RequestParam(value = "outBatchNo",required = false) String outBatchNo,
+                               @RequestParam(value = "batchNo",required = false) String batchNo) throws APIException {
         return transferService.queryBatch(outBatchNo,batchNo);
     }
     @PostMapping("/batches")

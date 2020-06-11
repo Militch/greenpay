@@ -328,13 +328,13 @@ public class TransferService implements ITransferService {
     @Override
     public AgentPayRes queryAgentPay(String outOrderNo, String orderNo) throws APIException {
         LambdaQueryWrapper<AgentPayOrder> wrapper = new LambdaQueryWrapper<>();
-        if (outOrderNo == null){
+        if (StringUtils.isEmpty(outOrderNo)){
             wrapper.eq(AgentPayOrder::getOrderNo,orderNo);
         }
-        if (orderNo == null){
+        if (StringUtils.isEmpty(orderNo)){
             wrapper.eq(AgentPayOrder::getOutOrderNo,outOrderNo);
         }
-        if(orderNo != null && outOrderNo != null){
+        if(!StringUtils.isEmpty(outOrderNo) && !StringUtils.isEmpty(orderNo)){
             wrapper.eq(AgentPayOrder::getOrderNo,orderNo)
                     .eq(AgentPayOrder::getOutOrderNo,outOrderNo);
         }
@@ -349,13 +349,13 @@ public class TransferService implements ITransferService {
     @Override
     public BatchRes queryBatch(String outBatchNo, String batchNo) throws APIException {
         LambdaQueryWrapper<AgentPayBatch> wrapper = new LambdaQueryWrapper<>();
-        if (outBatchNo == null){
+        if (StringUtils.isEmpty(outBatchNo)){
             wrapper.eq(AgentPayBatch::getBatchNo,batchNo);
         }
-        if (batchNo == null){
+        if (StringUtils.isEmpty(batchNo)){
             wrapper.eq(AgentPayBatch::getOutBatchNo,outBatchNo);
         }
-        if(batchNo != null && outBatchNo != null){
+        if(!StringUtils.isEmpty(batchNo) &&  !StringUtils.isEmpty(outBatchNo)){
             wrapper.eq(AgentPayBatch::getBatchNo,batchNo)
                     .eq(AgentPayBatch::getOutBatchNo,outBatchNo);
         }
