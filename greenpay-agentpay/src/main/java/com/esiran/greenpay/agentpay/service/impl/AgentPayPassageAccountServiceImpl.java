@@ -180,6 +180,9 @@ public class AgentPayPassageAccountServiceImpl extends ServiceImpl<AgentPayPassa
         List<AgentPayPassageAccount> passageAccounts = listAvailableByPassageId(passageId);
         if (passageAccounts == null || passageAccounts.size() == 0) return null;
         passageAccounts = filterAppa(passageAccounts,orderAmount);
+        if (passageAccounts.size() <= 0){
+            return null;
+        }
         // 构造权重区间值数组
         int[] sumArr = new int[passageAccounts.size()];
         // 权重总和
