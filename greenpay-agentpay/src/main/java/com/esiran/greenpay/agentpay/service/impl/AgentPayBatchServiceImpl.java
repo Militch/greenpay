@@ -51,7 +51,6 @@ public class AgentPayBatchServiceImpl extends ServiceImpl<AgentPayBatchMapper, A
                 wrapper.eq(AgentPayBatch::getMchId, agentBatchInputVO.getMchId());
             }
 
-
             if (agentBatchInputVO.getStatus() != null && agentBatchInputVO.getStatus() != 0) {
                 wrapper.eq(AgentPayBatch::getStatus, agentBatchInputVO.getStatus());
             }

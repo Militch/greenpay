@@ -202,7 +202,7 @@ public class PAbank {
 //        socket.close();
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/xml; charset=GBK"),result);
         Request requestOk  = new Request.Builder()
-                .url("http://127.0.0.1:7072")
+                .url("http://103.126.241.222:7072")
                 .post(requestBody)
                 .build();
         Response response;

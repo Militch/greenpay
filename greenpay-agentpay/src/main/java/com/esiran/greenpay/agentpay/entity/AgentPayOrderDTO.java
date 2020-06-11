@@ -147,14 +147,14 @@ public class AgentPayOrderDTO {
     private String endTime;
 
     public static AgentPayOrderDTO convertOrderEntity(AgentPayOrder agentPayOrder){
-        if (agentPayOrder == null) return null;
+        if (agentPayOrder == null){ return null;}
         AgentPayOrderDTO dto = modelMapper.map(agentPayOrder, AgentPayOrderDTO.class);
-        dto.setAmountDisplay(NumberUtil.amountFen2Yuan(agentPayOrder.getAmount()));
-        dto.setFeeDisplay(NumberUtil.amountFen2Yuan(agentPayOrder.getFee()));
+        dto.setAmountDisplay("￥".concat(NumberUtil.amountFen2Yuan(agentPayOrder.getAmount())));
+        dto.setFeeDisplay("￥".concat(NumberUtil.amountFen2Yuan(agentPayOrder.getFee())));
         String status = agentPayOrder.getStatus() == 1 ? "待处理"
                 : agentPayOrder.getStatus() == 2 ? "处理中"
                 : agentPayOrder.getStatus() == 3 ? "处理成功"
-                : agentPayOrder.getStatus() == 4 ? "处理失败"
+                : agentPayOrder.getStatus() == -1 ? "处理失败"
                 : "未知";
         dto.setStatusDisplay(status);
         dto.setCreatedAtDisplay(dtf.format(agentPayOrder.getCreatedAt()));

@@ -30,7 +30,19 @@ public class AgentPayOrderInputVO {
      */
     private String orderNo;
 
+    /**
+     * 订单流水号
+     */
+    private String orderSn;
+    /**
+     * 商户订单号
+     */
+    private String outOrderNo;
 
+    /**
+     * 代付批次号
+     */
+    private String batchNo;
 
     /**
      * 创建时间

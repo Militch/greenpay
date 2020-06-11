@@ -4,6 +4,7 @@ import com.esiran.greenpay.common.util.ReqUtil;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -14,6 +15,11 @@ import java.util.List;
 
 @ControllerAdvice
 public class AuthExceptionHandler {
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public String unauthorized(){
+        return "";
+    }
 
     @ExceptionHandler(AuthenticationException.class)
     public String handleAuthenticationException(
