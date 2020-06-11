@@ -206,7 +206,7 @@ public class TransferService implements ITransferService {
                 queryMap.put("orderNo", agentPayOrder.getOrderNo());
                 queryMap.put("count", "1");
                 String queryMsg = gson.toJson(queryMap);
-                redisDelayQueueClient.sendDelayMessage("agentpay:query", queryMsg, 0);
+                redisDelayQueueClient.sendDelayMessage("agentpay:query", queryMsg, 10000);
             }
             prepaidAccountService.updateBalance(mchId,0,(orderAmount+orderFee));
             order = orderService.getOneByOrderNo(agentPayOrder.getOrderNo());

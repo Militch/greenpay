@@ -50,6 +50,7 @@
         <shiro.version>1.5.2</shiro.version>
         <guava.version>29.0-jre</guava.version>
         <spring-kafka.version>2.3.8.RELEASE</spring-kafka.version>
+<!--        <spring-kafka.version>2.1.1.RELEASE</spring-kafka.version>-->
     </properties>
     <dependencyManagement>
         <dependencies>

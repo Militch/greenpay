@@ -238,8 +238,11 @@ public class PAbank {
 //        Map<String, String> map = apiEx.queryOnceAgentPay(queryOnceAgentPay);
 ////        Map<String, String> map = apiEx.queryAmount("15000103599403");
 //        System.out.println(map);
-
-        String code = PATradeCode.ONCE_AGENTPAY.getCode();
+        String s = "12345678";
+        int i = s.indexOf("3");
+        String substring = s.substring(i+1);
+        System.out.println(i);
+        System.out.println(substring);
     }
 
 }

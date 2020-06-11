@@ -42,8 +42,9 @@ public class AgentPayQueryTaskRunner implements DelayQueueTaskRunner {
         LambdaQueryWrapper<AgentPayOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AgentPayOrder::getOrderNo,orderNo);
         AgentPayOrder agentPayOrder = agentPayOrderService.getOne(wrapper);
+        String s = g.toJson(agentPayOrder);
+        logger.info("agentPayOrder : {}",s);
         if (agentPayOrder == null || agentPayOrder.getStatus() != 2){
-            logger.info("agentPayOrder 为 null : {}",content);
             return;
         }
         String attr = agentPayOrder.getPayInterfaceAttr();
