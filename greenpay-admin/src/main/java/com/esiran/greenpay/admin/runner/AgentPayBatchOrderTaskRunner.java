@@ -43,6 +43,7 @@ public class AgentPayBatchOrderTaskRunner {
         logger.info("批次代付kafka消息----:{}",msg);
         AgentPayOrder agentPayOrder = g.fromJson(msg, new TypeToken<AgentPayOrder>() {
         }.getType());
+//        System.out.println(msg);
         String status = agentPayOrderService.createOneBatchOrder(agentPayOrder);
         LambdaUpdateWrapper<AgentPayOrder> updateWrapperwrapper = new LambdaUpdateWrapper<>();
         if (status.equals("30")){

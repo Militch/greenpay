@@ -223,9 +223,11 @@ public class TransferService implements ITransferService {
     }
 
     private void checkBatchOneOrder(BatchOrder batchOrder) throws APIException {
-        if (StringUtils.isEmpty(batchOrder.getOutOrderNo()) || batchOrder.getOutOrderNo().length() > 20){
-            throw new APIException("扩展参数订单号异常","");
-        }else if (StringUtils.isEmpty(batchOrder.getAccountName())){
+        if (StringUtils.isEmpty(batchOrder.getOutOrderNo())){
+            batchOrder.setOutOrderNo(String.valueOf(idWorker.nextId()));
+        }else if (batchOrder.getOutOrderNo().length() > 20){
+            throw new APIException(String.format("扩展参数订单号%s: 异常",batchOrder.getOutOrderNo()),"");
+        } else if (StringUtils.isEmpty(batchOrder.getAccountName())){
             throw new APIException(String.format("扩展参数订单号%s: 账户名异常",batchOrder.getOutOrderNo()),"");
         }else if (StringUtils.isEmpty(batchOrder.getAccountType())){
             throw new APIException(String.format("扩展参数订单号%s: 账户类型异常",batchOrder.getOutOrderNo()),"");
@@ -295,7 +297,11 @@ public class TransferService implements ITransferService {
             agentPayOrder.setPayTypeCode(ints.getPayTypeCode());
             Integer fee = OrderFee(mapp, totalAmount, batchInputDTO.getTotalCount());
             agentPayOrder.setFee(fee);
+            agentPayOrder.setOrderNo(String.valueOf(idWorker.nextId()));
+            agentPayOrder.setOrderSn(String.valueOf(idWorker.nextId()));
+            agentPayOrder.setMchId(mchId);
             agentPayOrder.setAgentpayPassageId(payPassage.getId());
+            agentPayOrder.setAgentpayPassageName(payPassage.getPassageName());
             agentPayOrder.setAgentpayPassageAccId(account.getId());
             agentPayOrder.setPayInterfaceId(ints.getId());
             agentPayOrder.setPayInterfaceAttr(account.getInterfaceAttr());
