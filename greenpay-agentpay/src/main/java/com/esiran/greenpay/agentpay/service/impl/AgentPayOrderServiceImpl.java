@@ -86,8 +86,17 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
             if (!StringUtils.isEmpty(agentPayOrderInputVO.getMchId()) && agentPayOrderInputVO.getMchId()>0){
                 wrapper.eq(AgentPayOrder::getMchId, agentPayOrderInputVO.getMchId());
             }
+            //交易订单号
             if (!StringUtils.isEmpty(agentPayOrderInputVO.getOrderNo())) {
                 wrapper.eq(AgentPayOrder::getOrderNo, agentPayOrderInputVO.getOrderNo());
+            }
+            //商户订单号
+            if (!StringUtils.isEmpty(agentPayOrderInputVO.getOutOrderNo())) {
+                wrapper.eq(AgentPayOrder::getOutOrderNo, agentPayOrderInputVO.getOutOrderNo());
+            }
+            //交易批次号
+            if (!StringUtils.isEmpty(agentPayOrderInputVO.getBatchNo())) {
+                wrapper.eq(AgentPayOrder::getBatchNo, agentPayOrderInputVO.getBatchNo());
             }
             if (agentPayOrderInputVO.getStatus() != null && agentPayOrderInputVO.getStatus() != 0) {
                 wrapper.eq(AgentPayOrder::getStatus, agentPayOrderInputVO.getStatus());
