@@ -16,6 +16,7 @@ import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -43,8 +44,14 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
 
         @Override
         public void action(Flow<AgentPayOrder> flow) throws Exception {
+//            AgentPayOrder data = flow.getData();
+//            LambdaUpdateWrapper<AgentPayOrder> wrapper = new LambdaUpdateWrapper<>();
+//            wrapper.set(AgentPayOrder::getStatus,2)
+//                    .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
+//                    .eq(AgentPayOrder::getId,data.getId());
+//            agentPayOrderService.update(wrapper);
 //            Map<String,Object> returns = new HashMap<>();
-//            returns.put("status","20");
+//            returns.put("status","40");
 //            flow.returns(returns);
             AgentPayOrder data = flow.getData();
             if (data.getStatus() != 1){
@@ -78,7 +85,10 @@ public class PingAnPlugin implements Plugin<AgentPayOrder> {
             onceAgentPay.setInAcctNo(data.getAccountNumber());
             onceAgentPay.setInAcctName(data.getAccountName());
             Map<String, String> onceMap = apiEx.onceAgentPay(onceAgentPay);
-            if (onceMap != null){
+//            if (onceMap != null && onceMap.get("status").equals("-1")){
+//                throw new APIException(onceMap.get("msg"),"代付渠道请求失败");
+//            }
+            if (onceMap != null && StringUtils.isEmpty(onceMap.get("status"))){
                 LambdaUpdateWrapper<AgentPayOrder> wrapper = new LambdaUpdateWrapper<>();
                 wrapper.set(AgentPayOrder::getStatus,2)
                         .set(AgentPayOrder::getUpdatedAt, LocalDateTime.now())
