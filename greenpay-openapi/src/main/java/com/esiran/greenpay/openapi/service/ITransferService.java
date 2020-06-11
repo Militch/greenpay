@@ -9,6 +9,5 @@ public interface ITransferService {
     String queryAmount (Integer mchId) throws APIException;
     AgentPayRes queryAgentPay(String outOrderNo, String orderNo) throws APIException;
     BatchRes queryBatch(String outBatchNo, String batchNo) throws APIException;
-
-    String prepaid(Integer id);
+    
 }
