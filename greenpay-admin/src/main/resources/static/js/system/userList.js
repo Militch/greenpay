@@ -112,6 +112,8 @@ function formSubmit(obj){
             layer.alert("两次输入密码不一致");
             return ;
         }
+        let ps = md5(obj.field.password);
+        $("input[name='password']").val(ps)
         submitAjax(obj);
     }
 }
