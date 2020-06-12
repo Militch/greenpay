@@ -68,4 +68,5 @@ public interface IAgentPayOrderService extends IService<AgentPayOrder> {
     List<CartogramPayStatusVo> payCRV();
 
 
+    void tagging(String orderNo) throws APIException;
 }

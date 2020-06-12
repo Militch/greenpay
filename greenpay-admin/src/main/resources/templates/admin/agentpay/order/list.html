@@ -136,6 +136,8 @@
                                     <input type="hidden" name="orderNo" value="{{d.orderNo}}">
                                     <input type="hidden" name="supplyPass">
                                 </form>
+                                <a th:href="@{'/agentpay/order/tagging/{{d.orderNo}}'}"
+                                   class="layui-btn layui-btn-xs layui-btn-primary">标记成功</a>
                             </script>
                         </div>
                     </div>
