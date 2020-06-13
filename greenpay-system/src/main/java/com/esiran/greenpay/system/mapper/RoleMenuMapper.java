@@ -16,9 +16,14 @@ import java.util.List;
  */
 public interface RoleMenuMapper extends BaseMapper<RoleMenu> {
 
-    @Select("SELECT role_id AS roleId, menu_id AS menuId \n" +
+    @Select("SELECT role_id AS roleId, menu_id AS menuId  " +
             "FROM greenpay.system_role_menu LEFT JOIN system_menu ON (system_role_menu.menu_id = system_menu.id)\n" +
             "WHERE (system_menu.parent_id !=0) AND (system_menu.type =2) AND system_role_menu.role_id = #{roleId};")
     List<RoleMenu> selectRleMenusByRoleId(Integer roleId);
+
+    @Select("SELECT role_id AS roleId, menu_id AS menuId    " +
+            "            FROM greenpay.system_role_menu LEFT JOIN system_menu ON (system_role_menu.menu_id = system_menu.id) \n" +
+            "            WHERE  system_role_menu.role_id = #{roleId};")
+    List<RoleMenu> getRoleMenusByRoleId(Integer roleId);
 
 }

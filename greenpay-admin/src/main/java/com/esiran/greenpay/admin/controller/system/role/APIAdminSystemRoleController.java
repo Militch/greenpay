@@ -4,12 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.esiran.greenpay.admin.controller.CURDBaseController;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.system.entity.Role;
 import com.esiran.greenpay.system.entity.RoleMenu;
+import com.esiran.greenpay.system.entity.dot.MenuDTO;
 import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
+import com.esiran.greenpay.system.entity.vo.MenuTreeVo;
+import com.esiran.greenpay.system.service.IMenuService;
 import com.esiran.greenpay.system.service.IRoleMenuService;
 import com.esiran.greenpay.system.service.IRoleService;
 import io.swagger.annotations.Api;
@@ -17,7 +21,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
+import java.util.List;
 
 /**
  * @author han
@@ -36,16 +42,19 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/admin/api/v1/system/roles")
 @Api(tags = "角色管理")
-public class APIAdminSystemRoleController {
+public class APIAdminSystemRoleController extends CURDBaseController {
     private static ModelMapper modelMapper = new ModelMapper();
 
     private final IRoleService roleService;
 
     private final IRoleMenuService roleMenuService;
 
-    public APIAdminSystemRoleController(IRoleService roleService, IRoleMenuService roleMenuService) {
+    private final IMenuService menuService;
+
+    public APIAdminSystemRoleController(IRoleService roleService, IRoleMenuService roleMenuService, IMenuService menuService) {
         this.roleService = roleService;
         this.roleMenuService = roleMenuService;
+        this.menuService = menuService;
     }
 
     @ApiOperation("查询所有的用户角色")
@@ -91,7 +100,7 @@ public class APIAdminSystemRoleController {
 
     @ApiOperation("删除指定ID用户角色")
     @DeleteMapping("/del")
-//    @Transactional
+
     public boolean del(@RequestParam Integer id) throws PostResourceException {
         if (id==null ||id <= 0) {
             throw new PostResourceException("角色ID不正确");
@@ -105,6 +114,14 @@ public class APIAdminSystemRoleController {
         roleMenuService.remove(queryWrapper);
 
         return roleService.removeById(id);
+    }
+
+    @GetMapping("/ofUser")
+    public ResponseEntity<List<MenuTreeVo>> getUserMenus() {
+
+        List<MenuTreeVo> menuTreeVos = roleService.getMenuListByUser(theUser().getId());
+
+        return ResponseEntity.ok(menuTreeVos);
     }
 
 }

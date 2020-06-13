@@ -17,4 +17,6 @@ public interface IRoleMenuService extends IService<RoleMenu> {
 
 
     public List<RoleMenu> selectRleMenusByRoleId(Integer roleId);
+
+    List<RoleMenu> getRoleMenusByRoleId(Integer roleId);
 }

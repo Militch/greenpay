@@ -21,7 +21,7 @@ public class TreeUtil {
             }
 
             for (T node : treeNodes) {
-                if (node.getParentId() == treeNode.getId()) {
+                if (node.getParentId().equals(treeNode.getId())) {
                     if (CollectionUtils.isEmpty(treeNode.getChildrens())) {
                         treeNode.setChildrens(new ArrayList<>());
                     }

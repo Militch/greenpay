@@ -8,10 +8,15 @@ import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.system.entity.Role;
 import com.esiran.greenpay.system.entity.RoleMenu;
+import com.esiran.greenpay.system.entity.UserRole;
 import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
+import com.esiran.greenpay.system.entity.vo.MenuTreeVo;
 import com.esiran.greenpay.system.mapper.RoleMapper;
+import com.esiran.greenpay.system.service.IMenuService;
 import com.esiran.greenpay.system.service.IRoleMenuService;
 import com.esiran.greenpay.system.service.IRoleService;
+import com.esiran.greenpay.system.service.IUserRoleService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -19,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -36,8 +43,15 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
     private IRoleMenuService iRoleMenuService;
 
-    public RoleServiceImpl(IRoleMenuService iRoleMenuService) {
+    private final IUserRoleService userRoleService;
+
+    private final IMenuService menuService;
+
+
+    public RoleServiceImpl(IRoleMenuService iRoleMenuService, IUserRoleService userRoleService, IMenuService menuService) {
         this.iRoleMenuService = iRoleMenuService;
+        this.userRoleService = userRoleService;
+        this.menuService = menuService;
     }
 
 
@@ -104,6 +118,30 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     public List<Role>  selectByIds(List<Integer> ids) {
         List<Role> roles = this.listByIds(ids);
         return roles;
+    }
+
+    @Override
+    public List<MenuTreeVo> getMenuListByUser(Integer userId) {
+        List<UserRole> userRoles = userRoleService.selectUserRoleById(userId);
+        if (CollectionUtils.isEmpty(userRoles)) {
+            return null;
+        }
+
+        //确定用户菜单
+        userRoles.stream().distinct();
+        List<MenuTreeVo> treeVos = new ArrayList<>();
+        userRoles.forEach(item ->{
+            List<MenuTreeVo> menuTreeByRoleId = menuService.getMenuTreeByRoleId(item.getRoleId());
+            if (!CollectionUtils.isEmpty(menuTreeByRoleId)){
+                treeVos.addAll(menuTreeByRoleId);
+            }
+        });
+
+        HashSet h = new HashSet(treeVos);
+        treeVos.clear();
+        treeVos.addAll(h);
+
+        return treeVos;
     }
 
 

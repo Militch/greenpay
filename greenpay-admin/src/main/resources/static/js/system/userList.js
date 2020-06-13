@@ -1,15 +1,15 @@
 /**
  * 权限列表
  */
-var $ = layui.$
+
 !(function() {
 
     layui.use('table', function(){
-        var table = layui.table
+        let table = layui.table
             ,form = layui.form,
             layer = layui.layer;
 
-        tableIns=table.render({
+        table.render({
             elem: '#uesrList'
             ,url:'/admin/api/v1/system/users'
             ,cellMinWidth: 80
@@ -118,6 +118,7 @@ function formSubmit(obj){
     }
 }
 function submitAjax(obj){
+    let $ = layui.jquery
     $.ajax({
         type: "POST",
         data: $("#userForm").serialize(),
@@ -174,6 +175,7 @@ function checkRole(){
 }
 //开通用户
 function addUser(){
+    let $ = layui.jquery
     $.get("/admin/api/v1/system/roles",function(data){
         if(data!=null){
 
@@ -217,6 +219,7 @@ function openUser(id,title){
 }
 
 function delUser(obj,layer,data) {
+    let $ = layui.jquery
     //需要判断下是否删除自己
     // var currentUser=$("#currentUser").html();
     var version=obj.version;
