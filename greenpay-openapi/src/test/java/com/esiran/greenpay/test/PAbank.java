@@ -202,7 +202,7 @@ public class PAbank {
 //        socket.close();
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/xml; charset=GBK"),result);
         Request requestOk  = new Request.Builder()
-                .url("http://127.0.0.1:7072")
+                .url("http://103.126.241.222:7072")
                 .post(requestBody)
                 .build();
         Response response;
@@ -238,8 +238,11 @@ public class PAbank {
 //        Map<String, String> map = apiEx.queryOnceAgentPay(queryOnceAgentPay);
 ////        Map<String, String> map = apiEx.queryAmount("15000103599403");
 //        System.out.println(map);
-
-        String code = PATradeCode.ONCE_AGENTPAY.getCode();
+        String s = "12345678";
+        int i = s.indexOf("3");
+        String substring = s.substring(i+1);
+        System.out.println(i);
+        System.out.println(substring);
     }
 
 }

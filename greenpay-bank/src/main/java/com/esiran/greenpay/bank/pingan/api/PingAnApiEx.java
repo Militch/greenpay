@@ -41,8 +41,17 @@ public class PingAnApiEx {
             response = okHttpClient.newCall(requestOk).execute();
             String string = response.body().string();
             logger.info("PinAnApi response : {}",string);
-            String substring = string.substring(string.indexOf("<"));
-            Map<String, String> map = Map2Xml.xmlToMap(substring);
+            Map<String, String> map = new HashMap<>();
+            int i;
+            i = string.indexOf("<");
+//            if (i == -1){
+//               i = string.indexOf(":");
+//               map.put("status","-1");
+//               map.put("mag",string.substring(i+1));
+//               return map;
+//            }
+            String substring = string.substring(i);
+            map = Map2Xml.xmlToMap(substring);
             logger.info("PinAnApi response Map : {}",substring);
             return map;
         } catch (Exception e) {
