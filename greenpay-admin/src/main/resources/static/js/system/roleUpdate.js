@@ -72,6 +72,7 @@
         $.ajax({
             type: "get",
             url: "/admin/api/v1/system/menus/roleTree",
+            data:{"size":100},
             success: function (data) {
                 let menus = data;
                 if (menus != null) {
