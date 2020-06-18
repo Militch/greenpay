@@ -6,6 +6,8 @@ import com.esiran.greenpay.pay.entity.OrderDetailDTO;
 import com.esiran.greenpay.pay.entity.OrderQueryDTO;
 import com.esiran.greenpay.pay.service.IOrderDetailService;
 import com.esiran.greenpay.pay.service.IOrderService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,7 @@ public class AdminAgentPayBatchController {
     }
 
     @GetMapping("/list")
+    @RequiresRoles("admin")
     public String list(HttpServletRequest request,
                        ModelMap modelMap,
                        OrderQueryDTO orderQueryDTO) {
