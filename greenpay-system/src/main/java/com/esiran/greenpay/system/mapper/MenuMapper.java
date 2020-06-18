@@ -22,7 +22,7 @@ public interface MenuMapper extends BaseMapper<Menu> {
     IPage<MenuVo> selectMenu(IPage<Menu> iPage, @Param(Constants.WRAPPER) Wrapper<Menu> wrapper);
     MenuVo selectMenu(@Param(Constants.WRAPPER) Wrapper<MenuVo> wrapper);
 
-    List<Menu> selectMenuByRoleId(Integer roleId);
+    List<Menu> selectMenuByRoleId(@Param(Constants.WRAPPER) Wrapper<MenuVo> wrapper,Integer roleId);
 
-    List<Menu> selectMenusByUserId(Integer userId);
+    List<Menu> selectMenusByUserId(@Param(Constants.WRAPPER) Wrapper<MenuVo> wrapper,Integer userId);
 }

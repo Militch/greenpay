@@ -5,94 +5,95 @@
         <div class="layui-logo" lay-href="">
             <span>绿呗支付-管理后台</span>
         </div>
-        <ul class="layui-nav layui-nav-tree" lay-shrink="all">
-            <li class="layui-nav-item">
-                <a class="" href="javascript:;">
-                    <i class="layui-icon layui-icon-home"></i>
-                    <cite>首页</cite>
-                </a>
-                <dl class="layui-nav-child">
-                    <dd th:replace="admin/side::layui_nav_item('/home','支付数据概览')"></dd>
-                </dl>
-                <dl class="layui-nav-child">
-                    <dd th:replace="admin/side::layui_nav_item('/merchantInfo','代付数据概览')"></dd>
-                </dl>
-            </li>
-            <li class="layui-nav-item">
-                <a class="" href="javascript:;">
-                    <i class="layui-icon layui-icon-user"></i>
-                    <cite>商户管理</cite>
-                </a>
-                <dl class="layui-nav-child">
-                    <dd th:replace="admin/side::layui_nav_item('/merchant/list','商户列表')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/merchant/add','添加商户')"></dd>
-                </dl>
-            </li>
-            <li class="layui-nav-item">
-                <a class="" href="javascript:;">
-                    <i class="layui-icon layui-icon-file"></i>
-                    <cite>订单管理</cite>
-                </a>
-                <dl class="layui-nav-child">
-                    <dd th:replace="admin/side::layui_nav_item('/order/list','支付订单')"></dd>
-                </dl>
-            </li>
-            <li class="layui-nav-item">
-                <a class="" href="javascript:;">
-                    <i class="layui-icon layui-icon-component"></i>
-                    <cite>支付配置</cite>
-                </a>
-                <dl class="layui-nav-child">
-                    <dd th:replace="admin/side::layui_nav_item('/pay/type/list','支付类型')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/pay/interface/list','支付接口')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/pay/passage/list','支付通道')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/pay/product/list','支付产品')"></dd>
-                </dl>
-            </li>
-            <li class="layui-nav-item">
-                <a class="" href="javascript:;">
-                    <i class="layui-icon layui-icon-star"></i>
-                    <cite>结算管理</cite>
-                </a>
-                <dl class="layui-nav-child">
-                    <dd th:replace="admin/side::layui_nav_item('/settle/audit', '结算审核')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/settle/payable', '应付结算')"></dd>
-<!--                    <dd th:replace="admin/side::layui_nav_item('/admin/settle/settings', '结算设置')"></dd>-->
-                </dl>
-            </li>
-            <li class="layui-nav-item">
-                <a class="" href="javascript:;">
-                    <i class="layui-icon layui-icon-release"></i>
-                    <cite>代付管理</cite>
-                </a>
-                <dl class="layui-nav-child">
-                    <dd th:replace="admin/side::layui_nav_item('/agentpay/order/list', '代付订单')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/agentpay/batch/list', '批次管理')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/agentpay/passage/list', '代付通道')"></dd>
-                </dl>
-            </li>
-            <li class="layui-nav-item">
-                <a class="" href="javascript:;">
-                    <i class="layui-icon layui-icon-username"></i>
-                    <cite>个人中心</cite>
-                </a>
-                <dl class="layui-nav-child">
-                    <dd th:replace="admin/side::layui_nav_item('/user/profile','基础资料')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/user/security','安全设置')"></dd>
-                </dl>
-            </li>
-            <li class="layui-nav-item">
-                <a class="" href="javascript:;">
-                    <i class="layui-icon layui-icon-set"></i>
-                    <cite>系统管理</cite>
-                </a>
-                <dl class="layui-nav-child">
-                    <dd th:replace="admin/side::layui_nav_item('/admin/system/user/list','用户管理')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/admin/system/role/list','角色管理')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/admin/system/menu/list','菜单管理')"></dd>
-                    <dd th:replace="admin/side::layui_nav_item('/admin/system/settings','系统设置')"></dd>
-                </dl>
-            </li>
+        <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="nav">
+
+<!--            <li class="layui-nav-item">-->
+<!--                <a class="" href="javascript:;">-->
+<!--                    <i class="layui-icon layui-icon-home"></i>-->
+<!--                    <cite>首页</cite>-->
+<!--                </a>-->
+<!--                <dl class="layui-nav-child">-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/home','支付数据概览')"></dd>-->
+<!--                </dl>-->
+<!--                <dl class="layui-nav-child">-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/merchantInfo','代付数据概览')"></dd>-->
+<!--                </dl>-->
+<!--            </li>-->
+<!--            <li class="layui-nav-item">-->
+<!--                <a class="" href="javascript:;">-->
+<!--                    <i class="layui-icon layui-icon-user"></i>-->
+<!--                    <cite>商户管理</cite>-->
+<!--                </a>-->
+<!--                <dl class="layui-nav-child">-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/merchant/list','商户列表')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/merchant/add','添加商户')"></dd>-->
+<!--                </dl>-->
+<!--            </li>-->
+<!--            <li class="layui-nav-item">-->
+<!--                <a class="" href="javascript:;">-->
+<!--                    <i class="layui-icon layui-icon-file"></i>-->
+<!--                    <cite>订单管理</cite>-->
+<!--                </a>-->
+<!--                <dl class="layui-nav-child">-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/order/list','支付订单')"></dd>-->
+<!--                </dl>-->
+<!--            </li>-->
+<!--            <li class="layui-nav-item">-->
+<!--                <a class="" href="javascript:;">-->
+<!--                    <i class="layui-icon layui-icon-component"></i>-->
+<!--                    <cite>支付配置</cite>-->
+<!--                </a>-->
+<!--                <dl class="layui-nav-child">-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/pay/type/list','支付类型')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/pay/interface/list','支付接口')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/pay/passage/list','支付通道')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/pay/product/list','支付产品')"></dd>-->
+<!--                </dl>-->
+<!--            </li>-->
+<!--            <li class="layui-nav-item">-->
+<!--                <a class="" href="javascript:;">-->
+<!--                    <i class="layui-icon layui-icon-star"></i>-->
+<!--                    <cite>结算管理</cite>-->
+<!--                </a>-->
+<!--                <dl class="layui-nav-child">-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/settle/audit', '结算审核')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/settle/payable', '应付结算')"></dd>-->
+<!--&lt;!&ndash;                    <dd th:replace="admin/side::layui_nav_item('/admin/settle/settings', '结算设置')"></dd>&ndash;&gt;-->
+<!--                </dl>-->
+<!--            </li>-->
+<!--            <li class="layui-nav-item">-->
+<!--                <a class="" href="javascript:;">-->
+<!--                    <i class="layui-icon layui-icon-release"></i>-->
+<!--                    <cite>代付管理</cite>-->
+<!--                </a>-->
+<!--                <dl class="layui-nav-child">-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/agentpay/order/list', '代付订单')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/agentpay/batch/list', '批次管理')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/agentpay/passage/list', '代付通道')"></dd>-->
+<!--                </dl>-->
+<!--            </li>-->
+<!--            <li class="layui-nav-item">-->
+<!--                <a class="" href="javascript:;">-->
+<!--                    <i class="layui-icon layui-icon-username"></i>-->
+<!--                    <cite>个人中心</cite>-->
+<!--                </a>-->
+<!--                <dl class="layui-nav-child">-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/user/profile','基础资料')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/user/security','安全设置')"></dd>-->
+<!--                </dl>-->
+<!--            </li>-->
+<!--            <li class="layui-nav-item">-->
+<!--                <a class="" href="javascript:;">-->
+<!--                    <i class="layui-icon layui-icon-set"></i>-->
+<!--                    <cite>系统管理</cite>-->
+<!--                </a>-->
+<!--                <dl class="layui-nav-child">-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/admin/system/user/list','用户管理')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/admin/system/role/list','角色管理')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/admin/system/menu/list','菜单管理')"></dd>-->
+<!--                    <dd th:replace="admin/side::layui_nav_item('/admin/system/settings','系统设置')"></dd>-->
+<!--                </dl>-->
+<!--            </li>-->
         </ul>
     </div>
     <script>

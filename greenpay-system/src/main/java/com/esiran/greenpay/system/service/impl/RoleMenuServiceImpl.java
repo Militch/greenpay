@@ -30,4 +30,11 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
 
         return list;
     }
+
+    @Override
+    public List<RoleMenu> getRoleMenusByRoleId(Integer roleId) {
+
+        List<RoleMenu> roleMenus = this.baseMapper.getRoleMenusByRoleId(roleId);
+        return roleMenus;
+    }
 }
