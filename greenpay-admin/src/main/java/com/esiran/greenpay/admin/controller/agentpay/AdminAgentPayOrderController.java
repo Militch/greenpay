@@ -144,8 +144,7 @@ public class AdminAgentPayOrderController extends CURDBaseController {
     }
 
     @GetMapping("/tagging/{orderNo}")
-    @PageViewHandleError
-    public String tagging(@PathVariable String orderNo) throws APIException {
+    public String tagging(@PathVariable String orderNo) {
         agentPayOrderService.tagging(orderNo);
         return "admin/agentpay/order/list";
     }

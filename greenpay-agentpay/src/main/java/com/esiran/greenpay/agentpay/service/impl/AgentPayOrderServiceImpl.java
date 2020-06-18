@@ -241,15 +241,15 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
     }
 
     @Override
-    public void tagging(String orderNo) throws APIException {
+    public void tagging(String orderNo) {
         LambdaQueryWrapper<AgentPayOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AgentPayOrder::getOrderNo,orderNo);
         AgentPayOrder one = this.getOne(wrapper);
         if (one == null){
-            throw new APIException("订单不存在","");
+            return;
         }
         if (one.getStatus() == 3 || one.getStatus() == 4){
-            throw new APIException("该订单交易结束，无需标记","");
+            return;
         }
         if (one.getStatus() == 1 || one.getStatus() ==2){
             LambdaUpdateWrapper<AgentPayOrder> updateWrapper = new LambdaUpdateWrapper<>();
