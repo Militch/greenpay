@@ -16,6 +16,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +42,8 @@ public class AdminPayInterfaceController extends CURDBaseController {
     }
 
     @GetMapping("/list")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String list(HttpServletRequest httpServletRequest, ModelMap modelMap) {
         String queryString = httpServletRequest.getQueryString();
@@ -77,6 +81,8 @@ public class AdminPayInterfaceController extends CURDBaseController {
     }
 
     @GetMapping("/list/add")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String add(HttpSession httpSession, ModelMap modelMap){
         List<Type> availableTypes = typeService.list();
@@ -85,6 +91,8 @@ public class AdminPayInterfaceController extends CURDBaseController {
     }
 
     @GetMapping("/list/{id}/edit")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String update(@PathVariable String id,HttpSession httpSession, ModelMap modelMap) throws ResourceNotFoundException {
         List<Type> availableTypes = typeService.list();

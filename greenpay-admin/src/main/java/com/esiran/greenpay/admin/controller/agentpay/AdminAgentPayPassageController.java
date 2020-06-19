@@ -17,6 +17,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import io.swagger.models.auth.In;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
@@ -50,6 +52,8 @@ public class AdminAgentPayPassageController extends CURDBaseController {
     }
 
     @GetMapping("/list")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String list(HttpServletRequest request,
                        ModelMap modelMap,
@@ -73,6 +77,8 @@ public class AdminAgentPayPassageController extends CURDBaseController {
         return redirect("/admin/agentpay/passage/list");
     }
     @GetMapping("/list/add")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String add(ModelMap modelMap, HttpSession httpSession){
         List<Type> availableTypes = typeService.list();
@@ -88,6 +94,8 @@ public class AdminAgentPayPassageController extends CURDBaseController {
     }
 
     @GetMapping("/list/{passageId}/edit")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String edit(@PathVariable String passageId,ModelMap modelMap, HttpSession httpSession){
         AgentPayPassage data = passageService.getById(passageId);
@@ -106,6 +114,8 @@ public class AdminAgentPayPassageController extends CURDBaseController {
     }
 
     @GetMapping("/list/{passageId}/acc")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String listAcc(@PathVariable String passageId, ModelMap modelMap){
         modelMap.addAttribute("passageId", passageId);
@@ -125,6 +135,8 @@ public class AdminAgentPayPassageController extends CURDBaseController {
         return redirect("/admin/agentpay/passage/list/%s/acc",passageId);
     }
     @GetMapping("/list/{passageId}/acc/add")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String addAcc(@PathVariable String passageId, ModelMap modelMap, HttpSession httpSession){
         AgentPayPassage passage = passageService.getById(passageId);
@@ -137,6 +149,8 @@ public class AdminAgentPayPassageController extends CURDBaseController {
         return redirect("/admin/agentpay/passage/list/%s/acc",passageId);
     }
     @GetMapping("/list/{passageId}/acc/{accId}/edit")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String editAcc(@PathVariable String passageId, @PathVariable String accId, ModelMap modelMap, HttpSession httpSession){
         AgentPayPassage passage = passageService.getById(passageId);
@@ -157,6 +171,8 @@ public class AdminAgentPayPassageController extends CURDBaseController {
     }
 
     @GetMapping("/list/{passageId}/risk")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String risk(@PathVariable String passageId, ModelMap modelMap){
         PassageRisk passageRisk = passageRiskService.getByPassageId(Integer.valueOf(passageId));

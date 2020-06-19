@@ -20,6 +20,8 @@ import com.esiran.greenpay.system.entity.User;
 import com.esiran.greenpay.system.service.IUserService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -68,11 +70,15 @@ public class AdminMerchantController extends CURDBaseController {
     }
 
     @GetMapping("/list")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String list(){
         return "admin/merchant/list";
     }
     @GetMapping("/list/{mchId}/edit")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     public String edit(@PathVariable Integer mchId, ModelMap modelMap){
         MerchantDetailDTO merchantDTO = merchantService.findMerchantById(mchId);
         modelMap.addAttribute("merchant",merchantDTO);
@@ -80,11 +86,15 @@ public class AdminMerchantController extends CURDBaseController {
     }
 
     @GetMapping("/list/{mchId}/product/list")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     public String password(@PathVariable String mchId){
         return "admin/merchant/product/list";
     }
 
     @GetMapping("/list/{mchId}/agentpay/list")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     public String agentpay(@PathVariable String mchId,ModelMap modelMap){
         modelMap.addAttribute("mchId",mchId);
         return "admin/merchant/agentpay/list";
@@ -93,6 +103,8 @@ public class AdminMerchantController extends CURDBaseController {
 
 
     @GetMapping("/list/{mchId}/product/list/{productId}/edit")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String product(
             @PathVariable Integer mchId,
@@ -122,6 +134,8 @@ public class AdminMerchantController extends CURDBaseController {
     }
 
     @GetMapping("/add")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String add(){
         return "admin/merchant/add";
@@ -136,6 +150,8 @@ public class AdminMerchantController extends CURDBaseController {
 
 
     @GetMapping("/list/{mchId}/agentpay/list/{passageId}/edit")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String agentPayPassage(
             @PathVariable Integer mchId,
