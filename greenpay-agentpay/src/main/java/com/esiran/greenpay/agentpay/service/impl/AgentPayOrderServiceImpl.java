@@ -1,6 +1,7 @@
 package com.esiran.greenpay.agentpay.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenpay.actuator.Plugin;
@@ -16,6 +17,7 @@ import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.pay.entity.Interface;
 import com.esiran.greenpay.pay.service.IInterfaceService;
+import org.apache.kafka.common.errors.ApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -236,6 +238,25 @@ public class AgentPayOrderServiceImpl extends ServiceImpl<AgentPayOrderMapper, A
     @Override
     public List<CartogramPayStatusVo> payCRV() {
         return this.baseMapper.payCRV();
+    }
+
+    @Override
+    public void tagging(String orderNo) {
+        LambdaQueryWrapper<AgentPayOrder> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(AgentPayOrder::getOrderNo,orderNo);
+        AgentPayOrder one = this.getOne(wrapper);
+        if (one == null){
+            return;
+        }
+        if (one.getStatus() == 3 || one.getStatus() == 4){
+            return;
+        }
+        if (one.getStatus() == 1 || one.getStatus() ==2){
+            LambdaUpdateWrapper<AgentPayOrder> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(AgentPayOrder::getStatus,3)
+                    .eq(AgentPayOrder::getOrderNo,orderNo);
+            this.update(updateWrapper);
+        }
     }
 
 }

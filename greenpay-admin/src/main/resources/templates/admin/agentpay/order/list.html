@@ -136,6 +136,8 @@
                                     <input type="hidden" name="orderNo" value="{{d.orderNo}}">
                                     <input type="hidden" name="supplyPass">
                                 </form>
+                                <a th:href="@{'/agentpay/order/tagging/{{d.orderNo}}'}"
+                                   class="layui-btn layui-btn-xs layui-btn-primary">标记成功</a>
                             </script>
                         </div>
                     </div>
@@ -157,6 +159,7 @@
 <script th:inline="javascript">
 
     let layer = layui.layer,
+        form = layui.form,
         $ = layui.$;
     function refund(orderNo) {
 
@@ -235,12 +238,12 @@
             ,{field: 'orderNo', title: '交易订单号', width:'11%', unresize:true}
             ,{field: 'outOrderNo', title: '商户订单号', width:'11%', unresize:true}
             ,{title: '交易批次号', width:'12%', unresize:true,templet: '#batchNoTemplate'}
-            ,{field: 'mchId', title: '商户ID', width:'8%', unresize:true}
+            ,{field: 'mchId', title: '商户ID', width:'5%', unresize:true}
             ,{title: '金额（元）',align:'right', width:'8%', unresize:true,templet: '#amountTemplate'}
             ,{title: '手续费（元）',align:'right', width:'8%', unresize:true,templet: '#feeTemplate'}
             ,{field: 'agentpayPassageName', title: '代付通道', width:'10%', unresize:true}
             ,{field: 'status', title: '状态', width:'6%', unresize:true, templet:'#statusTemplate'}
-            ,{title: '操作', align: 'left', width:'15%', toolbar: '#barDemo', unresize:true}
+            ,{title: '操作', align: 'left', width:'18%', toolbar: '#barDemo', unresize:true}
         ]]
         });
     }();

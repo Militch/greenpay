@@ -139,7 +139,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
 
     @Override
     public List<MenuTreeVo> getMenuTreeByType(Integer usserId, int type) {
-        List<Menu> menus = this.baseMapper.selectMenusByUserId(usserId);
+        List<Menu> menus = this.baseMapper.selectMenusByUserId(new QueryWrapper<>(),usserId);
         List<MenuTreeVo> menuTreeVos = menus.stream()
                 .map(item -> modelMap.map(item, MenuTreeVo.class))
                 .filter(item -> item.getType().equals(type))
@@ -161,12 +161,12 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
 
     @Override
     public List<Menu> getMenuListByRoleId(Integer roleId) {
-        return baseMapper.selectMenuByRoleId(roleId);
+        return baseMapper.selectMenuByRoleId(new QueryWrapper<>(),roleId);
     }
 
     @Override
     public List<Menu> getMenuListByUserId(Integer userId) {
-        return baseMapper.selectMenusByUserId(userId);
+        return baseMapper.selectMenusByUserId(new QueryWrapper<>(),userId);
     }
 
     @Override
@@ -185,7 +185,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     @Override
     public List<Menu> findMenusByParentId(Integer parentId) {
         LambdaQueryWrapper<Menu> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(Menu::getParentId,parentId)
+        lambdaQueryWrapper
+                .eq(Menu::getParentId,parentId)
                 .orderByDesc(Menu::getSorts);
         return this.list(lambdaQueryWrapper);
     }

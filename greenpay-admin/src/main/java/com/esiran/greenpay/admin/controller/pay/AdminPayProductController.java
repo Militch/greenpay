@@ -13,6 +13,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +49,8 @@ public class AdminPayProductController extends CURDBaseController {
     }
 
     @GetMapping("/list")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String list(HttpServletRequest httpServletRequest, ModelMap modelMap) {
         String queryString = httpServletRequest.getQueryString();
@@ -81,6 +85,8 @@ public class AdminPayProductController extends CURDBaseController {
         return redirect("/admin/pay/product/list");
     }
     @GetMapping("/list/add")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String add(HttpSession httpSession, ModelMap modelMap){
         List<Type> availableTypes = typeService.list();
@@ -95,6 +101,8 @@ public class AdminPayProductController extends CURDBaseController {
 
 
     @GetMapping("/list/{id}/edit")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String edit(@PathVariable Integer id, HttpSession httpSession, ModelMap modelMap ){
         Product product = productService.getById(id);

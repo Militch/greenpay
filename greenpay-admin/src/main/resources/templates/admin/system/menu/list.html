@@ -27,13 +27,13 @@
                                     <script type="text/html" id="menuType">
                                         {{# if(d.type == 1) { }}
                                         <span class="layui-badge-dot layui-bg-orange"></span>
-                                        <span>菜单</span>
+                                        <span>目录</span>
                                         {{# } else if(d.type == 2) { }}
                                         <span class="layui-badge-dot layui-bg-green"></span>
-                                        <span>按钮</span>
+                                        <span>菜单</span>
                                         {{# } else { }}
                                         <span class="layui-badge-dot"></span>
-                                        <span>未知</span>
+                                        <span>按钮</span>
                                         {{# } }}
                                     </script>
                                     <script type="text/html" id="optBar">
@@ -62,12 +62,7 @@
                     </div>
                     <div class="layui-form-item" pane="" id="radio">
                         <label class="layui-form-label">权限分类</label>
-<<<<<<< HEAD
                         <div class="layui-input-block">
-=======
-
-                        <div class="layui-input-block" >
->>>>>>> 2079f0e4151ed025dfa223f6d1553f34def0ed25
                             <input name="type" value="1" title="菜单" checked="checked" type="radio"/>
                             <input name="type" value="2" title="按钮" type="radio"/>
                         </div>
@@ -133,17 +128,18 @@
                     ,cols: [[
                         {type: 'checkbox', fixed: 'left'}
                         ,{field: 'id', title: 'ID',width:'5%', unresize:true}
-                        ,{field: 'titleDisplay', title: '菜单标题', width:'15%', unresize:true}
-                        ,{field: 'mark', title: '权限编码', width:'10%', unresize:true}
+                        ,{field: 'titleDisplay', title: '菜单标题', width:'10%', unresize:true}
+                        ,{field: 'mark', title: '权限编码', width:'12%', unresize:true}
                         ,{title: '类型', width:'5%', unresize:true, templet: '#menuType'}
                         ,{field: 'icon', title: '图标', width:'10%', unresize:true}
-                        ,{field: 'path', title: '菜单路径', width:'10%', unresize:true}
+                        ,{field: 'path', title: '菜单路径', width:'15%', unresize:true}
                         ,{field: 'sorts', title: '排序', width:'5%', unresize:true}
                         ,{field: 'createdAt', title: '创建时间', width:'10%', unresize:true,}
                         ,{field: 'updatedAt', title: '更新时间', width:'10%', unresize:true,}
                         ,{width:'15%', unresize:true, templet: '#optBar'}
                     ]]
                     ,data: data
+                    ,limit :100
                 });
             }();
         </script>

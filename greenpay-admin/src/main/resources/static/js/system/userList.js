@@ -1,96 +1,90 @@
 /**
  * 权限列表
  */
-var $ = layui.$
+let $ = layui.jquery
 !(function() {
 
-    layui.use('table', function(){
-        var table = layui.table
-            ,form = layui.form,
-            layer = layui.layer;
+    let table = layui.table
+        ,form = layui.form,
+        layer = layui.layer;
 
-        tableIns=table.render({
-            elem: '#uesrList'
-            ,url:'/admin/api/v1/system/users'
-            ,cellMinWidth: 80
-            ,page: true
-            ,parseData: function(res){ //res 即为原始返回的数据
+    table.render({
+        elem: '#uesrList'
+        ,url:'/admin/api/v1/system/users'
+        ,cellMinWidth: 80
+        ,page: true
+        ,parseData: function(res){ //res 即为原始返回的数据
             return {
                 "code": 0,//解析接口状态
                 "msg": res.message,//解析提示文本
                 "count": res.total,//解析提示文本
                 "records": res.records//解析数据列表
             };
-            },
-            request: {
-                pageName: 'current' //页码的参数名称，默认：current
-                ,limitName: 'size' //每页数据量的参数名，默认：size
-            },response:{
-                statusName: 'code' //数据状态的字段名称，默认：code
-                ,statusCode: 0 //成功的状态码，默认：0
-                ,countName: 'total' //数据总数的字段名称，默认：count
-                ,dataName: 'records' //数据列表的字段名称，默认：data
-            }
-            ,cols: [[
-                {type:'checkbox'}//{type: 'checkbox', fixed: 'left'}
-                ,{field:'id', title:'ID',width:80, unresize: true, sort: true}
-                ,{field:'username', title:'用户名'}
-                // ,{field:'mobile', title:'手机号'}
-                ,{field:'email', title: '邮箱'}
-                ,{field:'roleNames', title: '角色名称', minWidth:80}
-                ,{field: 'createdAt', title: '创建时间', width:180, unresize:true}
-                ,{field: 'updatedAt', title: '更新时间', width:180, unresize:true}
-                ,{fixed:'right', title:'操作',width:140,align:'center', toolbar:'#optBar'}
-            ]]
-            ,  done: function(res, curr, count){
-                //如果是异步请求数据方式，res即为你接口返回的信息。
-                //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
-                //console.log(res);
-                //得到当前页码
-                //console.log(curr);
-                //得到数据总量
-                //console.log(count);
-                pageCurr=curr;
-            }
-        });
+        },
+        request: {
+            pageName: 'current' //页码的参数名称，默认：current
+            ,limitName: 'size' //每页数据量的参数名，默认：size
+        },response:{
+            statusName: 'code' //数据状态的字段名称，默认：code
+            ,statusCode: 0 //成功的状态码，默认：0
+            ,countName: 'total' //数据总数的字段名称，默认：count
+            ,dataName: 'records' //数据列表的字段名称，默认：data
+        }
+        ,cols: [[
+            {type:'checkbox'}//{type: 'checkbox', fixed: 'left'}
+            ,{field:'id', title:'ID',width:80, unresize: true, sort: true}
+            ,{field:'username', title:'用户名'}
+            // ,{field:'mobile', title:'手机号'}
+            ,{field:'email', title: '邮箱'}
+            ,{field:'roleNames', title: '角色名称', minWidth:80}
+            ,{field: 'createdAt', title: '创建时间', width:180, unresize:true}
+            ,{field: 'updatedAt', title: '更新时间', width:180, unresize:true}
+            ,{fixed:'right', title:'操作',width:140,align:'center', toolbar:'#optBar'}
+        ]]
+        ,  done: function(res, curr, count){
+            //如果是异步请求数据方式，res即为你接口返回的信息。
+            //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+            //console.log(res);
+            //得到当前页码
+            //console.log(curr);
+            //得到数据总量
+            //console.log(count);
+            pageCurr=curr;
+        }
+    });
 
-        //监听工具条
-        table.on('tool(userTable)', function(obj){
-            var data = obj.data;
-            if(obj.event === 'del'){
-                delUser(obj,layer,data);
-            } else if(obj.event === 'edit'){
-                //编辑
+    //监听工具条
+    table.on('tool(userTable)', function(obj){
+        var data = obj.data;
+        if(obj.event === 'del'){
+            delUser(obj,layer,data);
+        } else if(obj.event === 'edit'){
+            //编辑
 
-            } else if(obj.event === 'recover'){
+        } else if(obj.event === 'recover'){
 
-            }
-        });
-        //监听提交
-        form.on('submit(userSubmit)', function(data){
+        }
+    });
+    //监听提交
+    form.on('submit(userSubmit)', function(data){
 
-            formSubmit(data);
-            return false;
-        });
-
+        formSubmit(data);
+        return false;
     });
     //搜索框
-    layui.use(['form','laydate'], function(){
-        var form = layui.form ,layer = layui.layer
-            ,laydate = layui.laydate;
-        //日期
-        laydate.render({
-            elem: '#insertTimeStart'
-        });
-        laydate.render({
-            elem: '#insertTimeEnd'
-        });
-        //监听搜索框
-        form.on('submit(searchSubmit)', function(data){
-            //重新加载table
-            load(data);
-            return false;
-        });
+    var laydate = layui.laydate;
+    //日期
+    laydate.render({
+        elem: '#insertTimeStart'
+    });
+    laydate.render({
+        elem: '#insertTimeEnd'
+    });
+    //监听搜索框
+    form.on('submit(searchSubmit)', function(data){
+        //重新加载table
+        load(data);
+        return false;
     });
 }());
 
@@ -112,10 +106,13 @@ function formSubmit(obj){
             layer.alert("两次输入密码不一致");
             return ;
         }
+        let ps = md5(obj.field.password);
+        $("input[name='password']").val(ps)
         submitAjax(obj);
     }
 }
 function submitAjax(obj){
+
     $.ajax({
         type: "POST",
         data: $("#userForm").serialize(),
@@ -172,6 +169,7 @@ function checkRole(){
 }
 //开通用户
 function addUser(){
+
     $.get("/admin/api/v1/system/roles",function(data){
         if(data!=null){
 
@@ -215,6 +213,7 @@ function openUser(id,title){
 }
 
 function delUser(obj,layer,data) {
+
     //需要判断下是否删除自己
     // var currentUser=$("#currentUser").html();
     var version=obj.version;

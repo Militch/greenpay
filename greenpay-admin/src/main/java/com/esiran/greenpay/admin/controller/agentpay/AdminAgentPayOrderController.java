@@ -142,4 +142,11 @@ public class AdminAgentPayOrderController extends CURDBaseController {
                 ,0);
         return redirect("list");
     }
+
+    @GetMapping("/tagging/{orderNo}")
+    public String tagging(@PathVariable String orderNo) {
+        agentPayOrderService.tagging(orderNo);
+        return "admin/agentpay/order/list";
+    }
+
 }

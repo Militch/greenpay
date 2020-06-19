@@ -65,8 +65,11 @@ public class ApiAdminSystemMenuController {
         return ResponseEntity.ok(menuTreeVoList);
     }
 
+
+
     @GetMapping("/roleTree")
     public ResponseEntity<IPage<Menu>> Rolelist(Page<Menu> page){
+        page.setSize(100);
         IPage<Menu> menuTreeVoList = iMenuService.menuTreeList(page);
 
         return ResponseEntity.ok(menuTreeVoList);

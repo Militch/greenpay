@@ -13,6 +13,8 @@ import com.esiran.greenpay.system.service.IUserService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,8 @@ public class AdminPayTypeController extends CURDBaseController {
     }
 
     @GetMapping("/list")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String list(HttpServletRequest request, ModelMap modelMap) {
         String qs = request.getQueryString();
@@ -66,12 +70,15 @@ public class AdminPayTypeController extends CURDBaseController {
     }
 
     @GetMapping("/list/add")
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String add(HttpSession httpSession, ModelMap modelMap){
         return "admin/pay/type/add";
     }
     @GetMapping("/list/{payTypeCode}/edit")
-
+    @RequiresRoles("admin")
+    @RequiresPermissions("system:admin")
     @PageViewHandleError
     public String edit(@PathVariable String payTypeCode,
                        HttpSession httpSession,
