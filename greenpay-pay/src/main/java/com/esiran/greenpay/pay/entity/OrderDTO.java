@@ -154,7 +154,7 @@ public class OrderDTO  {
     public static  OrderDTO convertOrderEntity(Order order){
         if (order == null) return null;
         OrderDTO dto = modelMapper.map(order,OrderDTO.class);
-        dto.setAmountDisplay(NumberUtil.amountFen2Yuan(order.getAmount()));
+        dto.setAmountDisplay("￥".concat(NumberUtil.amountFen2Yuan(order.getAmount())));
         dto.setFeeDisplay(NumberUtil.amountFen2Yuan(order.getFee()));
         String status = order.getStatus() == 1 ? "待支付"
                 : order.getStatus() == 2 ? "已支付"

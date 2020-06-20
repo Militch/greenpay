@@ -154,7 +154,7 @@ public class AdminSettleOrderController extends CURDBaseController {
         LambdaQueryWrapper<SettleConfig> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.last("LIMIT 1");
         SettleConfig settleConfig = settleConfigService.getOne(queryWrapper);
-        modelMap.addAttribute("data", settleConfig);
+        modelMap.addAttribute("data", settleConfig==null?new SettleConfig():settleConfig);
         return "admin/settle/settings/index";
     }
 
