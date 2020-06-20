@@ -25,8 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -136,12 +138,11 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
                 treeVos.addAll(menuTreeByRoleId);
             }
         });
+        //防止用户多角色菜单重复问题
+        List<MenuTreeVo> collect = treeVos.stream().distinct().collect(Collectors.toList());
+        collect.sort(Comparator.comparing(MenuTreeVo::getSorts).reversed());
 
-        HashSet h = new HashSet(treeVos);
-        treeVos.clear();
-        treeVos.addAll(h);
-
-        return treeVos;
+        return collect;
     }
 
 
