@@ -1,5 +1,6 @@
 package com.esiran.greenpay.admin.controller.system.role;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.exceptions.ApiException;
@@ -13,6 +14,7 @@ import com.esiran.greenpay.system.entity.RoleMenu;
 import com.esiran.greenpay.system.entity.dot.MenuDTO;
 import com.esiran.greenpay.system.entity.dot.UserRoleInputDto;
 import com.esiran.greenpay.system.entity.vo.MenuTreeVo;
+import com.esiran.greenpay.system.entity.vo.RoleVo;
 import com.esiran.greenpay.system.service.IMenuService;
 import com.esiran.greenpay.system.service.IRoleMenuService;
 import com.esiran.greenpay.system.service.IRoleService;
@@ -20,6 +22,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.http.util.TextUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -66,9 +69,12 @@ public class APIAdminSystemRoleController extends CURDBaseController {
     @GetMapping
     public IPage<Role> list(
             @RequestParam(required = false,defaultValue = "1") Integer current,
-            @RequestParam(required = false,defaultValue = "10") Integer size){
-
-        return roleService.page(new Page<>(current,size));
+            @RequestParam(required = false,defaultValue = "10") Integer size, RoleVo roleVo){
+        LambdaQueryWrapper<Role> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (!TextUtils.isEmpty(roleVo.getName())) {
+            lambdaQueryWrapper.eq(Role::getName,roleVo.getName());
+        }
+        return roleService.page(new Page<>(current,size),lambdaQueryWrapper);
     }
 
     @ApiOperation("更新用户角色")

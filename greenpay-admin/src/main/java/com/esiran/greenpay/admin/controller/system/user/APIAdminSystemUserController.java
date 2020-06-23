@@ -1,5 +1,6 @@
 package com.esiran.greenpay.admin.controller.system.user;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -21,6 +22,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.util.TextUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,9 +66,14 @@ public class APIAdminSystemUserController extends CURDBaseController {
     @GetMapping
     public IPage<UserDTO> list(
             @RequestParam(required = false, defaultValue = "1") Integer current,
-            @RequestParam(required = false, defaultValue = "10") Integer size) {
+            @RequestParam(required = false, defaultValue = "10") Integer size ,
+            UserDTO userDTO) {
 
-        Page<User> page = userService.page(new Page<>(current, size));
+        LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (!TextUtils.isEmpty(userDTO.getUsername())) {
+            userLambdaQueryWrapper.eq(User::getUsername, userDTO.getUsername());
+        }
+        Page<User> page = userService.page(new Page<>(current, size),userLambdaQueryWrapper);
 
         List<User> records = page.getRecords();
         User loginUser = theUser();

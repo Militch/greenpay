@@ -9,7 +9,8 @@ let $ = layui.jquery
         layer = layui.layer;
 
     table.render({
-        elem: '#uesrList'
+        id: "userLoad"
+        ,elem: '#uesrList'
         ,url:'/admin/api/v1/system/users'
         ,cellMinWidth: 80
         ,page: true
@@ -85,6 +86,28 @@ let $ = layui.jquery
         //重新加载table
         load(data);
         return false;
+    });
+
+    var  active = {
+            reload: function(){
+                var Name = $('#Name');
+
+                //执行重载
+                table.reload('userLoad', {
+                    url: '/admin/api/v1/system/users',
+                    method: 'Get',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        username: Name.val(),
+                    }
+                }, 'data');
+            }
+        };
+    $('.demoTable .layui-btn').on('click', function(){
+        var type = $(this).data('type');
+        active[type] ? active[type].call(this) : '';
     });
 }());
 

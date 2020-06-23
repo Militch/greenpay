@@ -19,7 +19,13 @@
                         <div class="layui-card-body" style="padding: 0">
                             <div class="admin-table_header">
                                 <button class="layui-btn " onclick="addUser()">新增</button>
-                                <div th:replace="admin/compose::admin-table_header_right('请输入用户名')">
+                                <div class="admin-table_header_right">
+                                    <div class="demoTable">
+                                        <div class="layui-inline">
+                                        <input class="layui-input" name="Name" id="Name" placeholder="用户名" autocomplete="off">
+                                         </div>
+                                        <button class="layui-btn" data-type="reload">搜索</button>
+                                    </div>
                                 </div>
                                 <div style="clear:both;"></div>
                             </div>

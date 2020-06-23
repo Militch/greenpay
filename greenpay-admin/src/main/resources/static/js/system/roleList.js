@@ -2,14 +2,12 @@
  * 权限列表
  */
 !(function() {
-
-    layui.use('table', function(){
-        let $ = layui.jquery;
-        let table = layui.table;
-
+    let $ = layui.jquery;
+    let table = layui.table;
 
         table.render({
-            elem: '#demo'
+            id: "roleLoad"
+            ,elem: '#demo'
             ,url: '/admin/api/v1/system/roles' //数据接口
             ,page: true //开启分页
             ,parseData: function(res){ //res 即为原始返回的数据
@@ -53,6 +51,28 @@
         });
 
 
+        var  active = {
+            reload: function(){
+                var Name = $('#Name');
+
+                //执行重载
+                table.reload('roleLoad', {
+                    url: '/admin/api/v1/system/roles',
+                    method: 'Get',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        name: Name.val(),
+                    }
+                }, 'data');
+            }
+        };
+        $('.demoTable .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
         function updateRole(id) {
             //isNaN是数字返回false
             if(id!=null && !isNaN(id)){
@@ -81,7 +101,7 @@
 
             }
         }
-    });
+
 }());
 
 

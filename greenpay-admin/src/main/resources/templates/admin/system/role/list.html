@@ -28,9 +28,14 @@
                                 <div class="admin-table_header_left">
                                     <a th:href="@{'/admin/system/role/list/add'}" class="layui-btn ">新增</a>
                                 </div>
-                                <div th:replace="admin/compose::admin-table_header_right('请输入角色名称')">
+                                <div class="admin-table_header_right">
+                                    <div class="demoTable">
+                                        <div class="layui-inline">
+                                            <input class="layui-input" name="Name" id="Name" placeholder="用户名" autocomplete="off">
+                                        </div>
+                                        <button class="layui-btn" data-type="reload">搜索</button>
+                                    </div>
                                 </div>
-                                <div style="clear:both;"></div>
                             </div>
                             <table class="layui-table" lay-filter="demo"  id="demo">
                             </table>
