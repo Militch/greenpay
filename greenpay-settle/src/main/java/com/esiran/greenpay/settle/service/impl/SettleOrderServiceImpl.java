@@ -356,7 +356,7 @@ public class SettleOrderServiceImpl extends ServiceImpl<SettleOrderMapper, Settl
         //转换率 订单总数
         BigDecimal a = new BigDecimal(intradayOrderAll.getSuccessCount());
         BigDecimal b = new BigDecimal(yesterdayOrderAll.getSuccessCount());
-        String percent4Count = p.percentBigDecimal(a, b);
+            String percent4Count = p.percentBigDecimal(a, b);
 
 
         data = new HashMap<>();

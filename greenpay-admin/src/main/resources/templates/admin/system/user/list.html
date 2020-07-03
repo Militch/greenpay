@@ -17,8 +17,12 @@
                     <div class="layui-card">
                         <div class="layui-card-header">用户管理</div>
                         <div class="layui-card-body" style="padding: 0">
-                            <div class="admin-table_header">
-                                <button class="layui-btn " onclick="addUser()">新增</button>
+                            <div class="admin-table_header ">
+                                <button class="layui-btn " onclick="addUser(0)">新增</button>
+                                <div class="layui-btn-group demoTable2">
+                                    <button class="layui-btn layui-btn-danger"  data-type="getCheckData">删除选中</button>
+                                </div>
+
                                 <div class="admin-table_header_right">
                                     <div class="demoTable">
                                         <div class="layui-inline">
@@ -29,9 +33,9 @@
                                 </div>
                                 <div style="clear:both;"></div>
                             </div>
-                            <table id="uesrList" lay-filter="userTable"></table>
+                           <table id="uesrList" class="layui-hide" lay-filter="userTable"></table>
                             <script type="text/html" id="optBar">
-                                <a th:href="@{'/admin/system/user/list/{{d.id}}/edit'}"  class="layui-btn layui-btn-xs">编辑</a>
+                                <a  onclick="editUser('{{d.id}}')"  class="layui-btn layui-btn-xs">编辑</a>
                                 <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
                             </script>
                         </div>
@@ -45,41 +49,47 @@
 
 <!--添加或编辑用户-->
 <div id="setUser" class="site-text" style="wmargin: 5%;display:none;">
-    <form id="userForm" class="layui-form" method="post" action="" style="margin-top: 20px;">
+    <form id="userForm" class="layui-form" method="post" action="" style="margin-top: 20px; margin-right: 20px;">
         <input id="pageNum" type="hidden" name="pageNum"/>
         <input id="roleIds" type="hidden" name="roleIds"/>
+        <input id="password" type="hidden" name="password">
         <input id="id" type="hidden" name="id"/>
+        <input id="changeType" type="hidden" name="changeType"/>
         <input id="version" type="hidden" name="version"/>
         <div class="layui-form-item">
-            <label class="layui-form-label">用户名</label>
-            <div class="layui-input-inline">
-                <input id="username" name="username" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+            <label class="layui-form-label">用户名：</label>
+            <div class="layui-input-block">
+                <input id="username" name="username" lay-verify="required"
+                       autocomplete="off" class="layui-input" type="text"
+                        placeholder="请输入用户名"/>
             </div>
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">邮箱</label>
-            <div class="layui-input-inline">
-                <input id="email" name="email" lay-verify="required | email" autocomplete="off" class="layui-input" type="text"/>
+            <label class="layui-form-label">电子邮箱：</label>
+            <div class="layui-input-block">
+                <input id="email" name="email" lay-verify="required | email"
+                       autocomplete="off" class="layui-input" type="text"
+                        placeholder="请输入电子邮箱"/>
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">密码</label>
-            <div class="layui-input-inline">
-                <input id="password" name="password" autocomplete="off" class="layui-input"
-                       type="password" placeholder="请填写6位以上的密码"/>
+            <label class="layui-form-label">登录密码：</label>
+            <div class="layui-input-block">
+                <input id="userPassword" name="userPassword" autocomplete="off" class="layui-input"
+                       type="password" placeholder="请输入用户登录密码"/>
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">确认密码</label>
-            <div class="layui-input-inline">
+            <label class="layui-form-label">确认密码：</label>
+            <div class="layui-input-block">
                 <input id="verifyPassword" name="verifyPassword" autocomplete="off"
-                       class="layui-input" type="password"  placeholder="请填写6位以上的密码"/>
+                       class="layui-input" type="password"  placeholder="请再次确认输入登录密码"/>
             </div>
 
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">授予角色</label>
+            <label class="layui-form-label">所属角色：</label>
             <div class="layui-input-block" id="roleDiv">
             </div>
         </div>

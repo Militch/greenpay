@@ -97,7 +97,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
 
     @Override
     @Transactional()
-    public boolean updateUserAndRoles(Integer userId, UserInputDto userInputDto) throws PostResourceException {
+    public boolean updateUserAndRoles(Integer userId, UserInputDto userInputDto) throws APIException {
 
         User user = userService.getById(userId);
 
@@ -107,7 +107,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
             LambdaQueryWrapper<User> eq = queryWrapper.like(User::getEmail, userInputDto.getEmail());
             User u = userService.getOne(eq);
             if (u != null ) {
-                throw new PostResourceException("邮箱已经存在");
+                throw new APIException("邮箱已经存在","400");
             }
         }
         if (!user.getUsername().equals(userInputDto.getUsername())){
@@ -115,7 +115,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
             LambdaQueryWrapper<User> eq = queryWrapper.like(User::getUsername, userInputDto.getUsername());
             User u = userService.getOne(eq);
             if (u != null ) {
-                throw new PostResourceException("用户名已存在");
+                throw new APIException("用户名已存在","400");
             }
         }
 
