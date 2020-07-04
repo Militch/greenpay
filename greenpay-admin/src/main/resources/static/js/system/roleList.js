@@ -154,7 +154,9 @@ function openAddRole(){
         title: "新增角色",
         fixed:false,
         resize :false,
+        move: false,
         shadeClose: true,
+
         area: ['400px','250px'],
         // content: ['/admin/system/user/useropent','no'],
         content:$('#addRole'),

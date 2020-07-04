@@ -406,6 +406,7 @@ function openUser(data,title){
         fixed:false,
         resize :false,
         shadeClose: true,
+        move: false,
         area: ['400px','400px'],
         // content: ['/admin/system/user/useropent','no'],
         content:$('#setUser'),
