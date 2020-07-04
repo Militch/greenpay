@@ -27,7 +27,7 @@ public interface IUserRoleService extends IService<UserRole> {
 
     List<UserRole> selectUserRoleById(Integer userId);
 
-    boolean updateUserAndRoles(Integer userId, UserInputDto userInputDTO) throws PostResourceException;
+    boolean updateUserAndRoles(Integer userId, UserInputDto userInputDTO) throws APIException;
 
 
     boolean updateUserRoleByUserId(Integer userId, String[] roleIds);

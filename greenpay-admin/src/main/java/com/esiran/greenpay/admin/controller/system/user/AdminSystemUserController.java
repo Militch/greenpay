@@ -7,6 +7,7 @@ package com.esiran.greenpay.admin.controller.system.user;
  */
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.system.entity.UserRole;
@@ -38,6 +39,11 @@ public class AdminSystemUserController {
         this.userService = userService;
     }
 
+    @GetMapping("/useropent")
+    public ModelAndView userOpent(){
+        return new ModelAndView("admin/system/user/useropent");
+    }
+
     @GetMapping("/list")
     public ModelAndView index() {
         return new ModelAndView("admin/system/user/list");
@@ -59,15 +65,15 @@ public class AdminSystemUserController {
 
     @PostMapping("/list/{userId}/edit")
     @PageViewHandleError
-    public String edit(@PathVariable Integer userId,@Valid UserInputDto userInputDto) throws PostResourceException {
+    public String edit(@PathVariable Integer userId,@Valid UserInputDto userInputDto) throws APIException {
 
         if (StringUtils.isBlank(userInputDto.getUsername()) ||
                 userInputDto.getUsername().length()<2) {
 
-            throw new PostResourceException("用户名格式不正确");
+            throw new APIException("用户名格式不正确","400");
         }
         if (StringUtils.isBlank(userInputDto.getEmail())) {
-            throw new PostResourceException("用户名或Email为空");
+            throw new APIException("用户名或Email为空","400");
         }
 //        if (StringUtils.isBlank(userInputDto.getPassword()) || userInputDto.getPassword().length()<6) {
 //            throw new PostResourceException("用户名密码至少6位");

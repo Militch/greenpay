@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>菜单列表 - GreenPay</title>
+        <title>权限管理 - GreenPay</title>
         <th:block th:replace="admin/header::stylesheet" />
     </head>
     <body class="layui-layout-body">
@@ -12,14 +12,15 @@
                 <div class="layui-body" >
 
                     <div class="layadmin-tabsbody-item layui-show">
-                        <div th:replace="admin/compose::layui-breadcrumb('系统管理','菜单管理')"></div>
+                        <div th:replace="admin/compose::layui-breadcrumb('系统管理','权限管理')"></div>
                         <div class="layui-fluid">
                             <div class="layui-card">
-                                <div class="layui-card-header">菜单管理</div>
+                                <div class="layui-card-header">权限管理</div>
                                 <div class="layui-card-body" style="padding: 0">
                                     <div class="admin-table_header">
                                         <button class="layui-btn" onclick="addPerm('{{r.id}}',0,0)">新增</button>
-                                        <div th:replace="admin/compose::admin-table_header_right('请输入用户名')">
+                                        <div class="layui-btn-group demoTable2">
+                                            <button class="layui-btn layui-btn-danger"  data-type="getCheckData">删除选中</button>
                                         </div>
                                         <div style="clear:both;"></div>
                                     </div>
@@ -50,53 +51,59 @@
             </div>
             <!--添加或编辑权限-->
             <div id="updatePerm" class="site-text" style="margin: 5%; display:none;">
-                <form id="permForm" class="layui-form " method="post" action="">
+                <form id="permForm" class="layui-form " method="post" action="" style="margin-right: 20px">
                     <input id="style" type="hidden" name="style"/>
                     <input id="parentId" type="hidden" name="parentId"/>
                     <input id="id" type="hidden" name="id"/>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">权限名称</label>
-                        <div class="layui-input-inline">
-                            <input name="title" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+                        <label class="layui-form-label">权限名称：</label>
+                        <div class="layui-input-block">
+                            <input name="title" lay-verify="required" autocomplete="off"
+                                   class="layui-input" type="text" placeholder="请输入菜单名称"/>
                         </div>
                     </div>
                     <div class="layui-form-item" pane="" id="radio">
-                        <label class="layui-form-label">权限分类</label>
+                        <label class="layui-form-label">菜单类别：</label>
                         <div class="layui-input-block">
-                            <input name="type" value="1" title="菜单" checked="checked" type="radio"/>
-                            <input name="type" value="2" title="按钮" type="radio"/>
+                            <input name="type" value="1" title="目录" checked="checked" type="radio"/>
+                            <input name="type" value="2" title="菜单" type="radio"/>
+                            <input name="type" value="3" title="按钮" type="radio"/>
                         </div>
                     </div>
 
                     <div class="layui-form-item">
-                        <label class="layui-form-label">权限路径</label>
-                        <div class="layui-input-inline">
-                            <input name="path"  autocomplete="off" class="layui-input" type="text"/>
+                        <label class="layui-form-label">菜单路径：</label>
+                        <div class="layui-input-block">
+                            <input name="path"  autocomplete="off" class="layui-input"
+                                   placeholder="请输入菜单路径" type="text"/>
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">权限标识</label>
-                        <div class="layui-input-inline">
-                            <input name="mark" lay-verify="required" autocomplete="off" class="layui-input" type="text"/>
+                        <label class="layui-form-label">权限编码：</label>
+                        <div class="layui-input-block">
+                            <input name="mark" lay-verify="required" autocomplete="off"
+                                   class="layui-input" type="text" placeholder="请输入权限编码"/>
                         </div>
                     </div>
+
                     <div class="layui-form-item">
-                        <label class="layui-form-label">权限优先级</label>
-                        <div class="layui-input-inline">
+                        <label class="layui-form-label">菜单图标：</label>
+                        <div class="layui-input-block">
+                            <input name="icon" id="icon"  autocomplete="off" class="layui-input"
+                                   type="text" placeholder="请输入菜单图标">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">菜单排序：</label>
+                        <div class="layui-input-block">
                             <input name="sorts" autocomplete="off" class="layui-input" type="number" onkeyup="this.value=this.value.replace(/\D/g,'')"
                                    onafterpaste="this.value=this.value.replace(/\D/g,'')"
-                                    placeholder="请填写大于0的整数数字"/>
+                                   placeholder="请输入菜单排序数值，数值越大优先级越高"/>
                         </div>
                     </div>
-
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">图标</label>
-                        <div class="layui-input-inline">
-                            <input name="icon" id="icon"  autocomplete="off" class="layui-input" type="text">
-                        </div>
-                    </div>
-                    <div class="layui-form-item layui-form-text">
-                        <label class="layui-form-label">扩展信息</label>
+                    <div class="layui-form-item layui-form-text" style="display: none">
+                        <label class="layui-form-label">扩展信息：</label>
                         <div class="layui-input-block">
                             <textarea name="extra" placeholder="请输入内容" class="layui-textarea"></textarea>
                         </div>
@@ -124,6 +131,7 @@
                     ,form = layui.form,
                     layer = layui.layer;
                 table.render({
+                    id: "tableMenus",
                     elem: '#menuTable'
                     ,cols: [[
                         {type: 'checkbox', fixed: 'left'}
