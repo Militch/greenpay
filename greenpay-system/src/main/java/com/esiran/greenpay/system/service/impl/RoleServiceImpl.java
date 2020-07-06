@@ -143,7 +143,11 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         //防止用户多角色菜单重复问题
         List<MenuTreeVo> collect = treeVos.stream().distinct().collect(Collectors.toList());
         collect.sort(Comparator.comparing(MenuTreeVo::getSorts).reversed());
-
+        //对子菜单进行排序
+        collect.forEach(menuTreeVo -> {
+            List<MenuTreeVo> childrens = menuTreeVo.getChildrens();
+            childrens.sort(Comparator.comparing(MenuTreeVo::getSorts).reversed());
+        });
         return collect;
     }
 
