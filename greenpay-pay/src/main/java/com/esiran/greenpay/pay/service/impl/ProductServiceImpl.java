@@ -119,7 +119,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         }
         if (!target.getProductCode().equals(src.getPayTypeCode())){
             Product old = this.getByProductCode(productInputDTO.getProductCode());
-            if (old != null) throw new PostResourceException("产品编码已存在");
+            if (old == null) throw new PostResourceException("产品编码已存在");
         }
         if (productInputDTO.getDefaultPassageId() != null){
             Passage passage = passageService.getById(productInputDTO.getDefaultPassageId());
