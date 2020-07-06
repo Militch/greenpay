@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head >
-    <title>更新角色 - GreenPay</title>
+    <title>编辑角色 - GreenPay</title>
     <th:block th:replace="admin/header::stylesheet" />
 </head>
 <body class="layui-layout-body">
@@ -20,7 +20,7 @@
                 </div>
                 <div class="layui-fluid">
                     <div class="layui-card">
-                        <div class="layui-card-header">更新角色</div>
+                        <div class="layui-card-header">编辑角色</div>
                         <div class="layui-card-body">
                             <div class="layui-row">
                                 <div th:fragment="updateRole">
@@ -36,7 +36,7 @@
                                         </div>
                                         <div class="layui-form-item">
                                             <div class="layui-inline">
-                                                <label class="layui-form-label">角色编号：</label>
+                                                <label class="layui-form-label">角色编码：</label>
                                                 <div class="layui-input-inline">
                                                     <input type="text" name="roleCode" th:value="${role != null}?(${role.roleCode != null}? ${role.roleCode} : '') : ''" lay-verify="required" autocomplete="off" class="layui-input"/>
                                                 </div>

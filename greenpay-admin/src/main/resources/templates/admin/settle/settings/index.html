@@ -20,9 +20,9 @@
         <div class="layui-body">
             <div class="layadmin-tabsbody-item layui-show">
                 <div th:replace="admin/compose::layui-breadcrumb('个人中心','结算设置')"></div>
-                <div class="layui-card error-card" th:style="${errors==null}?'display:none;':''">
+                <div class="layui-card error-card" th:style="${_errors==null}?'display:none;':''">
                     <div class="layui-card-body">
-                        <blockquote class="layui-elem-quote" th:each="error:${errors}" th:text="${error.message}"></blockquote>
+                        <blockquote class="layui-elem-quote" th:each="error:${_errors}" th:text="${error}"></blockquote>
                     </div>
                 </div>
                 <div class="layui-fluid">
@@ -37,9 +37,9 @@
                                             <div class="layui-input-block">
                                                 <input id="status" type="radio" name="status"
                                                        value="0" title="关闭"
-                                                       th:field="*{data.status}">
+                                                       th:field="${data.status}">
                                                 <input type="radio" name="status" value="1" title="开启"
-                                                       th:field="*{data.status}">
+                                                       th:field="${data.status}">
                                             </div>
                                         </div>
                                         <div class="layui-form-item">
@@ -47,9 +47,9 @@
                                             <div class="layui-input-block">
                                                 <input id="auditStatus" type="radio" name="auditStatus"
                                                        value="0" title="关闭"
-                                                       th:field="*{data.auditStatus}">
+                                                       th:field="${data.auditStatus}">
                                                 <input type="radio" name="auditStatus" value="1" title="开启"
-                                                       th:field="*{data.auditStatus}">
+                                                       th:field="${data.auditStatus}">
                                             </div>
                                         </div>
                                         <div class="layui-form-item">
@@ -57,9 +57,9 @@
                                             <div class="layui-input-block">
                                                 <input id="settleType" type="radio" name="settleType"
                                                        value="1" title="人工结算"
-                                                       th:field="*{data.settleType}">
+                                                       th:field="${data.settleType}">
                                                 <input type="radio" name="auditStatus" value="2" title="自动结算"
-                                                       th:field="*{data.settleType}">
+                                                       th:field="${data.settleType}">
                                             </div>
                                         </div>
                                         <div class="layui-form-item">
@@ -70,7 +70,7 @@
                                                 <input type="text" class="layui-input"
                                                        name="amountLimitMin" id="amountLimitMin"
                                                        autocomplete="off"
-                                                       th:value="${data.amountLimitMinDisplay}"
+                                                       th:value="${data.amountLimitMin}"
                                                        placeholder="单笔金额最小值（单位：分）">
                                             </div>
                                         </div>
@@ -82,7 +82,7 @@
                                                 <input type="text" class="layui-input"
                                                        name="amountLimitMax" id="amountLimitMax"
                                                        autocomplete="off"
-                                                       th:value="${data.amountLimitMaxDisplay}"
+                                                       th:value="${data.amountLimitMax}"
                                                        placeholder="单笔金额最大值（单位：元）">
                                             </div>
                                         </div>
@@ -94,7 +94,7 @@
                                                 <input type="text" class="layui-input"
                                                        name="dayAmountLimitMax" id="dayAmountLimitMax"
                                                        autocomplete="off"
-                                                       th:value="${data.dayAmountLimitMaxDisplay}"
+                                                       th:value="${data.dayAmountLimitMax}"
                                                        placeholder="每日金额限制（单位：分）">
                                             </div>
                                         </div>
@@ -122,7 +122,7 @@
                                                 <input type="text" class="layui-input"
                                                        name="settleRate" id="settleRate"
                                                        autocomplete="off"
-                                                       th:value="${data.settleRateDisplay}"
+                                                       th:value="${data.settleRate}"
                                                        placeholder="结算比例，保留两位小数">
                                             </div>
                                         </div>
@@ -132,7 +132,7 @@
                                                 <input type="text" class="layui-input"
                                                        name="settleFee" id="settleFee"
                                                        autocomplete="off"
-                                                       th:value="${data.settleFeeDisplay}"
+                                                       th:value="${data.settleFee}"
                                                        placeholder="固定收费，保留两位小数">
                                             </div>
                                         </div>

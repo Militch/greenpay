@@ -6,10 +6,12 @@ let $ = layui.jquery,
     ,form = layui.form;
 !(function () {
 
-
     var table = layui.table
         ,form = layui.form,
         layer = layui.layer;
+    layer.config({
+        extend: 'mycss/buttonstyle.css' //同样需要加载新皮肤
+    });
     //监听工具条
     table.on('tool(userTable)', function(obj){
         var data = obj.data;
@@ -84,6 +86,21 @@ let $ = layui.jquery,
     });
 
 
+    //选中删除
+    var  activeSelect = {
+        getCheckData: function(){ //获取选中数据
+            var checkStatus = table.checkStatus('tableMenus')
+                ,data = checkStatus.data;
+            delmenus(data);
+            // layer.alert(JSON.stringify(data));
+            // layer.msg('选中了：'+ data.length + ' 个');
+            // layer.msg(checkStatus.isAll ? '全选': '未全选')
+        }
+    };
+    $('.demoTable2 .layui-btn').on('click', function(){
+        var type = $(this).data('type');
+        activeSelect[type] ? activeSelect[type].call(this) : '';
+    });
 
 
 }());
@@ -112,11 +129,12 @@ function edit(id,style){
                 // console.log($("input[name='rbsex']:checked").val());
                 layer.open({
                     type:1,
-                    title: "更新权限",
+                    title: "编辑权限",
                     fixed:false,
                     resize :false,
                     shadeClose: true,
-                    area: ['500px', '580px'],
+                    move: false,
+                    area: ['460px', '460px'],
                     content:$('#updatePerm'),
                     end:function(){
                         location.reload();
@@ -134,6 +152,7 @@ function addPerm(parentId,dataType,flag){
     if(null!=parentId){
         //flag[0:开通权限；1：新增子节点权限]
         //style[0:编辑；1：新增]
+        let title = "添加权限";
         if(flag==0){
             $("#style").val(1);
             $("#parentId").val(0);
@@ -142,6 +161,7 @@ function addPerm(parentId,dataType,flag){
             $("#style").val(1);
             //设置父id
             $("#parentId").val(parentId);
+            title  = "添加子节点";
         }
         if(dataType==2){
             layer.alert("按钮类型不能添加子节点");
@@ -153,11 +173,12 @@ function addPerm(parentId,dataType,flag){
         }
         layer.open({
             type:1,
-            title: "添加权限",
+            title: title,
             fixed:false,
             resize :false,
             shadeClose: true,
-            area: ['500px', '580px'],
+            area: ['460px', '460px'],
+            move: false,
             content:$('#updatePerm'),  //页面自定义的div，样式自定义
             end:function(){
                 location.reload();
@@ -170,6 +191,8 @@ function del(menuId,name){
     // console.log("===删除id："+id);
     if(null!=menuId){
         layer.confirm('您确定要删除'+name+'权限吗？', {
+            skin: 'demo-class',
+            title: '警告',
             btn: ['确认','返回'] //按钮
         }, function(){
             $.ajax({
@@ -209,6 +232,53 @@ function del(menuId,name){
     }
 
 }
+
+
+//批量删除菜单
+
+function delmenus(elements) {
+
+    layer.confirm('该操作无法撤销，请确定是否删除?', {
+        skin: 'demo-class',
+        title: '警告',
+        btn: ['确认','返回'] //按钮
+
+    }, function(index){
+        layer.closeAll();
+        let i = 0;
+        elements.forEach(function (element) {
+            i++;
+            //向服务端发送删除指令
+            $.ajax({
+                url: "/admin/api/v1/system/menus/del",
+                data:{'menuId':element.id},
+                type:"DELETE",
+                // dataType:"json",
+                success:function(data){
+                    if (i == elements.length) {
+                        // layer.msg("操作成功");
+
+                        location.reload();
+                    }
+
+                },
+                error:function(data){
+                    layer.alert(data.msg,function(){
+                        layer.closeAll();
+
+                    });
+                }
+            });
+        })
+
+
+
+    }, function(){
+        layer.closeAll();
+    });
+
+}
+
 
 //关闭弹框
 function close(){

@@ -101,10 +101,10 @@
                                 {{# } }}
                             </script>
                             <script type="text/html" id="amountTemplate">
-                                ￥ {{ d.amountDisplay }}
+                                {{ d.amountDisplay }}
                             </script>
                             <script type="text/html" id="feeTemplate">
-                                ￥ {{ d.feeDisplay }}
+                                {{ d.feeDisplay }}
                             </script>
                             <script type="text/html" id="subjectTemplate">
                                 <span>{{ d.subject }}</span>
@@ -122,22 +122,22 @@
 <!--                                <a th:href="@{'/agentpay/order/supplement/{{d.orderNo}}'}"-->
 <!--                                   class="layui-btn layui-btn-xs layui-btn-primary">补单</a>-->
                                 <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-primary">回调</a>
-                                <a href="javascript:void(0);" class="layui-btn layui-btn-xs layui-btn-primary" lay-filter="del"
+                                <a href="javascript:void(0);" class="layui-btn layui-btn-xs layui-btn-warm" lay-filter="del"
                                    onclick="supplement('{{d.orderNo}}')">补单</a>
                                 <form style="display: none" id="supplement_{{d.orderNo}}" method="post" action="">
                                     <input type="hidden" name="action" value="supplement">
                                     <input type="hidden" name="orderNo" value="{{d.orderNo}}">
                                     <input type="hidden" name="supplyPass">
                                 </form>
-                                <a href="javascript:void(0);" class="layui-btn layui-btn-xs layui-btn-primary"  style="margin-left: 10px;" lay-filter="del"
+                                <a th:href="@{'/agentpay/order/tagging/{{d.orderNo}}'}"
+                                   class="layui-btn layui-btn-xs ">标记成功</a>
+                                <a href="javascript:void(0);" class="layui-btn layui-btn-xs layui-btn-danger"  style="margin-left: 10px;" lay-filter="del"
                                    onclick="refund('{{d.orderNo}}')">退帐</a>
                                 <form style="display: none" id="refund_{{d.orderNo}}" method="post" action="">
                                     <input type="hidden" name="action" value="refund">
                                     <input type="hidden" name="orderNo" value="{{d.orderNo}}">
                                     <input type="hidden" name="supplyPass">
                                 </form>
-                                <a th:href="@{'/agentpay/order/tagging/{{d.orderNo}}'}"
-                                   class="layui-btn layui-btn-xs layui-btn-primary">标记成功</a>
                             </script>
                         </div>
                     </div>
