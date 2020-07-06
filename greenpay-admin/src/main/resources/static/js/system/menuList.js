@@ -133,6 +133,7 @@ function edit(id,style){
                     fixed:false,
                     resize :false,
                     shadeClose: true,
+                    move: false,
                     area: ['460px', '460px'],
                     content:$('#updatePerm'),
                     end:function(){
@@ -162,7 +163,7 @@ function addPerm(parentId,dataType,flag){
             $("#parentId").val(parentId);
             title  = "添加子节点";
         }
-        if(dataType==2){
+        if(dataType==3){
             layer.alert("按钮类型不能添加子节点");
             return false;
             // $('#radio').css('display','none')
@@ -177,6 +178,7 @@ function addPerm(parentId,dataType,flag){
             resize :false,
             shadeClose: true,
             area: ['460px', '460px'],
+            move: false,
             content:$('#updatePerm'),  //页面自定义的div，样式自定义
             end:function(){
                 location.reload();

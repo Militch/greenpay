@@ -50,15 +50,15 @@
 
             </div>
             <!--添加或编辑权限-->
-            <div id="updatePerm" class="site-text" style="margin: 5%; display:none;">
-                <form id="permForm" class="layui-form " method="post" action="" style="margin-right: 20px">
+            <div id="updatePerm" class="site-text" style=" display:none;">
+                <form id="permForm" class="layui-form " method="post" action=""  style="margin-top: 20px; margin-right: 20px">
                     <input id="style" type="hidden" name="style"/>
                     <input id="parentId" type="hidden" name="parentId"/>
                     <input id="id" type="hidden" name="id"/>
                     <div class="layui-form-item">
                         <label class="layui-form-label">权限名称：</label>
                         <div class="layui-input-block">
-                            <input name="title" lay-verify="required" autocomplete="off"
+                            <input id="title" name="title" lay-verify="required" autocomplete="off"
                                    class="layui-input" type="text" placeholder="请输入菜单名称"/>
                         </div>
                     </div>
