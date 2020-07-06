@@ -2,7 +2,9 @@ package com.esiran.greenpay.test;
 
 
 import com.esiran.greenpay.bank.pingan.entity.PATradeCode;
+import com.esiran.greenpay.common.sign.Md5SignType;
 import com.esiran.greenpay.common.util.Map2Xml;
+import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
 import com.google.gson.Gson;
 import okhttp3.*;
@@ -10,6 +12,7 @@ import okhttp3.*;
 import org.junit.Test;
 
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -243,6 +246,43 @@ public class PAbank {
         String substring = s.substring(i+1);
         System.out.println(i);
         System.out.println(substring);
+    }
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final OkHttpClient okHttpClient;
+    static {
+        okHttpClient = new OkHttpClient.Builder()
+                .readTimeout(Duration.ofSeconds(180))
+                .writeTimeout(Duration.ofSeconds(180))
+                .connectTimeout(Duration.ofSeconds(180))
+                .callTimeout(Duration.ofSeconds(180))
+                .build();
+    }
+    @Test
+    public void test9() throws IOException {
+        Map<String, String> map = new HashMap<>();
+        map.put("pay_memberid", "200646204");
+        map.put("pay_orderid", "1234567");
+        map.put("pay_applydate", dtf.format(LocalDateTime.now()));
+        map.put("pay_bankcode", "");
+        map.put("pay_notifyurl", "www.baidu.com");
+        map.put("pay_callbackurl", "www.baidu.com");
+        map.put("pay_amount", "10");
+        map.put("pay_productname","测试");
+        String principal = MapUtil.sortAndSerialize(map);
+        String concat = principal.concat("&key=" + "xdfg2e45gnyjl47fsjbh0gddirks6e6u");
+        Md5SignType signType = new Md5SignType(concat);
+        String sign = signType.sign2("");
+        map.put("pay_md5sign", sign);
+        System.out.println(sign);
+        String json = g.toJson(map);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+        Request request = new Request.Builder()
+                .url("http://pay.nbz8888.com/Pay_Index.html")
+                .post(requestBody)
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+        String s = response.body().string();
+        System.out.println(s);
     }
 
 }
