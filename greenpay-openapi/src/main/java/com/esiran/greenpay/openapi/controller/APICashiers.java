@@ -287,13 +287,16 @@ public class APICashiers {
     }
 
     @RequestMapping("/h5/orders")
-    public String createH5Order(@Valid CashierInputDTO inputDTO, HttpServletRequest request) throws Exception {
+    public void createH5Order(
+            @Valid CashierInputDTO inputDTO,
+            HttpServletRequest request, HttpServletResponse response) throws Exception {
         Merchant merchant = OpenAPISecurityUtils.getSubject();
         String productCode = inputDTO.getChannel();
         PayOrder payOrder = cashierService.createCashierByInput(productCode, inputDTO, merchant);
         String orderNo = payOrder.getOrder().getOrderNo();
         Interface ins = interfaceService.getById(payOrder.getOrderDetail().getPayInterfaceId());
         Integer scenarios = ins.getScenarios();
+        String html = null;
         if (scenarios == 3){
             PayOrderFlow payOrderFlow = new PayOrderFlow(payOrder);
             try {
@@ -302,6 +305,7 @@ public class APICashiers {
                 payOrderPlugin.apply(payOrderFlow);
                 payOrderFlow.execDependent("create");
                 Map<String,Object> results = payOrderFlow.getResults();
+                html = (String) results.get("html");
                 orderDetailService.updatePayCredentialByOrderNo(orderNo,results);
             } catch (Exception e) {
                 throw new APIException("请求支付通道失败","REQUEST_ERROR");
@@ -309,7 +313,11 @@ public class APICashiers {
         } else {
             throw new APIException("支付场景暂不支持该渠道支付","REQUEST_ERROR");
         }
-        return null;
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter pw = response.getWriter();
+        pw.println(html);
+        pw.flush();
+        pw.close();
     }
 
     @RequestMapping("/wx_pub/orders")

@@ -10,14 +10,14 @@ logging:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql/greenpay?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
-    username: root
-    password: greenpay
+    url: jdbc:mysql://${MYSQL_HOST}/${MYSQL_DB}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASS}
   redis:
-    port: 6379
-    host: redis
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
   kafka:
-    bootstrap-servers: 103.126.241.222:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
