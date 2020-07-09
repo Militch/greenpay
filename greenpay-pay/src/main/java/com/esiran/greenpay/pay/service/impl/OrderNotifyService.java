@@ -63,9 +63,6 @@ public class OrderNotifyService implements IOrderNotifyService {
         OrderDetail orderDetail = orderDetailService.getOneByOrderNo(orderNo);
         if (order == null || orderDetail == null)
             throw new PostResourceException("订单不存在，无法执行回调");
-        if (order.getStatus()<2){
-            throw new PostResourceException("订单未支付，无法执行回调");
-        }
         String notifyUrl = order.getNotifyUrl();
         if (StringUtils.isEmpty(notifyUrl)){
             throw new PostResourceException("订单回调地址为空，无法执行回调");

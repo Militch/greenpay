@@ -67,11 +67,6 @@ public class AdminPayOrderController extends CURDBaseController {
         if (order == null) {
             throw new PostResourceException("订单不存在");
         }
-
-        if (order.getStatus() <= 1) {
-            throw new PostResourceException("该订单未支付,无法通知商户");
-        }
-
         //查询商户授权码
         ApiConfigDTO merchant = iApiConfigService.findByMerchantId(mchId);
         if (merchant == null) {
