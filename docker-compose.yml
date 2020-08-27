@@ -2,51 +2,52 @@ version: '3.7'
 
 services:
   admin_web:
-    restart: always
-    image: registry.cn-hongkong.aliyuncs.com/esiran/greenpay-admin-web
-    build:
-      context: .
-      dockerfile: Dockerfile.admin_web
-    ports:
-      - 9081:8081
-    depends_on:
-      - redis
-      - mysql
-
-  merchant_web:
-    image: registry.cn-hongkong.aliyuncs.com/esiran/greenpay-merchant-web
+    image: registry.cn-hongkong.aliyuncs.com/esiran/greenadmin-admin-web
     restart: always
     build:
       context: .
-      dockerfile: Dockerfile.merchant_web
     ports:
-      - 9082:8082
+      - 8081:8081
     depends_on:
       - redis
       - mysql
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DB=greenadmin
+      - MYSQL_USER=root
+      - MYSQL_PASS=greenadmin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 
   openapi:
-    image: registry.cn-hongkong.aliyuncs.com/esiran/greenpay-openapi
+    image: registry.cn-hongkong.aliyuncs.com/esiran/greenadmin-openapi
     restart: always
     build:
       context: .
-      dockerfile: Dockerfile.openapi
     ports:
-      - 9083:8083
+      - 8083:8083
     depends_on:
       - redis
       - mysql
-
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_DB=greenadmin
+      - MYSQL_USER=root
+      - MYSQL_PASS=greenadmin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - GRENNPAY_WEB_HOST=http://api.newpays.biz
+      - KAFKA_BOOTSTRAP_SERVER=103.117.139.58:9092
   mysql:
     restart: always
     image: mysql:8
     ports:
-      - 4306:3306
+      - 3307:3306
     environment:
-      - MYSQL_ROOT_PASSWORD=greenpay
-      - MYSQL_DATABASE=greenpay
-      - MYSQL_USER=greenpay
-      - MYSQL_PASSWORD=greenpay
+      - MYSQL_ROOT_PASSWORD=greenadmin
+      - MYSQL_DATABASE=greenadmin
+      - MYSQL_USER=greenadmin
+      - MYSQL_PASSWORD=greenadmin
       - TZ=Asia/Shanghai
     command:
       --default_authentication_plugin=mysql_native_password

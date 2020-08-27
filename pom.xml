@@ -5,24 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.esiran</groupId>
-    <artifactId>greenpay</artifactId>
+    <artifactId>greenadmin</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>greenpay-admin</module>
-        <module>greenpay-generator</module>
-        <module>greenpay-pay</module>
-        <module>greenpay-merchant</module>
-        <module>greenpay-common</module>
-        <module>greenpay-system</module>
-        <module>greenpay-openapi</module>
-        <module>greenpay-actuator</module>
-        <module>greenpay-merchant-web</module>
-        <module>greenpay-message</module>
-        <module>greenpay-settle</module>
-        <module>greenpay-agentpay</module>
-        <module>greenpay-framework</module>
-        <module>greenpay-bank</module>
+        <module>greenadmin-admin</module>
+        <module>greenadmin-generator</module>
+        <module>greenadmin-common</module>
+        <module>greenadmin-system</module>
+        <module>greenadmin-openapi</module>
+        <module>greenadmin-framework</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -50,7 +42,6 @@
         <shiro.version>1.5.2</shiro.version>
         <guava.version>29.0-jre</guava.version>
         <spring-kafka.version>2.3.8.RELEASE</spring-kafka.version>
-<!--        <spring-kafka.version>2.1.1.RELEASE</spring-kafka.version>-->
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -83,73 +74,30 @@
             </dependency>
             <dependency>
                 <groupId>com.esiran</groupId>
-                <artifactId>greenpay-common</artifactId>
+                <artifactId>greenadmin-common</artifactId>
                 <version>${greenpay.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.esiran</groupId>
-                <artifactId>greenpay-message</artifactId>
+                <artifactId>greenadmin-system</artifactId>
                 <version>${greenpay.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.esiran</groupId>
-                <artifactId>greenpay-pay</artifactId>
+                <artifactId>greenadmin-openapi</artifactId>
                 <version>${greenpay.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.esiran</groupId>
-                <artifactId>greenpay-merchant</artifactId>
-                <version>${greenpay.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>greenpay-system</artifactId>
-                <version>${greenpay.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>greenpay-openapi</artifactId>
-                <version>${greenpay.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>greenpay-merchant-web</artifactId>
-                <version>${greenpay.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>greenpay-actuator</artifactId>
+                <artifactId>greenadmin-framework</artifactId>
                 <version>${greenpay.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>greenpay-settle</artifactId>
-                <version>${greenpay.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>greenpay-agentpay</artifactId>
-                <version>${greenpay.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>greenpay-framework</artifactId>
-                <version>${greenpay.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>greenpay-bank</artifactId>
-                <version>${greenpay.version}</version>
-            </dependency>
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-generator</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.freemarker</groupId>
                 <artifactId>freemarker</artifactId>
@@ -186,33 +134,6 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql-connector.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>glprepaid-common</artifactId>
-                <version>${glprepaid.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>glprepaid-system</artifactId>
-                <version>${glprepaid.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>glprepaid-prepaid</artifactId>
-                <version>${glprepaid.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>glprepaid-api</artifactId>
-                <version>${glprepaid.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esiran</groupId>
-                <artifactId>glprepaid-dingconnect</artifactId>
-                <version>${glprepaid.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>

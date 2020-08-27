@@ -1,0 +1,21 @@
+server:
+  port: 8081
+
+logging:
+  level:
+    com.github.binarywang.wxpay: fatal
+    me.chanjar.weixin: fatal
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}/${MYSQL_DB}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASS}
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+  resources:
+    chain:
+      strategy:
+        content:
+          enabled: true

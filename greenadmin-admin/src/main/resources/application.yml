@@ -1,0 +1,17 @@
+server:
+  port: 8081
+
+logging:
+  level:
+    com.github.binarywang.wxpay: error
+    me.chanjar.weixin: error
+
+spring:
+  profiles:
+    active: dev
+  mvc:
+    static-path-pattern: /**
+
+shiro:
+  loginUrl: /login
+  successUrl: /home
