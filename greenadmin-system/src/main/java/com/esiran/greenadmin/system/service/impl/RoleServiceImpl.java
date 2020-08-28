@@ -144,7 +144,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         collect.sort(Comparator.comparing(MenuTreeVo::getSorts).reversed());
         //对子菜单进行排序
         collect.forEach(menuTreeVo -> {
-            List<MenuTreeVo> childrens = menuTreeVo.getChildrens();
+            List<MenuTreeVo> childrens = menuTreeVo.getChildren();
             childrens.sort(Comparator.comparing(MenuTreeVo::getSorts).reversed());
         });
         return collect;

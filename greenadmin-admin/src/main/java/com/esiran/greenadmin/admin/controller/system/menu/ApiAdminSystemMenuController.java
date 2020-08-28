@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.esiran.greenadmin.common.entity.APIException;
 import com.esiran.greenadmin.common.exception.PostResourceException;
 import com.esiran.greenadmin.system.entity.Menu;
+import com.esiran.greenadmin.system.entity.MenuTreeNode;
+import com.esiran.greenadmin.system.entity.User;
 import com.esiran.greenadmin.system.entity.vo.MenuInputVo;
 import com.esiran.greenadmin.system.entity.vo.MenuTreeVo;
 import com.esiran.greenadmin.system.service.IMenuService;
@@ -12,6 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.SecurityUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,14 +34,21 @@ import java.util.List;
  */
 @Api(tags = "菜单管理")
 @RestController
-@RequestMapping("/admin/api/v1/system/menus")
+@RequestMapping("/api/v1/system/menus")
 public class ApiAdminSystemMenuController {
 
     private final static ModelMapper modelMapper = new ModelMapper();
-    private IMenuService iMenuService;
+    private final IMenuService iMenuService;
 
     public ApiAdminSystemMenuController(IMenuService iMenuService) {
         this.iMenuService = iMenuService;
+    }
+
+
+    @GetMapping("/tree")
+    public ResponseEntity<List<MenuTreeNode>> treeList(){
+        User u = (User) SecurityUtils.getSubject().getPrincipal();
+        return ResponseEntity.ok(iMenuService.selectMenuTreeByUserId(u.getId()));
     }
 
     @ApiOperation("查询所有菜单")
@@ -57,7 +67,7 @@ public class ApiAdminSystemMenuController {
                 continue;
             }
             if (menu.getType() == 2) {
-                menu.setTitle("&emsp;  L" + menu.getTitle());
+                menu.setTitle("&emsp;  -" + menu.getTitle());
             }
         }
         return ResponseEntity.ok(menuTreeVoList);

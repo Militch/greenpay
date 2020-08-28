@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.esiran.greenadmin.common.entity.APIException;
 import com.esiran.greenadmin.system.entity.Menu;
+import com.esiran.greenadmin.system.entity.MenuTreeNode;
+import com.esiran.greenadmin.system.entity.TreeNode;
 import com.esiran.greenadmin.system.entity.dot.MenuDTO;
 import com.esiran.greenadmin.system.entity.vo.MenuTreeVo;
+import io.swagger.models.auth.In;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -22,6 +25,8 @@ import java.util.List;
 public interface IMenuService extends IService<Menu> {
 
     List<MenuTreeVo> menuList();
+    List<Menu> getMenusByUserId(Integer userId);
+    List<MenuTreeNode> selectMenuTreeByUserId(Integer userId);
     public IPage<Menu> menuTreeList(Page<Menu> menuPage);
 
     public List<MenuTreeVo> getMenuTreeByType(int type);

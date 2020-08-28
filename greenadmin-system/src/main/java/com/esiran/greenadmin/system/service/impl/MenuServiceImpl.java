@@ -9,6 +9,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenadmin.common.entity.APIException;
 import com.esiran.greenadmin.system.entity.Menu;
+import com.esiran.greenadmin.system.entity.MenuTreeNode;
+import com.esiran.greenadmin.system.entity.TreeNode;
 import com.esiran.greenadmin.system.entity.dot.MenuDTO;
 import com.esiran.greenadmin.system.entity.vo.MenuTreeVo;
 import com.esiran.greenadmin.system.entity.vo.MenuVo;
@@ -105,17 +107,37 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         return menuTreeVoList;
     }
 
-    // 按照值排序
-    static void sortByValue(Map map) {
-        List<Map.Entry<Integer, Object>> list = new ArrayList<Map.Entry<Integer, Object>>(map.entrySet());
-        Collections.sort(list, new Comparator<Map.Entry<Integer, Object>>() {
-            @Override
-            public int compare(Map.Entry<Integer, Object> o1, Map.Entry<Integer, Object> o2) {
-                return o1.getKey().compareTo(o2.getKey());
+    @Override
+    public List<Menu> getMenusByUserId(Integer userId) {
+        return baseMapper.getMenusByUserId(userId);
+    }
+
+    private List<MenuTreeNode> build(List<MenuTreeNode> treeNodes, Integer root){
+        List<MenuTreeNode> trees = new ArrayList<>();
+        for (MenuTreeNode treeNode : treeNodes){
+            if (root.equals(treeNode.getParentId())){
+                trees.add(treeNode);
             }
-        });
+            for (MenuTreeNode mtn : treeNodes){
+                if (mtn.getParentId().equals(treeNode.getId())) {
+                    treeNode.add(mtn);
+                }
+            }
+        }
+        return trees;
+    }
+    private List<MenuTreeNode> buildTree(List<Menu> menus, Integer root){
+        List<MenuTreeNode> trees = new ArrayList<>();
+        for (Menu menu: menus){
+            MenuTreeNode node = modelMap.map(menu,MenuTreeNode.class);
+            trees.add(node);
+        }
+        return build(trees,root);
+    }
 
-
+    @Override
+    public List<MenuTreeNode> selectMenuTreeByUserId(Integer userId) {
+        return buildTree(getMenusByUserId(userId), 0);
     }
 
     @Override

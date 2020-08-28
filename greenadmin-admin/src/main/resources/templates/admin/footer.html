@@ -3,114 +3,26 @@
 <th:block th:fragment="script">
     <script th:src="@{/layui/layui.all.js}"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@4.7.0/dist/echarts.min.js"></script>
-
     <script th:inline="javascript">
-        /**
-         * 菜单
-         * */
         !(function(){
             let $ = layui.jquery
-            var element = layui.element;
-            // 左侧导航区域（可配合layui已有的垂直导航）
-            $.get('/admin/api/v1/system/roles/ofUser',function(data){
-                if(data!=null){
-                    getMenus(data);
-                    element.render('nav');
-                }else{
-                    layer.alert("权限不足，请联系管理员",function () {
-                        //退出
-                        window.location.href="/logout";
-                    });
-                }
+                ,element = layui.element
+                ,laytpl = layui.laytpl;
+            $.get('/api/v1/system/menus/tree',function(data){
+                let menuTemplatesHtml = document.querySelector('#menuTemplates').innerHTML;
+                laytpl(menuTemplatesHtml).render(data, function (html) {
+                    let nav = $('#nav');
+                    nav.append(html);
+                });
+                element.render();
+                let items = document.querySelectorAll('.layui-side .layui-nav .layui-nav-item');
+                items.forEach(function (item) {
+                    let activated = item.querySelector('.layui-this');
+                    if (!activated) return;
+                    item.className = item.className + ' layui-nav-itemed';
+                });
             });
         }());
-
-        var getMenus=function(data){
-            //回显选中
-            let $ = layui.jquery
-            let locationName = window.location.pathname;
-            var ul=$("<ul class='layui-nav layui-nav-tree' lay-filter='test'></ul>");
-            for(var i=0;i < data.length;i++){
-                var node=data[i];
-                if (node.parentId !=0){
-                    continue;
-                }
-                var li=$("<li class='layui-nav-item' flag='"+node.id+"'></li>");
-                var a=$("<a class='' href='javascript:;'></a>");
-
-                let icon = "layui-icon "+data[i].icon
-                var imark =$("<i class='"+icon+"'></i>");
-                var cite = $("<cite>"+node.title+"</cite>");
-
-                a.append(imark)
-                a.append(cite)
-
-                li.append(a);
-                //获取子节点
-                for (var j = 0; j < data[i].childrens.length; j++) {
-                    let childNode = data[i].childrens[j];
-                    a.append("<span class='layui-nav-more'></span>");
-                    var dl=$("<dl class='layui-nav-child'></dl>");
-                    var dd=$("<dd><a href='"+childNode.path+"'>"+childNode.title+"</a></dd>");
-                    //判断选中状态
-                    if(locationName.indexOf(childNode.path)==0){
-                        li.addClass("layui-nav-itemed");
-                        dd.addClass("layui-this")
-
-                    }
-                    dl.append(dd);
-                    li.append(dl);
-                }
-
-                ul.append(li);
-            }
-            $(".layui-nav-tree").append(ul);
-            //方案二
-            // $("#nav").html(ul);
-            // var element = layui.element;
-            //             element.init()//初始化element事件，使菜单展开
-        }
-
-
-        // !function () {
-        //     let $ = layui.jquery
-        //     $.ajax( {
-        //         url : '/admin/api/v1/system/menus',
-        //         type : 'get',
-        //         dataType : 'json',
-        //         success : function(data) {
-        //             var menu = ""; //定义变量存储
-        //             for(var i = 0;i<data.length;i++){
-        //                 menu += "<li class='layui-nav-item '>"
-        //                 if(data[i].parentId == 0){ //取出父元素的菜单，拼进页面
-        //                     let icon = "layui-icon "+data[i].icon
-        //                     let title = data[i].title
-        //                     menu += "<a  href='javascript:;'>"
-        //                     menu += "  <i class='" +icon+"'></i>"
-        //                     menu += "  <cite>'"+title+"'</cite>"
-        //                     menu += "</a>";
-        //
-        //                     for(var j = 0;j<data.length;j++){ //继续遍历这几条数据
-        //                         if( data[j].parentId ==data[i].id){ //取出这个父元素所对应的子元素
-        //                             menu +=    "<dl class='layui-nav-child'>"
-        //                             menu +="<dd><a href='"+ data[j].path +"'>"+ data[j].title +"</a></dd>";
-        //                             // menu +=    "<dd th:replace=admin/side::layui_nav_item( '"+data[j].path+"' , '"+data[j].title+"' )>"
-        //                             // menu +=     "<a href='"+data[j].path+"' target='option'>"+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+data[j].title+"</a>"
-        //                             menu +=    "</dl>"
-        //                         }
-        //                     }
-        //                 }
-        //                 menu +=    "</li>";
-        //             }
-        //             $("#nav").html(menu);
-        //             var element = layui.element;
-        //             element.init()//初始化element事件，使菜单展开
-        //         },
-        //         error: function (data) {
-        //             layer.alert("操作请求错误，请您稍后再试");
-        //         }
-        //     });
-        // }();
     </script>
 </th:block>
 </html>

@@ -17,7 +17,7 @@
     </resultMap>
     <select id="selectMenu" resultMap="menuVo">
 
-SELECT system_user.id AS userId,
+		SELECT system_user.id AS userId,
 				system_user.username AS username,
 				system_user.email AS email,
 				system_role.name,
@@ -52,5 +52,13 @@ SELECT system_user.id AS userId,
 		ORDER BY sorts
 		 ${ew.customSqlSegment}
 	</select>
-
+	<select id="getMenusByUserId" resultType="com.esiran.greenadmin.system.entity.Menu">
+		SELECT sm.* FROM system_menu sm
+		LEFT JOIN system_role_menu srm
+			ON sm.id = srm.menu_id
+		LEFT JOIN system_user_role sur
+			ON srm.role_id = sur.role_id
+		LEFT JOIN system_user su on sur.user_id = su.id
+		WHERE su.id = #{userId}  ORDER BY sorts DESC;
+	</select>
 </mapper>

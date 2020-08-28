@@ -25,4 +25,5 @@ public interface MenuMapper extends BaseMapper<Menu> {
     List<Menu> selectMenuByRoleId(@Param(Constants.WRAPPER) Wrapper<MenuVo> wrapper,Integer roleId);
 
     List<Menu> selectMenusByUserId(@Param(Constants.WRAPPER) Wrapper<MenuVo> wrapper,Integer userId);
+    List<Menu> getMenusByUserId(Integer userId);
 }

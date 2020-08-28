@@ -2,12 +2,14 @@ package com.esiran.greenadmin.system.entity.vo;
 
 import com.esiran.greenadmin.system.entity.TreeNode;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author han
  * @Package com.esiran.greenpay.system.entity.vo
  * @date 2020/5/20 9:38
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class MenuTreeVo extends TreeNode<MenuTreeVo> {
 

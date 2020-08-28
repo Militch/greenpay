@@ -22,10 +22,10 @@ public class TreeUtil {
 
             for (T node : treeNodes) {
                 if (node.getParentId().equals(treeNode.getId())) {
-                    if (CollectionUtils.isEmpty(treeNode.getChildrens())) {
-                        treeNode.setChildrens(new ArrayList<>());
+                    if (CollectionUtils.isEmpty(treeNode.getChildren())) {
+                        treeNode.setChildren(new ArrayList<>());
                     }
-                    treeNode.getChildrens().add(node);
+                    treeNode.getChildren().add(node);
                 }
             }
         }
@@ -46,11 +46,11 @@ public class TreeUtil {
     public static <T extends TreeNode<T>> T findChildren(T treeNode, List<T> TreeNodes) {
         for (T node : TreeNodes) {
             if (treeNode.getId() == node.getParentId()) {
-                if (CollectionUtils.isEmpty(treeNode.getChildrens())) {
-                    treeNode.setChildrens(new ArrayList<>());
+                if (CollectionUtils.isEmpty(treeNode.getChildren())) {
+                    treeNode.setChildren(new ArrayList<>());
                 }
             }
-            treeNode.getChildrens().add(findChildren(node,TreeNodes));
+            treeNode.getChildren().add(findChildren(node,TreeNodes));
         }
 
         return treeNode;
