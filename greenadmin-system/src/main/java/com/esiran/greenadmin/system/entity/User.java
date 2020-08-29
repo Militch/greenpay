@@ -28,6 +28,10 @@ public class User extends BaseMapperEntity {
      * 用户名
      */
     private String username;
+    /**
+     * 昵称
+     */
+    private String nickname;
 
     /**
      * 用户密码

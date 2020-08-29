@@ -15,7 +15,7 @@ let $ = layui.jquery
     table.render({
         id: "userLoad"
         ,elem: '#uesrList'
-        ,url:'/admin/api/v1/system/users'
+        ,url:'/api/v1/system/users'
         ,cellMinWidth: 80
         ,page: true
         ,parseData: function(res){ //res 即为原始返回的数据
@@ -46,16 +46,6 @@ let $ = layui.jquery
             ,{field: 'updatedAt', title: '更新时间', width:180, unresize:true}
             ,{fixed:'right', title:'操作',width:140,align:'center', toolbar:'#optBar'}
         ]]
-        ,  done: function(res, curr, count){
-            //如果是异步请求数据方式，res即为你接口返回的信息。
-            //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
-            //console.log(res);
-            //得到当前页码
-            //console.log(curr);
-            //得到数据总量
-            //console.log(count);
-            pageCurr=curr;
-        }
     });
 
     //监听工具条
@@ -116,7 +106,7 @@ let $ = layui.jquery
 
                 //执行重载
                 table.reload('userLoad', {
-                    url: '/admin/api/v1/system/users',
+                    url: '/api/v1/system/users',
                     method: 'Get',
                     page: {
                         curr: 1 //重新从第 1 页开始
@@ -152,7 +142,7 @@ function delUsers(elements) {
             i++;
             //向服务端发送删除指令
             $.ajax({
-                url:"/admin/api/v1/system/users/del",
+                url:"/api/v1/system/users/del",
                 data:{'id':element.id},
                 type:"DELETE",
                 // dataType:"json",
@@ -217,7 +207,7 @@ function editUserAndRoles(obj){
     $.ajax({
         type: "POST",
         data: $("#userForm").serialize(),
-        url: "/admin/api/v1/system/users/updateUserAndRoles?userId="+obj.field.id,
+        url: "/api/v1/system/users/updateUserAndRoles?userId="+obj.field.id,
         handlers:{
             '_isView':'true'
         },
@@ -257,7 +247,7 @@ function submitAjax(obj){
     $.ajax({
         type: "POST",
         data: $("#userForm").serialize(),
-        url: "/admin/api/v1/system/users",
+        url: "/api/v1/system/users",
         handlers:{
           '_isView':'true'
         },
@@ -312,7 +302,7 @@ function checkRole(){
 //编辑用户
 
 function editUser(id) {
-    $.get("/admin/api/v1/system/users/getUserAndRoles?userId="+id,function (map) {
+    $.get("/api/v1/system/users/getUserAndRoles?userId="+id,function (map) {
         if (map != null) {
             let user = map.user;
             let userRoles = map.userRoles;
@@ -331,7 +321,7 @@ function editUser(id) {
 }
 
 function editUse2(data,userRoles) {
-    $.get("/admin/api/v1/system/roles",function(data){
+    $.get("/api/v1/system/roles",function(data){
         if(data!=null){
 
             //显示角色数据
@@ -363,7 +353,7 @@ function editUse2(data,userRoles) {
 //开通用户
 function addUser(){
 
-    $.get("/admin/api/v1/system/roles",function(data){
+    $.get("/api/v1/system/roles",function(data){
         if(data!=null){
             //标识提交类型
             $("#changeType").val(0);
@@ -450,7 +440,7 @@ function delUser(obj,layer,data) {
 
             //向服务端发送删除指令
             $.ajax({
-                url:"/admin/api/v1/system/users/del",
+                url:"/api/v1/system/users/del",
                 data:{'id':data.id},
                 type:"DELETE",
                 // dataType:"json",

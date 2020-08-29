@@ -10,7 +10,6 @@
         <div th:replace="admin/header::nav"></div>
         <div th:replace="admin/side::menu"></div>
         <div class="layui-body">
-
             <div class="layadmin-tabsbody-item layui-show">
                 <div th:replace="admin/compose::layui-breadcrumb('系统管理','用户管理')"></div>
                 <div class="layui-fluid">
@@ -22,11 +21,10 @@
                                 <div class="layui-btn-group demoTable2">
                                     <button class="layui-btn layui-btn-danger"  data-type="getCheckData">删除选中</button>
                                 </div>
-
                                 <div class="admin-table_header_right">
                                     <div class="demoTable">
                                         <div class="layui-inline">
-                                        <input class="layui-input" name="Name" id="Name" placeholder="用户名" autocomplete="off">
+                                            <input class="layui-input" name="Name" id="Name" placeholder="用户名" autocomplete="off">
                                          </div>
                                         <button class="layui-btn" data-type="reload">搜索</button>
                                     </div>

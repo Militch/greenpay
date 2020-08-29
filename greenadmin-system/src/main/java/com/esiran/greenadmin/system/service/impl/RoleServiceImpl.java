@@ -2,6 +2,7 @@ package com.esiran.greenadmin.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenadmin.common.entity.APIException;
@@ -16,15 +17,18 @@ import com.esiran.greenadmin.system.service.IMenuService;
 import com.esiran.greenadmin.system.service.IRoleMenuService;
 import com.esiran.greenadmin.system.service.IRoleService;
 import com.esiran.greenadmin.system.service.IUserRoleService;
+import io.swagger.models.auth.In;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -115,6 +119,31 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         role.setUpdatedAt(LocalDateTime.now());
 
         return updateById(role);
+    }
+
+    @Override
+    public void updateRoleById(UserRoleInputDto roleDto) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Role role = modelMapper.map(roleDto,Role.class);
+        role.setUpdatedAt(LocalDateTime.now());
+        this.updateById(role);
+        String pIds = roleDto.getPermissionIds();
+        if (!StringUtils.isBlank(pIds)){
+            List<RoleMenu> rms = Arrays.stream(pIds.split(","))
+                    .map(item->{
+                        RoleMenu rm = new RoleMenu();
+                        rm.setRoleId(role.getId());
+                        rm.setMenuId(Integer.parseInt(item));
+                        rm.setCreatedAt(LocalDateTime.now());
+                        rm.setUpdatedAt(LocalDateTime.now());
+                        return rm;
+                    })
+                    .collect(Collectors.toList());
+            iRoleMenuService.remove(new QueryWrapper<RoleMenu>().lambda().eq(RoleMenu::getRoleId,role.getId()));
+            iRoleMenuService.saveBatch(rms);
+        }else {
+            iRoleMenuService.remove(new QueryWrapper<RoleMenu>().lambda().eq(RoleMenu::getRoleId,role.getId()));
+        }
     }
 
     @Override

@@ -27,26 +27,5 @@
             </script>
         </ul>
     </div>
-    <script th:inline="javascript">
-        !(function(){
-            let $ = layui.jquery
-                ,element = layui.element
-                ,laytpl = layui.laytpl;
-            $.get('/api/v1/system/menus/tree',function(data){
-                let menuTemplatesHtml = document.querySelector('#menuTemplates').innerHTML;
-                laytpl(menuTemplatesHtml).render(data, function (html) {
-                    let nav = $('#nav');
-                    nav.append(html);
-                });
-                element.render();
-                let items = document.querySelectorAll('.layui-side .layui-nav .layui-nav-item');
-                items.forEach(function (item) {
-                    let activated = item.querySelector('.layui-this');
-                    if (!activated) return;
-                    item.className = item.className + ' layui-nav-itemed';
-                });
-            });
-        }());
-    </script>
 </div>
 </html>

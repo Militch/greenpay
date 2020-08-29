@@ -34,14 +34,5 @@ public class UserRoleInputDto {
     @ApiModelProperty("角色权限")
     private String permIds;
 
-
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createdAt;
-
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updatedAt;
+    private String permissionIds;
 }

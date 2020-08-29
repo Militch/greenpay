@@ -16,7 +16,7 @@ let $ = layui.jquery
         table.render({
             id: "roleLoad"
             ,elem: '#demo'
-            ,url: '/admin/api/v1/system/roles' //数据接口
+            ,url: '/api/v1/system/roles' //数据接口
             ,page: true //开启分页
             ,parseData: function(res){ //res 即为原始返回的数据
                 return {
@@ -94,7 +94,7 @@ let $ = layui.jquery
 
                 //执行重载
                 table.reload('roleLoad', {
-                    url: '/admin/api/v1/system/roles',
+                    url: '/api/v1/system/roles',
                     method: 'Get',
                     page: {
                         curr: 1 //重新从第 1 页开始
@@ -113,7 +113,7 @@ let $ = layui.jquery
         function updateRole(id) {
             //isNaN是数字返回false
             if(id!=null && !isNaN(id)){
-                window.location.href="/admin/system/role/list/edit/"+id;
+                window.location.href="/system/role/list/edit/"+id;
             }else{
                 layer.alert("请求参数有误，请您稍后再试");
             }
@@ -121,7 +121,7 @@ let $ = layui.jquery
         function delRole(id,obj) {
             if(null!=id && !isNaN(id)){
                 $.ajax({
-                    url: "/admin/api/v1/system/roles/del",
+                    url: "/api/v1/system/roles/del",
                     data: {'id': id},
                     type: "Delete",
                     success: function (data) {
@@ -183,7 +183,7 @@ function delRoles(elements) {
             i++;
             //向服务端发送删除指令
             $.ajax({
-                url: "/admin/api/v1/system/roles/del",
+                url: "/api/v1/system/roles/del",
                 data:{'id':element.id},
                 type:"DELETE",
                 // dataType:"json",
@@ -232,7 +232,7 @@ function submitAjax(obj){
     $.ajax({
         type: "POST",
         data: $("#roleForm").serialize(),
-        url: "/admin/api/v1/system/roles/add",
+        url: "/api/v1/system/roles/add",
         handlers:{
             '_isView':'true'
         },

@@ -27,6 +27,8 @@ public interface IRoleService extends IService<Role> {
 
     boolean edit(UserRoleInputDto roleDto) throws PostResourceException;
 
+    void updateRoleById(UserRoleInputDto roleDto);
+
     boolean updateUserRole(UserRoleInputDto userRoleDto) throws ApiException;
     List<Role> selectByIds(List<Integer> ids);
 

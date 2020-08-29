@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/admin/api/v1/system/users")
+@RequestMapping("/api/v1/system/users")
 @Api(tags = "用户管理")
 public class APIAdminSystemUserController extends CURDBaseController {
 
@@ -124,28 +124,20 @@ public class APIAdminSystemUserController extends CURDBaseController {
             userLambdaQueryWrapper.eq(User::getUsername, userDTO.getUsername());
         }
         Page<User> page = userService.page(new Page<>(current, size),userLambdaQueryWrapper);
-
-        List<User> records = page.getRecords();
-        User loginUser = theUser();
-        if (records.contains(loginUser)) {
-            records.remove(loginUser);
-        }
-
         IPage<UserDTO> convert = page.convert(item -> modelMapper.map(item, UserDTO.class));
-
         for (UserDTO user : convert.getRecords()) {
             List<UserRole> userRoles = iUserRoleService.selectUserRoleById(user.getId());
-            List<Integer> collect = userRoles.stream().map(role -> role.getRoleId()).collect(Collectors.toList());
+            List<Integer> collect = userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(collect)) {
                 List<Role> roles = iRoleService.selectByIds(collect);
-                String roleNames ="";
+                StringBuilder roleNames = new StringBuilder();
                 for (int i = 0; i < roles.size(); i++) {
                     if (i != 0) {
-                        roleNames += ",";
+                        roleNames.append(",");
                     }
-                    roleNames += roles.get(i).getName();
+                    roleNames.append(roles.get(i).getName());
                 }
-                user.setRoleNames(roleNames);
+                user.setRoleNames(roleNames.toString());
             }
 
         }

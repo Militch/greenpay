@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>用户管理 - GreenPay</title>
+    <th:block th:replace="admin/header::stylesheet" />
+</head>
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="admin/header::nav"></div>
+        <div th:replace="admin/side::menu"></div>
+        <div class="layui-body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <div th:replace="admin/compose::layui-breadcrumb('系统管理','用户管理')"></div>
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-card-header">用户管理</div>
+                        <div class="layui-card-body" style="padding: 0">
+                            <div class="admin-table_header ">
+                                <button class="layui-btn" id="addBtn">新增</button>
+                                <div class="layui-btn-group demoTable2">
+                                    <button class="layui-btn layui-btn-danger"  data-type="getCheckData">删除选中</button>
+                                </div>
+                                <div class="admin-table_header_right">
+                                    <div class="demoTable">
+                                        <div class="layui-inline">
+                                            <input class="layui-input" name="Name" id="Name" placeholder="用户名" autocomplete="off">
+                                         </div>
+                                        <button class="layui-btn" data-type="reload">搜索</button>
+                                    </div>
+                                </div>
+                                <div style="clear:both;"></div>
+                            </div>
+                           <table id="uesrList" class="layui-hide" lay-filter="userTable"></table>
+                            <script type="text/html" id="optBar">
+                                <a href="javascript:;" lay-event="edit" class="layui-btn layui-btn-xs">
+                                    编辑
+                                </a>
+                                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+<th:block th:replace="admin/footer::script"/>
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.13.0/js/md5.min.js"></script>
+<script type="text/javascript" th:inline="none">
+    !function () {
+        let $ = layui.jquery
+            ,table = layui.table
+            ,layer = layui.layer;
+        table.render({
+            id: "userLoad"
+            ,elem: '#uesrList'
+            ,url:'/api/v1/system/users'
+            ,cellMinWidth: 80
+            ,page: true
+            ,parseData: function(res){ //res 即为原始返回的数据
+                return {
+                    "code": 0,
+                    "msg": res.message,
+                    "count": res.total,
+                    "records": res.records
+                };
+            },
+            request: {
+                pageName: 'current'
+                ,limitName: 'size'
+            },response:{
+                statusName: 'code'
+                ,statusCode: 0
+                ,countName: 'total'
+                ,dataName: 'records'
+            }
+            ,cols: [[
+                {type:'checkbox'}
+                ,{field:'id', title:'ID',width:80, unresize: true, sort: true}
+                ,{field:'username', title:'用户名',unresize:true}
+                ,{field:'nickname', title: '用户昵称',unresize:true}
+                ,{field:'email', title: '邮箱',unresize:true}
+                ,{field:'roleNames', title: '角色名称', minWidth:80,unresize:true}
+                ,{field: 'createdAt', title: '创建时间', width:180, unresize:true}
+                ,{field: 'updatedAt', title: '更新时间', width:180, unresize:true}
+                ,{fixed:'right', title:'操作',width:140,align:'center', toolbar:'#optBar'}
+            ]]
+        });
+        table.on('tool(userTable)',function (obj) {
+            let data = obj.data;
+            let layEvent = obj.event;
+            if (layEvent === 'edit'){
+                layer.open({
+                    type: 2,
+                    title: '编辑用户',
+                    content: `list/${data.id}/edit`,
+                    area: ['450px','390px'],
+                    btn: ['提交','取消'],
+                    yes: function (index, layero) {
+                        let submitBtn = layero.find("iframe").contents().find('#submitBtn');
+                        submitBtn.click();
+                        // console.log("关闭", index, layero, submitBtn);
+                        // layer.close(index);
+                    }
+                });
+            }
+        });
+        $('#addBtn').on('click',function () {
+            layer.open({
+                type: 2,
+                title: '新增用户',
+                content: `list/add`,
+                area: ['450px','390px'],
+                btn: ['提交','取消'],
+                yes: function (index, layero) {
+                    let submitBtn = layero.find("iframe").contents().find('#submitBtn');
+                    submitBtn.click();
+                    // console.log("关闭", index, layero, submitBtn);
+                    // layer.close(index);
+                }
+            });
+        });
+    }();
+</script>
+</body>
+</html>

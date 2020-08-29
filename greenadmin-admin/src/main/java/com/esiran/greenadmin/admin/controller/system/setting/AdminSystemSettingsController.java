@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/admin/system/settings")
+@RequestMapping("/system/settings")
 public class AdminSystemSettingsController {
     @GetMapping()
     public String list(){

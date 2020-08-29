@@ -8,8 +8,10 @@
             let $ = layui.jquery
                 ,element = layui.element
                 ,laytpl = layui.laytpl;
+            let mt = document.querySelector('#menuTemplates');
+            if (!mt) return;
             $.get('/api/v1/system/menus/tree',function(data){
-                let menuTemplatesHtml = document.querySelector('#menuTemplates').innerHTML;
+                let menuTemplatesHtml = mt.innerHTML;
                 laytpl(menuTemplatesHtml).render(data, function (html) {
                     let nav = $('#nav');
                     nav.append(html);

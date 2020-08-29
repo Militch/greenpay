@@ -1,79 +1,97 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>添加用户 - GreenPay</title>
-    <th:block th:replace="admin/header::stylesheet" />
+    <title>用户管理 - GreenPay</title>
+    <th:block th:replace="admin/header::frame_stylesheet" />
+    <style type="text/css">
+        .layui-form-label {
+            padding: 9px 5px;
+            width: 80px;
+        }
+        .layui-input-block {
+            margin-left: 90px;
+        }
+    </style>
 </head>
-<body class="layui-layout-body">
-<div class="layadmin-tabspage-none">
-    <div class="layui-layout layui-layout-admin">
-        <div th:replace="admin/header::nav"></div>
-        <div th:replace="admin/side::menu"></div>
-        <div class="layui-body">
-            <div class="layadmin-tabsbody-item layui-show">
-                <div th:replace="admin/compose::layui-breadcrumb('系统管理','用户管理')"></div>
-                <div class="layui-card error-card" th:style="${errors==null}?'display:none;':''">
-                    <div class="layui-card-body">
-                        <blockquote class="layui-elem-quote" th:each="error:${errors}" th:text="${error.message}"></blockquote>
-                    </div>
-                </div>
-                <div class="layui-fluid">
-                    <div class="layui-card">
-                        <div class="layui-card-header">添加用户</div>
-                        <div class="layui-card-body">
-                            <div class="layui-row">
-                                <div class="layui-col-md12">
-                                    <form class="layui-form" action="" method="post" novalidate>
-                                        <div class="layui-row layui-form-item">
-                                            <label for="username" class="layui-form-label">用户名：</label>
-                                            <div class="layui-input-block">
-                                                <input type="text" class="layui-input"
-                                                       name="username" id="username"
-                                                       autocomplete="off"
-                                                       placeholder="请输入用户名">
-                                            </div>
-                                        </div>
-                                        <div class="layui-form-item">
-                                            <label for="email" class="layui-form-label">电子邮箱：</label>
-                                            <div class="layui-input-block">
-                                                <input type="email" class="layui-input"
-                                                       name="email" id="email"
-                                                       autocomplete="off"
-                                                       placeholder="请输入电子邮箱">
-                                            </div>
-                                        </div>
-                                        <div class="layui-form-item">
-                                            <label for="password" class="layui-form-label">登录密码：</label>
-                                            <div class="layui-input-block">
-                                                <input type="password" class="layui-input"
-                                                       name="password" id="password"
-                                                       autocomplete="off"
-                                                       placeholder="请设置登录密码">
-                                            </div>
-                                        </div>
-                                        <div class="layui-form-item">
-                                            <div class="layui-input-block">
-                                                <button type="submit" class="layui-btn">立即提交</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<body>
+<form class="layui-form" action="" method="post" style="padding: 20px 30px 0 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名：</label>
+        <div class="layui-input-block">
+            <input type="text"
+                   name="username"
+                   placeholder="请输入用户名"
+                   autocomplete="off"
+                   class="layui-input">
         </div>
-        <div class="layadmin-body-shade" layadmin-event="shade"></div>
     </div>
-</div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户昵称：</label>
+        <div class="layui-input-block">
+            <input type="text"
+                   name="nickname"
+                   placeholder="请输入昵称"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">电子邮箱：</label>
+        <div class="layui-input-block">
+            <input type="text"
+                   name="email"
+                   placeholder="请输入电子邮箱"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">登录密码：</label>
+        <div class="layui-input-block">
+            <input type="password"
+                   id="passwordInput"
+                   placeholder="请输入密码"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">确定密码：</label>
+        <div class="layui-input-block">
+            <input type="password"
+                   id="confirmPasswordInput"
+                   placeholder="请再次输入密码"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-hide">
+        <input type="hidden" name="password">
+        <input type="submit" lay-submit="" lay-filter="formAdd" id="submitBtn" value="提交">
+    </div>
+</form>
 <th:block th:replace="admin/footer::script"/>
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.13.0/js/md5.min.js"></script>
 <script th:inline="none">
     !function(){
-        let layer = layui.layer
-            ,table = layui.table;
+        let $ = layui.jquery
+            ,layer = layui.layer
+            ,form = layui.form;
+        form.on('submit(formAdd)',function (data) {
+            const pass = $('#passwordInput').val();
+            const confirmPass = $('#confirmPasswordInput').val();
+            if (pass.length > 0 && pass !== confirmPass){
+                layer.msg('两次输入的密码不一致');
+                return false;
+            }
+            if (pass.length > 0){
+                $("input[name='password']").val(md5(pass));
+            }else {
+                $("input[name='password']").val("");
+            }
+            return true;
+        });
     }();
 </script>
-
 </body>
 </html>

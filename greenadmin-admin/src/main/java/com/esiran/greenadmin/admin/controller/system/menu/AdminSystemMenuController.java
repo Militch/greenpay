@@ -1,5 +1,6 @@
 package com.esiran.greenadmin.admin.controller.system.menu;
 
+import com.esiran.greenadmin.admin.controller.CURDBaseController;
 import com.esiran.greenadmin.common.entity.APIError;
 import com.esiran.greenadmin.common.entity.APIException;
 import com.esiran.greenadmin.system.entity.Menu;
@@ -23,8 +24,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
-@RequestMapping("/admin/system/menu")
-public class AdminSystemMenuController {
+@RequestMapping("/system/menu")
+public class AdminSystemMenuController extends CURDBaseController {
 
     private final IMenuService iMenuService;
     private static final Gson gson = new GsonBuilder()
@@ -45,7 +46,7 @@ public class AdminSystemMenuController {
     public String list(ModelMap modelMap){
         List<MenuDTO> md = iMenuService.all();
         modelMap.addAttribute("listJsonString", gson.toJson(md));
-        return "admin/system/menu/list";
+        return render("system/menu/list");
     }
 
     @GetMapping("/list/{menuId}/edit")
@@ -55,7 +56,7 @@ public class AdminSystemMenuController {
         httpSession.removeAttribute("errors");
         MenuDTO menuDTO = iMenuService.selectMenuById(menuId);
         modelMap.addAttribute("menu", menuDTO);
-        return "admin/system/menu/edit";
+        return render("system/menu/edit");
     }
 
 
@@ -73,7 +74,7 @@ public class AdminSystemMenuController {
         menu.setSorts(menuDTO.getSorts());
         menu.setParentId(menuDTO.getParentId());
         iMenuService.updateById(menu);
-        return "redirect:/admin/system/menu/list";
+        return redirect("/system/menu/list");
     }
 
 
@@ -83,13 +84,13 @@ public class AdminSystemMenuController {
         List<APIError> apiErrors = (List<APIError>) httpSession.getAttribute("errors");
         modelMap.addAttribute("errors", apiErrors);
         httpSession.removeAttribute("errors");
-        return "admin/system/menu/add";
+        return render("system/menu/add");
     }
 
 
     @PostMapping("/add")
     public String add(@Valid MenuDTO menuDTO) throws Exception{
         iMenuService.addMenu(menuDTO);
-        return "redirect:/admin/system/menu/list";
+        return redirect("/system/menu/list");
     }
 }

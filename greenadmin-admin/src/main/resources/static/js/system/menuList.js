@@ -42,9 +42,9 @@ let $ = layui.jquery,
                     $.ajax({
                         type: "PUT",
                         data: $("#permForm").serialize(),
-                        url: "/admin/api/v1/system/menus",
+                        url: "/api/v1/system/menus",
                         success: function (data) {
-                            if (data == "ok") {
+                            if (data === "ok") {
                                 layer.alert("操作成功",function(){
                                     layer.closeAll();
                                 });
@@ -61,9 +61,9 @@ let $ = layui.jquery,
                     $.ajax({
                         type: "POST",
                         data: $("#permForm").serialize(),
-                        url: "/admin/api/v1/system/menus",
+                        url: "/api/v1/system/menus",
                         success: function (data) {
-                            if (data == "ok") {
+                            if (data === "ok") {
                                 layer.alert("操作成功",function(){
                                     layer.closeAll();
                                 });
@@ -108,7 +108,7 @@ function edit(id,style){
     if(null!=id){
         $("#style").val(style);
         $("#id").val(id);
-        $.get("/admin/api/v1/system/menus/"+id,function(data) {
+        $.get("/api/v1/system/menus/"+id,function(data) {
             console.log(data)
             // console.log(data);
             if(null!=data){
@@ -153,17 +153,17 @@ function addPerm(parentId,dataType,flag){
         //flag[0:开通权限；1：新增子节点权限]
         //style[0:编辑；1：新增]
         let title = "添加权限";
-        if(flag==0){
+        if(flag===0){
             $("#style").val(1);
             $("#parentId").val(0);
-        }else if(flag==1){
+        }else if(flag===1){
             //添加子节点
             $("#style").val(1);
             //设置父id
             $("#parentId").val(parentId);
             title  = "添加子节点";
         }
-        if(dataType==3){
+        if(dataType===3){
             layer.alert("按钮类型不能添加子节点");
             return false;
             // $('#radio').css('display','none')
@@ -198,7 +198,7 @@ function del(menuId,name){
             $.ajax({
                 type: "DELETE",
                 data: {'menuId': menuId},
-                url: "/admin/api/v1/system/menus/del",
+                url: "/api/v1/system/menus/del",
                 success: function (data) {
                     if (data) {
                         layer.alert("操作成功",function(){
@@ -214,21 +214,6 @@ function del(menuId,name){
                 }
             });
         });
-        //     $.del("/admin/api/v1/system/menus/del",{"id":id},function(data){
-        //         if(data=="ok"){
-        //             //回调弹框
-        //             layer.alert("删除成功！",function(){
-        //                 layer.closeAll();
-        //                 //加载load方法
-        //                 location.reload();;//自定义
-        //             });
-        //         }else{
-        //             layer.alert(data);//弹出错误提示
-        //         }
-        //     });
-        // }, function(){
-        //     layer.closeAll();
-        // });
     }
 
 }
@@ -250,7 +235,7 @@ function delmenus(elements) {
             i++;
             //向服务端发送删除指令
             $.ajax({
-                url: "/admin/api/v1/system/menus/del",
+                url: "/api/v1/system/menus/del",
                 data:{'menuId':element.id},
                 type:"DELETE",
                 // dataType:"json",

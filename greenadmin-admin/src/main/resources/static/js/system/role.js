@@ -43,7 +43,7 @@
                 $.ajax({
                     type: "POST",
                     data: role,
-                    url: "/admin/api/v1/system/roles/add",
+                    url: "/api/v1/system/roles/add",
                     success: function (data) {
                         if (data) {
                             layer.alert("操作成功", function () {
@@ -75,7 +75,7 @@
     function getTreeData() {
         $.ajax({
             type: "get",
-            url: "/admin/api/v1/system/menus/roleTree",
+            url: "/api/v1/system/menus/roleTree",
             success: function (data) {
                 let menus = data.records;
                 if (menus != null) {

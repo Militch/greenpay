@@ -1,152 +1,100 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>添加用户 - GreenPay</title>
-    <th:block th:replace="admin/header::stylesheet" />
+    <title>用户管理 - GreenPay</title>
+    <th:block th:replace="admin/header::frame_stylesheet" />
+    <style type="text/css">
+        .layui-form-label {
+            padding: 9px 5px;
+            width: 80px;
+        }
+        .layui-input-block {
+            margin-left: 90px;
+        }
+    </style>
 </head>
-<body class="layui-layout-body">
-<div class="layadmin-tabspage-none">
-    <div class="layui-layout layui-layout-admin">
-        <div th:replace="admin/header::nav"></div>
-        <div th:replace="admin/side::menu"></div>
-        <div class="layui-body">
-            <div class="layadmin-tabsbody-item layui-show">
-                <div th:replace="admin/compose::layui-breadcrumb('系统管理','用户管理')"></div>
-                <div class="layui-card error-card" th:style="${_errors==null}?'display:none;':''">
-                    <div class="layui-card-body">
-                        <blockquote class="layui-elem-quote" th:each="error:${_errors}" th:text="${error}"></blockquote>
-                    </div>
-                </div>
-                <div class="layui-fluid">
-                    <div class="layui-card">
-                        <div class="layui-card-header">编辑用户</div>
-                        <div class="layui-card-body">
-                            <form class="layui-form"  action="" method="post" novalidate>
-                                <input style="display: none" for="password" name="password"
-                                id="password">
-                                <div class="layui-row layui-form-item">
-                                    <label for="username" class="layui-form-label">用户名：</label>
-                                    <div class="layui-input-block">
-                                        <input type="text" class="layui-input"
-                                               name="username" id="username"
-                                               lay-verify="required"
-                                               th:value="${user.username}"
-                                               autocomplete="off"
-                                               placeholder="请输入用户名">
-                                    </div>
-                                </div>
-
-
-                                <div class="layui-form-item">
-                                    <label for="email" class="layui-form-label">电子邮箱：</label>
-                                    <div class="layui-input-block">
-                                        <input type="email" class="layui-input"
-                                               name="email" id="email"
-                                               lay-verify="required"
-                                               th:value="${user.email}"
-                                               autocomplete="off"
-                                               placeholder="请输入电子邮箱">
-                                    </div>
-                                </div>
-
-<!--                                <div class="layui-form-item">-->
-<!--                                    <label for="passwordInput" class="layui-form-label">密码：</label>-->
-<!--                                    <div class="layui-input-block">-->
-<!--                                        <input type="password" class="layui-input"-->
-<!--                                               name="passwordInput" id="passwordInput"-->
-<!--                                               lay-verify="required"-->
-<!--                                               autocomplete="off"-->
-<!--                                               placeholder="请输入密码">-->
-<!--                                    </div>-->
-<!--                                </div>-->
-
-                                <div class="layui-form-item">
-                                    <label class="layui-form-label">授予角色：</label>
-                                    <div class="layui-input-block" id="roleDiv">
-                                    </div>
-                                </div>
-                                <div class="layui-form-item" style="display: none">
-                                    <input for = "roleIds" type="text" class="layui-input"
-                                            name="roleIds" id="roleIds">
-                                </div>
-
-                                <div class="layui-form-item">
-                                    <div class="layui-input-block">
-
-                                        <button   class="layui-btn"   lay-submit="" lay-filter="me">保存修改</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<body>
+<form class="layui-form" action="" method="post" style="padding: 20px 30px 0 20px;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名：</label>
+        <div class="layui-input-block">
+            <input type="text"
+                   name="username"
+                   th:value="${user?.username}"
+                   placeholder="请输入用户名"
+                   autocomplete="off"
+                   class="layui-input">
         </div>
-        <div class="layadmin-body-shade" layadmin-event="shade"></div>
     </div>
-</div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户昵称：</label>
+        <div class="layui-input-block">
+            <input type="text"
+                   name="nickname"
+                   th:value="${user?.nickname}"
+                   placeholder="请输入昵称"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">电子邮箱：</label>
+        <div class="layui-input-block">
+            <input type="text"
+                   name="email"
+                   th:value="${user?.email}"
+                   placeholder="请输入电子邮箱"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">修改密码：</label>
+        <div class="layui-input-block">
+            <input type="password"
+                   id="passwordInput"
+                   placeholder="请输入密码，为空则不修改"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">确定密码：</label>
+        <div class="layui-input-block">
+            <input type="password"
+                   id="confirmPasswordInput"
+                   placeholder="请再次输入密码，为空则不修改"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-hide">
+        <input type="hidden" name="password">
+        <input type="submit" lay-submit="" lay-filter="formEdit" id="submitBtn" value="提交">
+    </div>
+</form>
 <th:block th:replace="admin/footer::script"/>
 <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.13.0/js/md5.min.js"></script>
-<script th:inline="javascript">
-    let userRoles = [[${userRoles}]];
-</script>
 <script th:inline="none">
     !function(){
-
-        layui.use('form', function(){
-            let $ = layui.$
-                ,form = layui.form
-                ,layer = layui.layer;
-
-            form.on('submit(me)', function(data){
-                var arr_box = [];
-                $('input[type=checkbox]:checked').each(function() {
-                    arr_box.push($(this).val());
-                });
-                $('input[name="roleIds"]').val(arr_box);
-
-                let pwd = $("#passwordInput").val();
-                if (typeof pwd !== "undefined" && pwd!==null && pwdpwd.length >= 6) {
-                    let ps = md5(pwd);
-                    $("input[name='password']").val(ps);
-                }
-
-                return true;
-
-            })
-
-            $.get("/admin/api/v1/system/roles",function(data){
-                if(data!=null){
-
-                    //显示角色数据
-                    $("#roleDiv").empty();
-                    $.each(data.records, function (index, item) {
-                        let include = userRoles.includes(item.id);
-                        // <input type="checkbox" name="roleId" title="发呆" lay-skin="primary"/>
-                        let checkeds = include?'checked':'';
-                        let roleInput = `<input type='checkbox' name='roleId' value="${item.id}" title="${item.name}" ${checkeds} lay-skin="primary"/>`;
-                        var div=$("<div class='layui-unselect layui-form-checkbox' lay-skin='primary'>" +
-                            "<span>"+item.name+"</span><i class='layui-icon'>&#xe626;</i>" +
-                            "</div>");
-                        $("#roleDiv").append(roleInput).append(div);
-                    })
-
-                    //重新渲染下form表单 否则复选框无效
-                    layui.form.render('checkbox');
-                }else{
-                    //弹出错误提示
-                    layer.alert("获取角色数据有误，请您稍后再试",function () {
-                        layer.closeAll();
-                    });
-                }
-            });
+        let $ = layui.jquery
+            ,layer = layui.layer
+            ,form = layui.form;
+        form.on('submit(formEdit)',function (data) {
+            const pass = $('#passwordInput').val();
+            const confirmPass = $('#confirmPasswordInput').val();
+            if (pass.length > 0 && pass !== confirmPass){
+                layer.msg('两次输入的密码不一致');
+                return false;
+            }
+            if (pass.length > 0){
+                $("input[name='password']").val(md5(pass));
+            }else {
+                $("input[name='password']").val("");
+            }
+            return true;
         });
-
-
-
-
     }();
 </script>
-
 </body>
 </html>

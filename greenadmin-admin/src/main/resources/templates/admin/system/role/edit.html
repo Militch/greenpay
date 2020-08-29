@@ -42,25 +42,18 @@
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!--<div class="layui-form-item">
-                                            <label class="layui-form-label">角色等级：</label>
-                                            <div class="layui-input-block">
-                                                <input type="text" name="grade" th:value="${roleDetail != null}?(${roleDetail.grade != null}? ${roleDetail.grade} : '') : ''" lay-verify="" placeholder="" autocomplete="off" class="layui-input"/>
-                                            </div>
-                                        </div>-->
-
                                         <div class="layui-form-item">
-                                            <label class="layui-form-label">权限：</label>
-                                            <div class="layui-input-block" name = tree>
+                                            <label class="layui-form-label">角色授权：
+                                                <input name="permissionIds" type="hidden">
+                                            </label>
+                                            <div class="layui-input-block" name="tree">
                                                 <ul id="perm"></ul>
                                             </div>
                                         </div>
 
                                         <div class="layui-form-item">
                                             <div class="layui-input-block">
-                                                <button class="layui-btn" lay-submit="" lay-filter="updateRoleSumbit">更新角色</button>
-                                                <button type="reset" class="layui-btn layui-btn-primary" lay-demo="reload">重置</button>
+                                                <button class="layui-btn" lay-submit="" lay-filter="roleSubmit">保存提交</button>
                                             </div>
                                         </div>
                                     </form>
@@ -77,8 +70,73 @@
 </div>
 <th:block th:replace="admin/footer::script"/>
 <script th:inline="javascript">
-        let userRoles = [[${userRoles}]];
-    </script>
-<script th:src="@{/js/system/roleUpdate.js}" th:inline="none"></script>
+        let permissionIds = [[${permissionIds}]];
+</script>
+<script th:inline="none">
+    !function(){
+        let layer = layui.layer
+            ,$ = layui.jquery
+            ,form = layui.form
+            ,tree = layui.tree;
+        function getCheckedIds(checkedData=[]){
+            let s = [];
+            for (let i=0;i<checkedData.length;i++){
+                const {id,title,children} = checkedData[i];
+                let ss = getCheckedIds(children);
+                s.push(id);
+                s = s.concat(ss);
+            }
+            return s;
+        }
+        form.on('submit(roleSubmit)', function (data) {
+            const treeChecked = tree.getChecked('permissionTree');
+            const ids = getCheckedIds(treeChecked);
+            console.log(ids);
+            let psInput = $('input[name="permissionIds"]');
+            psInput.val(ids.toString());
+            return true;
+        });
+        function convertTreeData(trees=[]) {
+            let data = [];
+            for (let i=0;i<trees.length;i++){
+                const {id,title,children,type} = trees[i];
+                let newChildren = [];
+                if (children.length > 0){
+                    newChildren = convertTreeData(children);
+                }
+
+                data.push({
+                    id: id,
+                    title: title,
+                    field: 'menus',
+                    spread: true,
+                    checked: (permissionIds.includes(id) && newChildren.length === 0),
+                    children: newChildren
+                });
+            }
+            return data;
+        }
+        function renderTree(trees=[]){
+            tree.render({
+                id: "permissionTree",
+                elem: '#perm', //指定元素
+                showCheckbox: true,
+                skin: 'shihuang',//皮肤
+                data: convertTreeData(trees)
+            });
+        }
+        $.ajax({
+            type: "get",
+            url: "/api/v1/system/menus/tree",
+            data:{"size":100},
+            success: function (data) {
+                renderTree(data);
+            },
+            error: function () {
+                layer.alert("获取数据错误，请您稍后再试");
+            }
+        });
+    }();
+</script>
 </body>
 </html>

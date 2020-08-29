@@ -41,7 +41,7 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping("/admin/api/v1/system/roles")
+@RequestMapping("/api/v1/system/roles")
 @Api(tags = "角色管理")
 public class APIAdminSystemRoleController extends CURDBaseController {
     private static ModelMapper modelMapper = new ModelMapper();

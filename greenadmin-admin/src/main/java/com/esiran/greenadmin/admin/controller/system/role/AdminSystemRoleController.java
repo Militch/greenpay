@@ -1,5 +1,8 @@
 package com.esiran.greenadmin.admin.controller.system.role;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.esiran.greenadmin.admin.controller.CURDBaseController;
 import com.esiran.greenadmin.common.entity.APIError;
 import com.esiran.greenadmin.common.exception.PostResourceException;
 import com.esiran.greenadmin.framework.annotation.PageViewHandleError;
@@ -24,30 +27,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/admin/system/role")
-public class AdminSystemRoleController {
-    private IRoleService roleService;
-    private IRoleMenuService iRoleMenuService;
+@RequestMapping("/system/role")
+public class AdminSystemRoleController extends CURDBaseController {
+    private final IRoleService roleService;
+    private final IRoleMenuService iRoleMenuService;
 
     public AdminSystemRoleController(IRoleService roleService, IRoleMenuService iRoleMenuService) {
         this.roleService = roleService;
         this.iRoleMenuService = iRoleMenuService;
     }
 
-//    @GetMapping("/list")
-//    public String list() {
-//        return "admin/system/admin/system/role/list";
-//    }
-
-    /**
-     * 跳转到角色列表
-     * @return
-     */
     @GetMapping("/list")
-    public ModelAndView toPage() {
-        ModelAndView modelAndView = new ModelAndView("admin/system/role/list");
-
-        return modelAndView;
+    public String toPage() {
+        return render("system/role/list");
     }
 
 
@@ -58,23 +50,21 @@ public class AdminSystemRoleController {
                 modelMap.addAttribute("errors", apiErrors);
                 httpSession.removeAttribute("errors");
         }
-        return "/admin/system/role/role";
+        return render("system/role/role");
     }
 
 
     @GetMapping("/list/edit/{id}")
     @PageViewHandleError
-    public String edit(@NotNull HttpSession httpSession, ModelMap modelMap, @PathVariable Integer id) throws PostResourceException {
+    public String edit(ModelMap modelMap, @PathVariable Integer id) throws PostResourceException {
         Role role = roleService.selectById(id);
-        if (role == null) {
-            throw new PostResourceException("未找到角色");
-        }
-        List<RoleMenu> roleMenus = iRoleMenuService.selectRleMenusByRoleId(id);
-
-        List<Integer> collect = roleMenus.stream().map(userRole -> userRole.getMenuId()).collect(Collectors.toList());
+        if (role == null) throw new PostResourceException("未找到角色");
+        LambdaQueryWrapper<RoleMenu> qw = new QueryWrapper<RoleMenu>().lambda().eq(RoleMenu::getRoleId,id);
+        List<RoleMenu> roleMenus = iRoleMenuService.list(qw);
+        List<Integer> permissionIds = roleMenus.stream().map(RoleMenu::getMenuId).collect(Collectors.toList());
         modelMap.addAttribute("role", role);
-        modelMap.addAttribute("userRoles", collect);
-        return "admin/system/role/roleUpdate";
+        modelMap.addAttribute("permissionIds", permissionIds);
+        return render("system/role/edit");
     }
 
     @PostMapping("/list/edit/{id}")
@@ -85,13 +75,12 @@ public class AdminSystemRoleController {
         if (StringUtils.isBlank(roleDto.getRoleCode())) {
             throw new PostResourceException("角色代码不能为空");
         }
-
-        Role role = roleService.selectById(id);
-        role.setName(roleDto.getName());
-        role.setRoleCode(roleDto.getRoleCode());
-        roleService.updateById(role);
-
-        return "redirect:/admin/system/role/list";
+        roleService.updateRoleById(roleDto);
+//        Role role = roleService.selectById(id);
+//        role.setName(roleDto.getName());
+//        role.setRoleCode(roleDto.getRoleCode());
+//        roleService.updateById(role);
+        return redirect("/system/role/list");
     }
 
 

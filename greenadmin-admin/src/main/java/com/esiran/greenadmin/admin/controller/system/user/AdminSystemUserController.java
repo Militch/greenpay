@@ -7,12 +7,14 @@ package com.esiran.greenadmin.admin.controller.system.user;
  */
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.esiran.greenadmin.admin.controller.CURDBaseController;
 import com.esiran.greenadmin.common.entity.APIException;
 import com.esiran.greenadmin.common.exception.PostResourceException;
 import com.esiran.greenadmin.framework.annotation.PageViewHandleError;
 import com.esiran.greenadmin.system.entity.UserRole;
 import com.esiran.greenadmin.system.entity.dot.UserDTO;
 import com.esiran.greenadmin.system.entity.dot.UserInputDto;
+import com.esiran.greenadmin.system.entity.dot.UserUpdateDto;
 import com.esiran.greenadmin.system.service.IUserRoleService;
 import com.esiran.greenadmin.system.service.IUserService;
 import org.springframework.stereotype.Controller;
@@ -28,8 +30,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/admin/system/user")
-public class AdminSystemUserController {
+@RequestMapping("/system/user")
+public class AdminSystemUserController extends CURDBaseController {
     private final IUserRoleService userRoleService;
 
     private final IUserService userService;
@@ -40,13 +42,13 @@ public class AdminSystemUserController {
     }
 
     @GetMapping("/useropent")
-    public ModelAndView userOpent(){
-        return new ModelAndView("admin/system/user/useropent");
+    public String userOpent(){
+        return render("system/user/useropent");
     }
 
     @GetMapping("/list")
-    public ModelAndView index() {
-        return new ModelAndView("admin/system/user/list");
+    public String index() {
+        return render("system/user/listCopy");
     }
 
 
@@ -54,44 +56,25 @@ public class AdminSystemUserController {
     @PageViewHandleError
     public String edit( ModelMap modelMap, @PathVariable Integer userId) throws PostResourceException {
         UserDTO user = userService.selectUserById(userId);
-
         List<UserRole> userRoles = userRoleService.selectUserRoleById(userId);
-        List<Integer> collect = userRoles.stream().map(userRole -> userRole.getRoleId()).collect(Collectors.toList());
+        List<Integer> collect = userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toList());
         modelMap.addAttribute("user", user);
         modelMap.addAttribute("userRoles", collect);
-        return "admin/system/user/edit";
+        return render("system/user/edit");
     }
 
 
     @PostMapping("/list/{userId}/edit")
     @PageViewHandleError
-    public String edit(@PathVariable Integer userId,@Valid UserInputDto userInputDto) throws APIException {
-
-        if (StringUtils.isBlank(userInputDto.getUsername()) ||
-                userInputDto.getUsername().length()<2) {
-
-            throw new APIException("用户名格式不正确","400");
-        }
-        if (StringUtils.isBlank(userInputDto.getEmail())) {
-            throw new APIException("用户名或Email为空","400");
-        }
-//        if (StringUtils.isBlank(userInputDto.getPassword()) || userInputDto.getPassword().length()<6) {
-//            throw new PostResourceException("用户名密码至少6位");
-//        }
-
-//        if (StringUtils.isBlank(userInputDto.getRoleIds())) {
-//            throw new PostResourceException("未选择角色权限");
-//        }
-
-        userRoleService.updateUserAndRoles(userId,userInputDto);
-
-        return "redirect:/admin/system/user/list";
+    public String edit(@PathVariable Integer userId,@Valid UserUpdateDto userUpdateDto) throws APIException {
+        userUpdateDto.setId(userId);
+        return redirect("/system/user/list");
     }
 
 
-    @GetMapping("/add")
+    @GetMapping("/list/add")
     public String add() {
-        return "admin/system/user/add";
+        return render("system/user/add");
     }
 
 

@@ -12,12 +12,8 @@
         var form = layui.form;
         var layer = layui.layer;
         tree = layui.tree;
-        //监听提交
         getTreeData(tree);
-
-
         form.on('submit(updateRoleSumbit)', function (data) {
-
             var array = new Array();
             //获取选中的权限id
             var checkedData = tree.getChecked('demoId1'); //获取选中节点的数据
@@ -45,7 +41,7 @@
             $.ajax({
                 type: "PUT",
                 data: role,
-                url: "/admin/api/v1/system/roles",
+                url: "/api/v1/system/roles",
                 success: function (data) {
                     if (data ) {
                         layer.alert("操作成功", function () {
@@ -71,7 +67,7 @@
     function getTreeData() {
         $.ajax({
             type: "get",
-            url: "/admin/api/v1/system/menus/roleTree",
+            url: "/api/v1/system/menus/roleTree",
             data:{"size":100},
             success: function (data) {
                 let menus = data;
@@ -91,9 +87,7 @@
         layui.use('util', function () {
 
             util = layui.util;
-
             //渲染
-            let a =  listToTreeJson(data);
             var inst1 = tree.render({
                 id: 'demoId1',
                 elem: '#perm', //指定元素
@@ -107,24 +101,6 @@
                 skin: 'shihuang',//皮肤
                 data: listToTreeJson(data)
             });
-
-            //按钮事件
-            // util.event('lay-demo', {
-            //     getChecked: function (othis) {
-            //         var checkedData = tree.getChecked('demoId1'); //获取选中节点的数据
-            //
-            //         layer.alert(JSON.stringify(checkedData), {shade: 0});
-            //         console.log(checkedData);
-            //     }
-            //     , setChecked: function () {
-            //         tree.setChecked('demoId1', [12, 16]); //勾选指定节点
-            //     }
-            //     , reload: function () {
-            //         //重载实例
-            //         tree.reload('demoId1', {});
-            //
-            //     }
-            // });
         });
 
     }
@@ -161,7 +137,6 @@
                 for (var i = 0; i < data.length; i++) {
                     var node = data[i];
                     if (parentId != null && node.parentId == parentId) {
-
                         var newNode = {
                             title: node.title,
                             checked: userRoles.includes(node.id),
