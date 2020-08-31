@@ -29,32 +29,14 @@ public class AdminController extends CURDBaseController {
     public String index() {
         return redirect("/home");
     }
-
     @GetMapping("/home")
-    public String home(Model model) {
-        return "admin/index";
-    }
-
-    @GetMapping("/demo")
-    public String demo(Model model) {
-        return "admin/demo/index";
-    }
-
-    @GetMapping("/merchantInfo")
-    @RequiresRoles("admin")
-    @RequiresPermissions("system:admin")
-    public String merchantInfo(Model model) {
-
-        return "admin/merchantInfo";
+    public String home() {
+        return render("index");
     }
 
     @GetMapping("/login")
-    @PageViewHandleError
     public String login() {
-        if (SecurityUtils.getSubject().isAuthenticated()) {
-            return redirect("/home");
-        }
-        return "admin/login";
+        return render("login");
     }
 
     @PostMapping("/login")
@@ -71,9 +53,8 @@ public class AdminController extends CURDBaseController {
         return redirect("/login");
     }
 
-
-    @GetMapping("/unAuth")
+    @GetMapping("/403")
     public String unAuth(){
-        return "admin/unauth";
+        return render("403");
     }
 }

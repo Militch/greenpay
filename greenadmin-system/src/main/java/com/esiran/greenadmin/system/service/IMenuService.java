@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.esiran.greenadmin.common.entity.APIException;
+import com.esiran.greenadmin.common.exception.PostResourceException;
 import com.esiran.greenadmin.system.entity.Menu;
 import com.esiran.greenadmin.system.entity.MenuTreeNode;
 import com.esiran.greenadmin.system.entity.TreeNode;
@@ -27,21 +28,22 @@ public interface IMenuService extends IService<Menu> {
     List<MenuTreeVo> menuList();
     List<Menu> getMenusByUserId(Integer userId);
     List<MenuTreeNode> selectMenuTreeByUserId(Integer userId);
-    public IPage<Menu> menuTreeList(Page<Menu> menuPage);
+    IPage<Menu> menuTreeList(Page<Menu> menuPage);
 
-    public List<MenuTreeVo> getMenuTreeByType(int type);
+    List<MenuTreeVo> getMenuTreeByType(int type);
 
-    public List<MenuTreeVo> getMenuTreeByType(Integer usserId, int type);
+    List<MenuTreeVo> getMenuTreeByType(Integer usserId, int type);
 
-    public List<MenuTreeVo> getMenuTreeByRoleId(Integer roleId);
+    List<MenuTreeVo> getMenuTreeByRoleId(Integer roleId);
 
-    public List<MenuTreeVo> getMenuTreeByUserId(Integer userId);
+    List<MenuTreeVo> getMenuTreeByUserId(Integer userId);
 
-    public List<Menu> getMenuListByRoleId(Integer roleId);
+    List<Menu> getMenuListByRoleId(Integer roleId);
 
-    public List<Menu> getMenuListByUserId(Integer userId);
+    List<Menu> getMenuListByUserId(Integer userId);
 
-    public boolean removeMenuByid(Integer menudId) throws APIException;
+    boolean removeMenuByid(Integer menudId) throws APIException;
+    void removeMenuById(Integer menuId) throws APIException, PostResourceException;
 
     List<Menu> findMenusByParentId(Integer parentId);
     List<MenuDTO> fa(List<Menu> menus, int deep);

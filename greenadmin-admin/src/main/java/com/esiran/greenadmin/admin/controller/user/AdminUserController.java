@@ -39,7 +39,7 @@ public class AdminUserController extends CURDBaseController {
     @PostMapping("/profile")
     public String profilePost(@Valid UserInputDTO inputDto) throws PostResourceException {
         User theUser = theUser();
-        userService.updateUser(theUser.getId(), inputDto);
+        userService.updateUserById(theUser.getId(), inputDto);
         return redirect("/admin/user/profile");
     }
 

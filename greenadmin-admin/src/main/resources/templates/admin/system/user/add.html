@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-<form class="layui-form" action="" method="post" style="padding: 20px 30px 0 20px;">
+<form id="addForm" class="layui-form" action="" method="post" style="padding: 20px 30px 0 20px;">
     <div class="layui-form-item">
         <label class="layui-form-label">用户名：</label>
         <div class="layui-input-block">
@@ -65,6 +65,17 @@
                    class="layui-input">
         </div>
     </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">所属角色：</label>
+        <div class="layui-input-block">
+            <input th:each="item:${roles}"
+                   type="checkbox"
+                   name="roleIds[]"
+                   lay-skin="primary"
+                   th:title="${item.name}"
+                   th:value="${item.id}">
+        </div>
+    </div>
     <div class="layui-form-item layui-hide">
         <input type="hidden" name="password">
         <input type="submit" lay-submit="" lay-filter="formAdd" id="submitBtn" value="提交">
@@ -89,7 +100,32 @@
             }else {
                 $("input[name='password']").val("");
             }
-            return true;
+            $.ajax({
+                type: "POST",
+                data: $("#addForm").serialize(),
+                url: "/api/v1/system/users",
+                dataType: 'json',
+                success: function (data) {
+                    const frameIndex = parent.layer.getFrameIndex(window.name);
+                    parent.layer.close(frameIndex);
+                },
+                error: function (data={responseJSON:null}) {
+                    if (!data.responseJSON){
+                        layer.msg("请求失败，请稍后重试");
+                        return;
+                    }
+                    const {code,message,errors} = data.responseJSON;
+                    if (errors && errors.length > 0){
+                        const errorMessage = errors[0].message;
+                        layer.msg(errorMessage);
+                    }else if(message){
+                        layer.msg(message);
+                    }else {
+                        layer.msg("请求失败，请稍后重试");
+                    }
+                }
+            });
+            return false;
         });
     }();
 </script>

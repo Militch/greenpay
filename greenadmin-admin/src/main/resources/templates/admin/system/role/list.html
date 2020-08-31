@@ -1,11 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<script type="text/javascript" src="/js/dateUtils.js"></script>
-<link rel="stylesheet" href="/js/ztree/css/zTreeStyle/zTreeStyle.css"></link>
-<head >
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
     <title>角色列表 - GreenPay</title>
     <th:block th:replace="admin/header::stylesheet" />
-
 </head>
 <body class="layui-layout-body">
 <div class="layadmin-tabspage-none">
@@ -24,28 +21,25 @@
                     <div class="layui-card">
                         <div class="layui-card-header">角色管理</div>
                         <div class="layui-card-body" style="padding: 0">
-                            <div class="admin-table_header">
-                                <div class="admin-table_header_left">
-<!--                                    <a th:href="@{'/admin/system/role/list/add'}" class="layui-btn ">新增</a>-->
-                                    <button class="layui-btn " onclick="openAddRole()">新增</button>
-                                </div>
+                            <div class="admin-table_header ">
+                                <button class="layui-btn" id="addBtn">新增</button>
                                 <div class="layui-btn-group demoTable2">
                                     <button class="layui-btn layui-btn-danger"  data-type="getCheckData">删除选中</button>
                                 </div>
                                 <div class="admin-table_header_right">
                                     <div class="demoTable">
                                         <div class="layui-inline">
-                                            <input class="layui-input" name="Name" id="Name" placeholder="用户名" autocomplete="off">
+                                            <input class="layui-input" name="Name" id="Name" placeholder="请输入角色ID或名称" autocomplete="off">
                                         </div>
                                         <button class="layui-btn" data-type="reload">搜索</button>
                                     </div>
                                 </div>
+                                <div style="clear:both;"></div>
                             </div>
-                            <table class="layui-table" lay-filter="demo"  id="demo">
-                            </table>
+                            <table class="layui-hide" lay-filter="roleTable" id="roleTable"></table>
                             <script type="text/html" id="barDemo">
-                                <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-                                <a  class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                                <a href="/system/role/list/edit/{{ d.id }}" class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                                <a href="javascript:;" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
                             </script>
 
                         </div>
@@ -57,40 +51,104 @@
     </div>
 </div>
 
-<!--添加或编辑用户-->
-<div id="addRole" class="site-text" style="wmargin: 5%;display:none;">
-    <form id="roleForm" class="layui-form" method="post" action="" style="margin-top: 20px; margin-right: 20px;">
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">角色名称：</label>
-            <div class="layui-input-block">
-                <input id="name" name="name" lay-verify="required"
-                       autocomplete="off" class="layui-input" type="text"
-                       placeholder="请输入角色名称"/>
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">角色编码：</label>
-            <div class="layui-input-block">
-                <input id="roleCode" name="roleCode" lay-verify="required"
-                       autocomplete="off" class="layui-input" type="text"
-                       placeholder="请输入角色编码"/>
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <div class="layui-input-block">
-                <button class="layui-btn"  lay-submit="" lay-filter="roleSubmit">提交</button>
-                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-            </div>
-        </div>
-    </form>
-</div>
-
 <th:block th:replace="admin/footer::script"/>
 
-<script th:src="@{/js/system/roleList.js}"></script>
+<script type="text/javascript" th:inline="none">
+    !function () {
+        let $ = layui.jquery
+            ,table = layui.table
+            ,layer = layui.layer;
+        table.render({
+            elem: '#roleTable'
+            ,url: '/api/v1/system/roles' //数据接口
+            ,page: true //开启分页
+            ,parseData: function(res){ //res 即为原始返回的数据
+                return {
+                    "code": 0,
+                    "msg": res.message,
+                    "count": res.total,
+                    "data": res.records
+                };
+            }
+            ,request: {
+                pageName: 'current'
+                ,limitName: 'size'
+            }
+            ,cols: [[ //表头
+                {type:'checkbox'}
+                ,{field: 'id', title: 'ID',width:'5%', unresize:true , sort: true}
+                ,{field: 'name', title: '角色名称', width:'35%', unresize:true}
+                ,{field: 'roleCode', title: '角色编码', width:'15%', unresize:true}
+                ,{field: 'createdAt', title: '创建时间', width:'15%', unresize:true}
+                ,{field: 'updatedAt', title: '更新时间', width:'15%', unresize:true}
+                ,{title: '操作', align: 'left', width:0, toolbar: '#barDemo', unresize:true}
+            ]]
+        });
+        function delRole(id,obj) {
+            if(null!=id && !isNaN(id)){
+                $.ajax({
+                    url: "/api/v1/system/roles/del",
+                    data: {'id': id},
+                    type: "Delete",
+                    success: function (data) {
+                        layer.msg(data.msg);
+                        obj.del();
+                        layer.closeAll();
+                    },
+                    error: function (data) {
+                        layer.closeAll();
+                        if (!data.responseJSON){
+                            layer.msg("请求失败，请稍后重试");
+                            return;
+                        }
+                        const {code,message,errors} = data.responseJSON;
+                        if (errors && errors.length > 0){
+                            const errorMessage = errors[0].message;
+                            layer.msg(errorMessage);
+                        }else if(message){
+                            layer.msg(message);
+                        }else {
+                            layer.msg("请求失败，请稍后重试");
+                        }
+                    }
+                });
+
+            }
+        }
+        table.on('tool(roleTable)', function(obj){
+            let data = obj.data;
+            if(obj.event === 'del'){
+                layer.confirm('该操作无法撤销，请确定是否删除?', {
+                    skin: 'demo-class',
+                    title: '警告',
+                    btn: ['确认','返回']
+                }, function(index){
+                    delRole(data.id,obj);
+                    layer.close(index);
+                });
+            }
+        });
+
+        $('#addBtn').on('click',function () {
+            layer.open({
+                type: 2,
+                title: '新增角色',
+                content: `list/add`,
+                area: ['450px','230px'],
+                btn: ['提交','取消'],
+                resize: false,
+                move:false,
+                yes: function (index, layero) {
+                    let submitBtn = layero.find("iframe").contents().find('#submitBtn');
+                    submitBtn.click();
+                },
+                end: function () {
+                    window.location.reload();
+                }
+            });
+        });
+    }();
+</script>
 
 </body>
 </html>

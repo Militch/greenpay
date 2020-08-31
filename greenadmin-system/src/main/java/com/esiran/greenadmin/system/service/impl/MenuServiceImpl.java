@@ -8,14 +8,14 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenadmin.common.entity.APIException;
-import com.esiran.greenadmin.system.entity.Menu;
-import com.esiran.greenadmin.system.entity.MenuTreeNode;
-import com.esiran.greenadmin.system.entity.TreeNode;
+import com.esiran.greenadmin.common.exception.PostResourceException;
+import com.esiran.greenadmin.system.entity.*;
 import com.esiran.greenadmin.system.entity.dot.MenuDTO;
 import com.esiran.greenadmin.system.entity.vo.MenuTreeVo;
 import com.esiran.greenadmin.system.entity.vo.MenuVo;
 import com.esiran.greenadmin.system.mapper.MenuMapper;
 import com.esiran.greenadmin.system.service.IMenuService;
+import com.esiran.greenadmin.system.service.IRoleMenuService;
 import com.esiran.greenadmin.system.utils.TreeUtil;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -27,10 +27,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import java.util.stream.Collectors;
 
@@ -45,6 +42,11 @@ import java.util.stream.Collectors;
 @Service
 public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IMenuService {
     private static  final ModelMapper modelMap = new ModelMapper();
+    private final IRoleMenuService roleMenuService;
+
+    public MenuServiceImpl(IRoleMenuService roleMenuService) {
+        this.roleMenuService = roleMenuService;
+    }
 
     @Override
     public ResponseEntity selectAllUserMenue(Page<Menu> iPage) {
@@ -201,6 +203,16 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         }
         removeById(menudId);
         return true;
+    }
+
+    @Override
+    public void removeMenuById(Integer menuId) throws PostResourceException, APIException {
+        Menu menu = getOne(new QueryWrapper<Menu>().lambda().eq(Menu::getId,menuId));
+        if (menu == null) throw new PostResourceException("所需操作的菜单不存在");
+        List<Menu> menus = list(new QueryWrapper<Menu>().lambda().eq(Menu::getParentId,menuId));
+        if (menus.size() > 0) throw new APIException("当前菜单下还有子节点", "MENU_HAS_CHILDREN");
+        remove(new QueryWrapper<Menu>().lambda().eq(Menu::getId, menuId));
+        roleMenuService.remove(new QueryWrapper<RoleMenu>().lambda().eq(RoleMenu::getMenuId,menuId));
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.esiran.greenadmin.system.entity.dot.UserRoleInputDto;
 import com.esiran.greenadmin.system.service.IRoleMenuService;
 import com.esiran.greenadmin.system.service.IRoleService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,24 +40,22 @@ public class AdminSystemRoleController extends CURDBaseController {
     }
 
     @GetMapping("/list")
+    @RequiresPermissions("system_role_view")
     public String toPage() {
         return render("system/role/list");
     }
 
 
     @GetMapping("/list/add")
+    @RequiresPermissions("system_role_add")
     public String add(HttpSession httpSession, ModelMap modelMap) {
-        List<APIError> apiErrors = (List<APIError>) httpSession.getAttribute("errors");
-        if (!CollectionUtils.isEmpty(apiErrors)) {
-                modelMap.addAttribute("errors", apiErrors);
-                httpSession.removeAttribute("errors");
-        }
-        return render("system/role/role");
+        return render("system/role/add");
     }
 
 
     @GetMapping("/list/edit/{id}")
     @PageViewHandleError
+    @RequiresPermissions("system_role_update")
     public String edit(ModelMap modelMap, @PathVariable Integer id) throws PostResourceException {
         Role role = roleService.selectById(id);
         if (role == null) throw new PostResourceException("未找到角色");
@@ -68,18 +68,11 @@ public class AdminSystemRoleController extends CURDBaseController {
     }
 
     @PostMapping("/list/edit/{id}")
-    public String update(@PathVariable Integer id, UserRoleInputDto roleDto) throws PostResourceException {
-        if (StringUtils.isBlank(roleDto.getName())) {
-            throw new PostResourceException("角色名称不能为空");
-        }
-        if (StringUtils.isBlank(roleDto.getRoleCode())) {
-            throw new PostResourceException("角色代码不能为空");
-        }
+    @RequiresPermissions("system_role_update")
+    @PageViewHandleError
+    public String update(@PathVariable Integer id, @Valid UserRoleInputDto roleDto) throws PostResourceException {
+        roleDto.setId(id);
         roleService.updateRoleById(roleDto);
-//        Role role = roleService.selectById(id);
-//        role.setName(roleDto.getName());
-//        role.setRoleCode(roleDto.getRoleCode());
-//        roleService.updateById(role);
         return redirect("/system/role/list");
     }
 

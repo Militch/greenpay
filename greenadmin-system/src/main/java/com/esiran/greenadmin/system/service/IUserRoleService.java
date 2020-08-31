@@ -19,17 +19,15 @@ import java.util.List;
  * @since 2020-04-13
  */
 public interface IUserRoleService extends IService<UserRole> {
+    void resetUserRoles(Integer userId, List<Integer> roleIds);
     IPage<UserRoleInputDto> selectUserRoles(Page<UserRole> userVoPage);
 
     boolean addUserAndRole(UserInputDto userInputDto) throws APIException;
 
     List<UserRole> selectUserRoleById(Integer userId);
 
-    boolean updateUserAndRoles(Integer userId, UserInputDto userInputDTO) throws APIException;
 
 
     boolean updateUserRoleByUserId(Integer userId, String[] roleIds);
-
-    boolean removeUserRoleYyUserId(Integer userId);
 
 }

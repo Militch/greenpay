@@ -12,6 +12,7 @@ import com.esiran.greenadmin.system.entity.User;
 import com.esiran.greenadmin.system.entity.UserRole;
 import com.esiran.greenadmin.system.entity.dot.UserDTO;
 import com.esiran.greenadmin.system.entity.dot.UserInputDto;
+import com.esiran.greenadmin.system.entity.dot.UserUpdateDto;
 import com.esiran.greenadmin.system.service.IMenuService;
 import com.esiran.greenadmin.system.service.IRoleService;
 import com.esiran.greenadmin.system.service.IUserRoleService;
@@ -21,8 +22,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.http.util.TextUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.CollectionUtils;
@@ -52,40 +53,9 @@ public class APIAdminSystemUserController extends CURDBaseController {
         this.iRoleService = iRoleService;
     }
 
-    @GetMapping("/getOne")
-    public UserDTO getOneUser(@PathParam("userId") Integer userId) throws PostResourceException {
-        if (userId == null || userId <= 0) {
-            throw new PostResourceException("用户ID不正确");
-        }
-        UserDTO userDTO = userService.selectUserById(userId);
-        return userDTO;
-    }
-
-    /**
-     * 获取当前用户拥有的权限
-     * @param modelMap
-     * @param userId
-     * @return
-     * @throws PostResourceException
-     */
-    @GetMapping("/getUserAndRoles")
-    public HashMap<String,Object> edit( ModelMap modelMap,@PathParam("userId")  Integer userId) throws PostResourceException {
-        UserDTO user = userService.selectUserById(userId);
-
-        List<UserRole> userRoles = iUserRoleService.selectUserRoleById(userId);
-        List<Integer> collect = userRoles.stream().map(userRole -> userRole.getRoleId()).collect(Collectors.toList());
-//        modelMap.addAttribute("user", user);
-//        modelMap.addAttribute("userRoles", collect);
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("user", user);
-        data.put("userRoles", collect);
-        return data;
-    }
-
 
     @PostMapping("/updateUserAndRoles")
     public boolean updateUserAndRoles(@PathParam("userId") Integer userId,@Valid UserInputDto userInputDto) throws APIException {
-
         if (StringUtils.isBlank(userInputDto.getUsername()) ||
                 userInputDto.getUsername().length()<2) {
 
@@ -94,16 +64,6 @@ public class APIAdminSystemUserController extends CURDBaseController {
         if (StringUtils.isBlank(userInputDto.getEmail())) {
             throw new APIException("用户名或Email为空","400");
         }
-//        if (StringUtils.isBlank(userInputDto.getPassword()) || userInputDto.getPassword().length()<6) {
-//            throw new PostResourceException("用户名密码至少6位");
-//        }
-
-//        if (StringUtils.isBlank(userInputDto.getRoleIds())) {
-//            throw new PostResourceException("未选择角色权限");
-//        }
-
-        iUserRoleService.updateUserAndRoles(userId,userInputDto);
-
         return true;
     }
 
@@ -112,8 +72,8 @@ public class APIAdminSystemUserController extends CURDBaseController {
             @ApiImplicitParam(name = "current", value = "当前页码", defaultValue = "1"),
             @ApiImplicitParam(name = "size", value = "每页个数", defaultValue = "10")
     })
-
     @GetMapping
+    @RequiresPermissions("system_user_view")
     public IPage<UserDTO> list(
             @RequestParam(required = false, defaultValue = "1") Integer current,
             @RequestParam(required = false, defaultValue = "10") Integer size ,
@@ -146,28 +106,24 @@ public class APIAdminSystemUserController extends CURDBaseController {
     }
 
 
-    @DeleteMapping("/del")
-    public boolean del(@RequestParam Integer id) throws PostResourceException {
-        if (id <= 0) {
-            throw new PostResourceException("用户ID不正确");
-        }
-        UserDTO userDTO = userService.selectUserById(id);
-        if (userDTO == null) {
-            throw new PostResourceException("用户不存在");
-        }
-
-        iUserRoleService.removeUserRoleYyUserId(id);
-        return true;
+    @DeleteMapping
+    @RequiresPermissions("system_user_del")
+    public void del(@RequestParam Integer id) throws PostResourceException {
+        userService.removeUserById(id);
     }
-
 
     @PostMapping
-    public ResponseEntity add(@Valid UserInputDto userInputDto) throws APIException {
-
-        iUserRoleService.addUserAndRole(userInputDto);
-
-        return ResponseEntity.status(HttpStatus.OK).body(true);
+    @RequiresPermissions("system_user_add")
+    public ResponseEntity<UserDTO> add(@Valid UserInputDto userInputDto) throws APIException {
+        UserDTO userDTO = userService.addUser(userInputDto);
+        return ResponseEntity.ok(userDTO);
     }
-
+    @PostMapping("/{userId}")
+    @RequiresPermissions("system_user_update")
+    public ResponseEntity<UserDTO> update(@Valid UserUpdateDto userUpdateDto, @PathVariable Integer userId) throws APIException, PostResourceException {
+        userUpdateDto.setId(userId);
+        UserDTO userDTO = userService.updateUserById(userUpdateDto);
+        return ResponseEntity.ok(userDTO);
+    }
 
 }

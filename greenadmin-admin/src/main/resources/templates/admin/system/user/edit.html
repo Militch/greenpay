@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-<form class="layui-form" action="" method="post" style="padding: 20px 30px 0 20px;">
+<form id="editForm" class="layui-form" action="" method="post" style="padding: 20px 30px 0 20px;">
     <div class="layui-form-item">
         <label class="layui-form-label">用户名：</label>
         <div class="layui-input-block">
@@ -68,8 +68,21 @@
                    class="layui-input">
         </div>
     </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">所属角色：</label>
+        <div class="layui-input-block">
+            <input th:each="item:${roles}"
+                   type="checkbox"
+                   name="roleIds[]"
+                   lay-skin="primary"
+                   th:title="${item.name}"
+                   th:checked="${#arrays.contains(userRoles, item.id)}"
+                   th:value="${item.id}">
+        </div>
+    </div>
     <div class="layui-form-item layui-hide">
         <input type="hidden" name="password">
+        <input type="hidden" name="id" th:value="${user?.id}">
         <input type="submit" lay-submit="" lay-filter="formEdit" id="submitBtn" value="提交">
     </div>
 </form>
@@ -83,6 +96,7 @@
         form.on('submit(formEdit)',function (data) {
             const pass = $('#passwordInput').val();
             const confirmPass = $('#confirmPasswordInput').val();
+            const userId = $("input[name='id']").val();
             if (pass.length > 0 && pass !== confirmPass){
                 layer.msg('两次输入的密码不一致');
                 return false;
@@ -92,7 +106,32 @@
             }else {
                 $("input[name='password']").val("");
             }
-            return true;
+            $.ajax({
+                type: "POST",
+                data: $("#editForm").serialize(),
+                url: `/api/v1/system/users/${userId}`,
+                dataType: 'json',
+                success: function (data) {
+                    const frameIndex = parent.layer.getFrameIndex(window.name);
+                    parent.layer.close(frameIndex);
+                },
+                error: function (data={responseJSON:null}) {
+                    if (!data.responseJSON){
+                        layer.msg("请求失败，请稍后重试");
+                        return;
+                    }
+                    const {code,message,errors} = data.responseJSON;
+                    if (errors && errors.length > 0){
+                        const errorMessage = errors[0].message;
+                        layer.msg(errorMessage);
+                    }else if(message){
+                        layer.msg(message);
+                    }else {
+                        layer.msg("请求失败，请稍后重试");
+                    }
+                }
+            });
+            return false;
         });
     }();
 </script>

@@ -15,9 +15,10 @@ import java.time.LocalDateTime;
  * @author han
  */
 @Data
-@ApiModel("UserInput")
+@ApiModel("UserUpdate")
 public class UserUpdateDto {
     private Integer id;
+
     @ApiModelProperty("用户名")
     @NotBlank(message = "用户名不能为空")
     @Length(min = 3, max = 16, message = "请输入3-16位用户名")
@@ -28,7 +29,6 @@ public class UserUpdateDto {
 
     @ApiModelProperty("用户邮箱")
     @NotBlank(message = "邮箱不能为空")
-    @Email(message = "邮箱格式不正确")
     @Pattern(regexp = PatternUtil.REGEXP_EMAIL,message = "邮箱格式校验失败")
     private String email;
 
@@ -37,6 +37,6 @@ public class UserUpdateDto {
     private String password;
 
     @ApiModelProperty("用户角色")
-    private String roleIds;
+    private String[] roleIds;
 
 }

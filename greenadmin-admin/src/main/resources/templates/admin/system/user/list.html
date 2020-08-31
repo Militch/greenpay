@@ -17,14 +17,14 @@
                         <div class="layui-card-header">用户管理</div>
                         <div class="layui-card-body" style="padding: 0">
                             <div class="admin-table_header ">
-                                <button class="layui-btn " onclick="addUser(0)">新增</button>
+                                <button class="layui-btn" id="addBtn">新增</button>
                                 <div class="layui-btn-group demoTable2">
                                     <button class="layui-btn layui-btn-danger"  data-type="getCheckData">删除选中</button>
                                 </div>
                                 <div class="admin-table_header_right">
                                     <div class="demoTable">
                                         <div class="layui-inline">
-                                            <input class="layui-input" name="Name" id="Name" placeholder="用户名" autocomplete="off">
+                                            <input class="layui-input" name="Name" id="Name" placeholder="请输入用户ID或名称" autocomplete="off">
                                          </div>
                                         <button class="layui-btn" data-type="reload">搜索</button>
                                     </div>
@@ -33,8 +33,12 @@
                             </div>
                            <table id="uesrList" class="layui-hide" lay-filter="userTable"></table>
                             <script type="text/html" id="optBar">
-                                <a  onclick="editUser('{{d.id}}')"  class="layui-btn layui-btn-xs">编辑</a>
-                                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                                <a href="javascript:;" lay-event="edit" class="layui-btn layui-btn-xs">
+                                    编辑
+                                </a>
+                                <a href="javascript:;" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
+                                    删除
+                                </a>
                             </script>
                         </div>
                     </div>
@@ -44,65 +48,123 @@
         <div class="layadmin-body-shade" layadmin-event="shade"></div>
     </div>
 </div>
-
-<!--添加或编辑用户-->
-<div id="setUser" class="site-text" style="wmargin: 5%;display:none;">
-    <form id="userForm" class="layui-form" method="post" action="" style="margin-top: 20px; margin-right: 20px;">
-        <input id="pageNum" type="hidden" name="pageNum"/>
-        <input id="roleIds" type="hidden" name="roleIds"/>
-        <input id="password" type="hidden" name="password">
-        <input id="id" type="hidden" name="id"/>
-        <input id="changeType" type="hidden" name="changeType"/>
-        <input id="version" type="hidden" name="version"/>
-        <div class="layui-form-item">
-            <label class="layui-form-label">用户名：</label>
-            <div class="layui-input-block">
-                <input id="username" name="username" lay-verify="required"
-                       autocomplete="off" class="layui-input" type="text"
-                        placeholder="请输入用户名"/>
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label">电子邮箱：</label>
-            <div class="layui-input-block">
-                <input id="email" name="email" lay-verify="required | email"
-                       autocomplete="off" class="layui-input" type="text"
-                        placeholder="请输入电子邮箱"/>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">登录密码：</label>
-            <div class="layui-input-block">
-                <input id="userPassword" name="userPassword" autocomplete="off" class="layui-input"
-                       type="password" placeholder="请输入用户登录密码"/>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">确认密码：</label>
-            <div class="layui-input-block">
-                <input id="verifyPassword" name="verifyPassword" autocomplete="off"
-                       class="layui-input" type="password"  placeholder="请再次确认输入登录密码"/>
-            </div>
-
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">所属角色：</label>
-            <div class="layui-input-block" id="roleDiv">
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <div class="layui-input-block">
-                <button class="layui-btn"  lay-submit="" lay-filter="userSubmit">提交</button>
-                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-            </div>
-        </div>
-    </form>
-</div>
-
 <th:block th:replace="admin/footer::script"/>
 <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.13.0/js/md5.min.js"></script>
-<script src="/js/system/userList.js"></script>
+<script type="text/javascript" th:inline="none">
+    !function () {
+        let $ = layui.jquery
+            ,table = layui.table
+            ,layer = layui.layer;
+        let tableIns = table.render({
+            id: "userLoad"
+            ,elem: '#uesrList'
+            ,url:'/api/v1/system/users'
+            ,cellMinWidth: 80
+            ,page: true
+            ,parseData: function(res){ //res 即为原始返回的数据
+                return {
+                    "code": 0,
+                    "msg": res.message,
+                    "count": res.total,
+                    "records": res.records
+                };
+            },
+            request: {
+                pageName: 'current'
+                ,limitName: 'size'
+            },response:{
+                statusName: 'code'
+                ,statusCode: 0
+                ,countName: 'total'
+                ,dataName: 'records'
+            }
+            ,cols: [[
+                {type:'checkbox'}
+                ,{field:'id', title:'ID',width:80, unresize: true, sort: true}
+                ,{field:'username', title:'用户名',unresize:true}
+                ,{field:'nickname', title: '用户昵称',unresize:true}
+                ,{field:'email', title: '邮箱',unresize:true}
+                ,{field:'roleNames', title: '角色名称', minWidth:80,unresize:true}
+                ,{field: 'createdAt', title: '创建时间', width:180, unresize:true}
+                ,{field: 'updatedAt', title: '更新时间', width:180, unresize:true}
+                ,{fixed:'right', title:'操作',width:140,align:'center', toolbar:'#optBar'}
+            ]]
+        });
+        table.on('tool(userTable)',function (obj) {
+            let data = obj.data;
+            let layEvent = obj.event;
+            if (layEvent === 'edit'){
+                layer.open({
+                    type: 2,
+                    title: '编辑用户',
+                    content: `list/${data.id}/edit`,
+                    area: ['450px','450px'],
+                    btn: ['提交','取消'],
+                    resize: false,
+                    move:false,
+                    yes: function (index, layero) {
+                        let submitBtn = layero.find("iframe").contents().find('#submitBtn');
+                        submitBtn.click();
+                    },
+                    end: function () {
+                        window.location.reload();
+                    }
+                });
+            }else if(layEvent === 'del'){
+                layer.confirm('该操作无法撤销，请确定是否删除?', {
+                    skin: 'demo-class',
+                    title: '警告',
+                    btn: ['确认','返回']
+                }, function(index){
+                    $.ajax({
+                        url:"/api/v1/system/users",
+                        data:{'id':data.id},
+                        type:"DELETE",
+                        success:function(data){
+                            layer.closeAll();
+                            window.location.reload();
+                        },
+                        error:function(data){
+                            if (!data.responseJSON){
+                                layer.msg("请求失败，请稍后重试");
+                                return;
+                            }
+                            const {code,message,errors} = data.responseJSON;
+                            if (errors && errors.length > 0){
+                                const errorMessage = errors[0].message;
+                                layer.msg(errorMessage);
+                            }else if(message){
+                                layer.msg(message);
+                            }else {
+                                layer.msg("请求失败，请稍后重试");
+                            }
+                        }
+                    });
 
+                }, function(){
+                    layer.closeAll();
+                });
+            }
+        });
+        $('#addBtn').on('click',function () {
+            layer.open({
+                type: 2,
+                title: '新增用户',
+                content: `list/add`,
+                area: ['450px','450px'],
+                btn: ['提交','取消'],
+                resize: false,
+                move:false,
+                yes: function (index, layero) {
+                    let submitBtn = layero.find("iframe").contents().find('#submitBtn');
+                    submitBtn.click();
+                },
+                end: function () {
+                    window.location.reload();
+                }
+            });
+        });
+    }();
+</script>
 </body>
 </html>

@@ -7,6 +7,7 @@ import com.esiran.greenadmin.system.entity.Menu;
 import com.esiran.greenadmin.system.entity.dot.MenuDTO;
 import com.esiran.greenadmin.system.service.IMenuService;
 import com.google.gson.*;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -43,6 +44,7 @@ public class AdminSystemMenuController extends CURDBaseController {
     }
 
     @GetMapping("/list")
+    @RequiresPermissions("system_menu_view")
     public String list(ModelMap modelMap){
         List<MenuDTO> md = iMenuService.all();
         modelMap.addAttribute("listJsonString", gson.toJson(md));
@@ -50,6 +52,7 @@ public class AdminSystemMenuController extends CURDBaseController {
     }
 
     @GetMapping("/list/{menuId}/edit")
+    @RequiresPermissions("system_menu_update")
     public String edit(HttpSession httpSession, ModelMap modelMap, @PathVariable Long menuId) throws APIException {
         List<APIError> apiErrors = (List<APIError>) httpSession.getAttribute("errors");
         modelMap.addAttribute("errors", apiErrors);
@@ -61,6 +64,7 @@ public class AdminSystemMenuController extends CURDBaseController {
 
 
     @PostMapping("/list/{menuId}/edit")
+    @RequiresPermissions("system_menu_update")
     public String edit(@PathVariable Integer menuId, MenuDTO menuDTO) throws APIException {
 
         if (menuDTO.getParentId()<=0){
@@ -80,6 +84,7 @@ public class AdminSystemMenuController extends CURDBaseController {
 
 
     @GetMapping("/add")
+    @RequiresPermissions("system_menu_add")
     public String add(HttpSession httpSession, ModelMap modelMap) {
         List<APIError> apiErrors = (List<APIError>) httpSession.getAttribute("errors");
         modelMap.addAttribute("errors", apiErrors);
@@ -89,6 +94,7 @@ public class AdminSystemMenuController extends CURDBaseController {
 
 
     @PostMapping("/add")
+    @RequiresPermissions("system_menu_add")
     public String add(@Valid MenuDTO menuDTO) throws Exception{
         iMenuService.addMenu(menuDTO);
         return redirect("/system/menu/list");

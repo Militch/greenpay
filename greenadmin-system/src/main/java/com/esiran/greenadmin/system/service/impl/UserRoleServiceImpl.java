@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -30,11 +32,19 @@ import java.util.List;
 @Service
 public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> implements IUserRoleService {
 
-    private IUserService userService;
 
-
-    public UserRoleServiceImpl(IUserService userService) {
-        this.userService = userService;
+    @Override
+    public void resetUserRoles(Integer userId, List<Integer> roleIds) {
+        if (userId == null) throw new IllegalArgumentException("userId is Null");
+        if (roleIds == null) throw new IllegalArgumentException("roleIds is Null");
+        remove(new QueryWrapper<UserRole>().lambda().eq(UserRole::getUserId,userId));
+        List<UserRole> userRoles = roleIds.stream().map(item->{
+            UserRole ur = new UserRole();
+            ur.setUserId(userId);
+            ur.setRoleId(item);
+            return ur;
+        }).collect(Collectors.toList());
+        saveBatch(userRoles);
     }
 
     @Override
@@ -47,17 +57,17 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     @Transactional
     public boolean addUserAndRole(UserInputDto userInputDto) throws APIException {
 
-        User user = userService.addUser(userInputDto);
-        String[] split = userInputDto.getRoleIds().split(",");
-        if (split.length>0 && !split[0].equals("")) {
-            UserRole role = new UserRole();
-            for (String s : split) {
-                Integer id = Integer.valueOf(s);
-                role.setUserId(user.getId());
-                role.setRoleId(id);
-                this.save(role);
-            }
-        }
+//        User user = userService.addUser(userInputDto);
+//        String[] split = userInputDto.getRoleIds().split(",");
+//        if (split.length>0 && !split[0].equals("")) {
+//            UserRole role = new UserRole();
+//            for (String s : split) {
+//                Integer id = Integer.valueOf(s);
+//                role.setUserId(user.getId());
+//                role.setRoleId(id);
+//                this.save(role);
+//            }
+//        }
 
         return true;
     }
@@ -91,54 +101,5 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         return false;
     }
 
-    @Override
-    @Transactional()
-    public boolean updateUserAndRoles(Integer userId, UserInputDto userInputDto) throws APIException {
 
-        User user = userService.getById(userId);
-
-        LambdaQueryWrapper<User> queryWrapper ;
-        if (!user.getEmail().equals(userInputDto.getEmail())){
-            queryWrapper = new LambdaQueryWrapper<>();
-            LambdaQueryWrapper<User> eq = queryWrapper.like(User::getEmail, userInputDto.getEmail());
-            User u = userService.getOne(eq);
-            if (u != null ) {
-                throw new APIException("邮箱已经存在","400");
-            }
-        }
-        if (!user.getUsername().equals(userInputDto.getUsername())){
-            queryWrapper = new LambdaQueryWrapper<>();
-            LambdaQueryWrapper<User> eq = queryWrapper.like(User::getUsername, userInputDto.getUsername());
-            User u = userService.getOne(eq);
-            if (u != null ) {
-                throw new APIException("用户名已存在","400");
-            }
-        }
-
-        user.setUsername(userInputDto.getUsername());
-        user.setEmail(userInputDto.getEmail());
-
-        user.setUpdatedAt(LocalDateTime.now());
-        userService.updateById(user);
-
-        //更新用戶權限
-        String[] split = userInputDto.getRoleIds().split(",");
-        updateUserRoleByUserId(user.getId(), split);
-        return true;
-    }
-
-
-    @Override
-    @Transactional
-    public boolean removeUserRoleYyUserId(Integer userId) {
-        if (userId <= 0) {
-            return false;
-        }
-        LambdaQueryWrapper<UserRole> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(UserRole::getUserId, userId);
-        remove(lambdaQueryWrapper);
-
-        userService.removeById(userId);
-        return true;
-    }
 }

@@ -53,7 +53,20 @@ let $ = layui.jquery,
                             }
                         },
                         error: function (data) {
-                            layer.alert("操作请求错误，请您稍后再试");
+
+                            if (!data.responseJSON){
+                                layer.msg("请求失败，请稍后重试");
+                                return;
+                            }
+                            const {code,message,errors} = data.responseJSON;
+                            if (errors && errors.length > 0){
+                                const errorMessage = errors[0].message;
+                                layer.msg(errorMessage);
+                            }else if(message){
+                                layer.msg(message);
+                            }else {
+                                layer.msg("请求失败，请稍后重试");
+                            }
                         }
                     });
                     break;
@@ -72,7 +85,19 @@ let $ = layui.jquery,
                             }
                         },
                         error: function (data) {
-                            layer.alert("操作请求错误，请您稍后再试");
+                            if (!data.responseJSON){
+                                layer.msg("请求失败，请稍后重试");
+                                return;
+                            }
+                            const {code,message,errors} = data.responseJSON;
+                            if (errors && errors.length > 0){
+                                const errorMessage = errors[0].message;
+                                layer.msg(errorMessage);
+                            }else if(message){
+                                layer.msg(message);
+                            }else {
+                                layer.msg("请求失败，请稍后重试");
+                            }
                         }
                     });
                     break;
@@ -200,17 +225,25 @@ function del(menuId,name){
                 data: {'menuId': menuId},
                 url: "/api/v1/system/menus/del",
                 success: function (data) {
-                    if (data) {
-                        layer.alert("操作成功",function(){
-                            layer.closeAll();
-                            location.reload();//自定义
-                        });
-                    } else {
-                        layer.alert(data);
-                    }
+                    layer.alert("操作成功",function(){
+                        layer.closeAll();
+                        location.reload();//自定义
+                    });
                 },
                 error: function (data) {
-                    layer.alert(data.responseJSON.message);
+                    if (!data.responseJSON){
+                        layer.msg("请求失败，请稍后重试");
+                        return;
+                    }
+                    const {code,message,errors} = data.responseJSON;
+                    if (errors && errors.length > 0){
+                        const errorMessage = errors[0].message;
+                        layer.msg(errorMessage);
+                    }else if(message){
+                        layer.msg(message);
+                    }else {
+                        layer.msg("请求失败，请稍后重试");
+                    }
                 }
             });
         });
@@ -240,18 +273,27 @@ function delmenus(elements) {
                 type:"DELETE",
                 // dataType:"json",
                 success:function(data){
-                    if (i == elements.length) {
+                    if (i === elements.length) {
                         // layer.msg("操作成功");
 
                         location.reload();
                     }
 
                 },
-                error:function(data){
-                    layer.alert(data.msg,function(){
-                        layer.closeAll();
-
-                    });
+                error: function(data){
+                    if (!data.responseJSON){
+                        layer.msg("请求失败，请稍后重试");
+                        return;
+                    }
+                    const {code,message,errors} = data.responseJSON;
+                    if (errors && errors.length > 0){
+                        const errorMessage = errors[0].message;
+                        layer.msg(errorMessage);
+                    }else if(message){
+                        layer.msg(message);
+                    }else {
+                        layer.msg("请求失败，请稍后重试");
+                    }
                 }
             });
         })

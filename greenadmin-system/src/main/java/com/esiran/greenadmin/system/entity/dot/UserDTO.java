@@ -12,8 +12,9 @@ public class UserDTO {
     private Integer id;
     private String username;
     private String nickname;
-    private String password;
     private String email;
     private String roleNames;
     private String roleIds;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

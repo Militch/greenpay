@@ -2,14 +2,11 @@ package com.esiran.greenadmin.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenadmin.common.entity.APIException;
 import com.esiran.greenadmin.common.exception.PostResourceException;
-import com.esiran.greenadmin.system.entity.Role;
-import com.esiran.greenadmin.system.entity.RoleMenu;
-import com.esiran.greenadmin.system.entity.UserRole;
+import com.esiran.greenadmin.system.entity.*;
 import com.esiran.greenadmin.system.entity.dot.UserRoleInputDto;
 import com.esiran.greenadmin.system.entity.vo.MenuTreeVo;
 import com.esiran.greenadmin.system.mapper.RoleMapper;
@@ -17,7 +14,6 @@ import com.esiran.greenadmin.system.service.IMenuService;
 import com.esiran.greenadmin.system.service.IRoleMenuService;
 import com.esiran.greenadmin.system.service.IRoleService;
 import com.esiran.greenadmin.system.service.IUserRoleService;
-import io.swagger.models.auth.In;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -45,13 +41,15 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IRoleService {
 
     private static final ModelMapper modelMapper = new ModelMapper();
+    static {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    }
 
     private IRoleMenuService iRoleMenuService;
 
     private final IUserRoleService userRoleService;
 
     private final IMenuService menuService;
-
 
     public RoleServiceImpl(IRoleMenuService iRoleMenuService, IUserRoleService userRoleService, IMenuService menuService) {
         this.iRoleMenuService = iRoleMenuService;
@@ -61,11 +59,37 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
 
     @Override
+    public List<RoleDto> listAll() {
+        return list().stream().map(item-> modelMapper.map(item,RoleDto.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Role> listByUserId(Integer userId) {
+        return baseMapper.selectRolesByUserId(userId);
+    }
+
+    @Override
+    public RoleDto addRole(RoleInputDto inputDto) {
+        Role role = modelMapper.map(inputDto,Role.class);
+        save(role);
+        return modelMapper.map(role,RoleDto.class);
+    }
+
+    @Override
     public Role selectById(Integer id) throws PostResourceException {
         if (id <= 0) {
             throw new PostResourceException("角色ID不正确");
         }
         return this.baseMapper.selectById(id);
+    }
+
+    @Override
+    public void removeRoleById(Integer id) throws PostResourceException {
+        Role role = getOne(new QueryWrapper<Role>().lambda().eq(Role::getId,id));
+        if (role == null) throw new PostResourceException("所需操作的角色不存在");
+        remove(new QueryWrapper<Role>().lambda().eq(Role::getId,id));
+        iRoleMenuService.remove(new QueryWrapper<RoleMenu>().lambda().eq(RoleMenu::getRoleId,id));
+        userRoleService.remove(new QueryWrapper<UserRole>().lambda().eq(UserRole::getRoleId,id));
     }
 
     @Override

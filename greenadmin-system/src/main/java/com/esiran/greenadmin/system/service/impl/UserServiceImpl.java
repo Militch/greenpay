@@ -1,25 +1,36 @@
 package com.esiran.greenadmin.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.esiran.greenadmin.common.entity.APIException;
 import com.esiran.greenadmin.common.exception.PostResourceException;
 import com.esiran.greenadmin.common.util.TOTPUtil;
+import com.esiran.greenadmin.system.entity.Role;
+import com.esiran.greenadmin.system.entity.RoleMenu;
 import com.esiran.greenadmin.system.entity.User;
+import com.esiran.greenadmin.system.entity.UserRole;
 import com.esiran.greenadmin.system.entity.dot.UserDTO;
 import com.esiran.greenadmin.system.entity.dot.UserInputDto;
+import com.esiran.greenadmin.system.entity.dot.UserUpdateDto;
 import com.esiran.greenadmin.system.entity.vo.UserInputDTO;
 import com.esiran.greenadmin.system.entity.vo.UserInputVo;
 import com.esiran.greenadmin.system.mapper.UserMapper;
+import com.esiran.greenadmin.system.service.IUserRoleService;
 import com.esiran.greenadmin.system.service.IUserService;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -32,23 +43,62 @@ import java.util.regex.Pattern;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
     private static final ModelMapper modelMapper = new ModelMapper();
+    private final IUserRoleService iUserRoleService;
 
-
+    public UserServiceImpl(IUserRoleService iUserRoleService) {
+        this.iUserRoleService = iUserRoleService;
+    }
 
     @Override
-    public User addUser(UserInputDto userInputDto) throws APIException {
+    public UserDTO addUser(UserInputDto userInputDto) throws APIException {
         User user = modelMapper.map(userInputDto, User.class);
-        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(User::getUsername, user.getUsername()).or()
-                .eq(User::getEmail, user.getEmail());
-        User oldUser = getOne(lambdaQueryWrapper);
+        User oldUser = getUserByUsernameOrEmail(user.getUsername(), user.getEmail());
         if (oldUser != null) {
-            throw new APIException("用户名或邮箱已经存在","400");
+            throw new APIException("用户名或邮箱已经存在","USER_NAME_OR_EMAIL_NO_USED");
         }
         user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(userInputDto.getCreatedAt());
+        user.setUpdatedAt(LocalDateTime.now());
         save(user);
-        return  user ;
+        if (userInputDto.getRoleIds() != null){
+            List<String> roleIds = Arrays.stream(userInputDto.getRoleIds()).filter(Objects::nonNull).collect(Collectors.toList());
+            List<Integer> userRoles = roleIds.stream()
+                    .map(Integer::parseInt).collect(Collectors.toList());
+            iUserRoleService.resetUserRoles(user.getId(),userRoles);
+        }
+        return modelMapper.map(user,UserDTO.class);
+    }
+
+    @Override
+    public UserDTO updateUserById(UserUpdateDto userUpdateDto) throws APIException, PostResourceException {
+        User u = getOne(new QueryWrapper<User>().lambda().eq(User::getId,userUpdateDto.getId()));
+        if (u == null) throw new PostResourceException("用户ID不存在，请重试");
+        User user = modelMapper.map(userUpdateDto, User.class);
+        User oldUser = getUserByUsernameOrEmail(user.getUsername(), user.getEmail());
+        if (oldUser != null && !oldUser.getId().equals(user.getId())) {
+            throw new APIException("用户名或邮箱已经存在","USER_NAME_OR_EMAIL_NO_USED");
+        }
+        user.setUpdatedAt(LocalDateTime.now());
+        if (StringUtils.isBlank(user.getPassword())) user.setPassword(null);
+        updateById(user);
+        if (userUpdateDto.getRoleIds() != null){
+            List<String> roleIds = Arrays.stream(userUpdateDto.getRoleIds()).filter(Objects::nonNull).collect(Collectors.toList());
+            List<Integer> userRoles = roleIds.stream()
+                    .map(Integer::parseInt).collect(Collectors.toList());
+            iUserRoleService.resetUserRoles(user.getId(),userRoles);
+        }else{
+            iUserRoleService.remove(new QueryWrapper<UserRole>().lambda().eq(UserRole::getUserId,user.getId()));
+        }
+        return modelMapper.map(user,UserDTO.class);
+    }
+
+    @Override
+    public User getUserByUsernameOrEmail(String username, String emails) {
+        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(User::getUsername, username).or()
+                .eq(User::getEmail, emails);
+        return getOne(new QueryWrapper<User>().lambda()
+                .eq(User::getUsername,username)
+                .eq(User::getEmail,emails));
     }
 
     @Override
@@ -60,10 +110,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return modelMapper.map(user, UserDTO.class);
     }
 
-
+    @Override
+    public void removeUserById(Integer id) throws PostResourceException {
+        User user = getOne(new QueryWrapper<User>().lambda().eq(User::getId,id));
+        if (user == null) throw new PostResourceException("所需操作的用户不存在");
+        remove(new QueryWrapper<User>().lambda().eq(User::getId,id));
+        iUserRoleService.remove(new QueryWrapper<UserRole>().lambda().eq(UserRole::getUserId,id));
+    }
 
     @Override
-    public void updateUser(Integer userId, UserInputDTO userInputDTO) throws PostResourceException {
+    public void updateUserById(Integer userId, UserInputDTO userInputDTO) throws PostResourceException {
         User oldUser = this.getById(userId);
         if (oldUser == null) {
             throw new PostResourceException("用户不存在");

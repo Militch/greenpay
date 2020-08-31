@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,10 +58,9 @@ public class ApiAdminSystemMenuController {
             @ApiImplicitParam(name = "size",value = "每页个数 ",defaultValue = "10")
     })
     @GetMapping
+    @RequiresPermissions("system_menu_view")
     public  ResponseEntity<List<MenuTreeVo>> list() {
-
         List<MenuTreeVo> menuTreeVoList = iMenuService.menuList();
-
         for (MenuTreeVo menu : menuTreeVoList) {
             if (menu.getType() == 1) {
                 menu.setTitle("|-" + menu.getTitle());
@@ -76,6 +76,7 @@ public class ApiAdminSystemMenuController {
 
 
     @GetMapping("/roleTree")
+    @RequiresPermissions("system_menu_view")
     public ResponseEntity<IPage<Menu>> Rolelist(Page<Menu> page){
         page.setSize(100);
         IPage<Menu> menuTreeVoList = iMenuService.menuTreeList(page);
@@ -84,6 +85,7 @@ public class ApiAdminSystemMenuController {
     }
 
     @PostMapping
+    @RequiresPermissions("system_menu_add")
     public ResponseEntity<String> add(MenuInputVo menuInputVo) throws PostResourceException {
 
         if (menuInputVo == null) {
@@ -96,6 +98,7 @@ public class ApiAdminSystemMenuController {
     }
 
     @PutMapping
+    @RequiresPermissions("system_menu_update")
     public ResponseEntity put( MenuInputVo menu) throws PostResourceException {
         if (menu.getId() <= 0) {
             throw new PostResourceException("权限ID不正确");
@@ -113,6 +116,7 @@ public class ApiAdminSystemMenuController {
     }
 
     @GetMapping("/{id}")
+    @RequiresPermissions("system_menu_update")
     public ResponseEntity get(@PathVariable("id") Long id) {
         Menu menu = iMenuService.getById(id);
         if (menu == null) {
@@ -122,37 +126,21 @@ public class ApiAdminSystemMenuController {
     }
 
     @GetMapping("/list")
+    @RequiresPermissions("system_menu_view")
     public ResponseEntity all(Page<Menu> page) {
         return iMenuService.selectAllUserMenue(page);
     }
 
     @GetMapping("/all")
+    @RequiresPermissions("system_menu_view")
     public ResponseEntity all(){
         return iMenuService.selectMenuAll();
     }
 
     @DeleteMapping("/del")
-    public ResponseEntity del(@RequestParam Integer menuId) throws APIException {
-
-        if (menuId <= 0) {
-            throw new APIException("菜单ID不正确",String.valueOf(HttpStatus.NOT_FOUND) );
-        }
-        Menu menuDTO = iMenuService.getById(menuId);
-        if (menuDTO == null) {
-            throw new APIException("菜单不存在",String.valueOf(HttpStatus.NOT_FOUND) );
-        }
-
-        boolean b = iMenuService.removeMenuByid(menuId);
-
-//        iMenuService.removeById(id);
-//
-//        //删除正面所有子节点
-//        if (menuDTO.getParentId() == 0) {
-//            QueryWrapper<Menu> menuQueryWrapper = new QueryWrapper<>();
-//            menuQueryWrapper.eq("parent_id", menuDTO.getId());
-//            iMenuService.remove(menuQueryWrapper);
-//        }
-        return ResponseEntity.status(HttpStatus.OK).body(b);
+    @RequiresPermissions("system_menu_del")
+    public void del(@RequestParam Integer menuId) throws APIException, PostResourceException {
+        iMenuService.removeMenuById(menuId);
     }
 
 }

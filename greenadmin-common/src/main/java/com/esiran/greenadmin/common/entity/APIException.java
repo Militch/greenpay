@@ -1,6 +1,8 @@
 package com.esiran.greenadmin.common.entity;
 
 
+import com.baomidou.mybatisplus.extension.enums.ApiErrorCode;
+
 public class APIException extends Exception{
     private String code;
     private Integer status;
