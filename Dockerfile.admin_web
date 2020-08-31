@@ -10,6 +10,6 @@ VOLUME /tmp
 WORKDIR /opt
 EXPOSE 8081
 
-COPY greenpay-admin/target/lib/ ./lib/
-COPY greenpay-admin/target/app.jar ./app.jar
+COPY greenadmin-admin/target/lib/ ./lib/
+COPY greenadmin-admin/target/app.jar ./app.jar
 ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "/opt/app.jar"]
