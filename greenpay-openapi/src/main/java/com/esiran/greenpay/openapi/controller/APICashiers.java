@@ -285,6 +285,31 @@ public class APICashiers {
         out.println(form);
         return null;
     }
+    @RequestMapping("/app/orders")
+    @ResponseBody
+    public Map<String,Object> createAppOrder(@Valid CashierInputDTO inputDTO, HttpServletRequest request) throws Exception {
+        Merchant merchant = OpenAPISecurityUtils.getSubject();
+        String productCode = inputDTO.getChannel();
+        PayOrder payOrder = cashierService.createCashierByInput(productCode, inputDTO, merchant);
+        String orderNo = payOrder.getOrder().getOrderNo();
+        Interface ins = interfaceService.getById(payOrder.getOrderDetail().getPayInterfaceId());
+        Integer scenarios = ins.getScenarios();
+        if (scenarios == 4){
+            PayOrderFlow payOrderFlow = new PayOrderFlow(payOrder);
+            try {
+                Plugin<PayOrder> payOrderPlugin =
+                        pluginLoader.loadForClassPath(ins.getInterfaceImpl());
+                payOrderPlugin.apply(payOrderFlow);
+                payOrderFlow.execDependent("create");
+                Map<String,Object> results = payOrderFlow.getResults();
+                return results;
+            } catch (Exception e) {
+                throw new APIException("请求支付通道失败","REQUEST_ERROR");
+            }
+        }else {
+            throw new APIException("支付场景暂不支持该渠道支付","REQUEST_ERROR");
+        }
+    }
 
     @RequestMapping("/h5/orders")
     public String createH5Order(@Valid CashierInputDTO inputDTO, HttpServletRequest request) throws Exception {

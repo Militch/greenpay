@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class TreeUtil {
 
-    public static <T extends TreeNode<T>> List<T> buildByLoop(List<T> treeNodes, Integer root) {
+    public static <T extends TreeNode<T>> List<T>  buildByLoop(List<T> treeNodes, Integer root) {
         List<T> trees = new ArrayList<>();
         for (T treeNode : treeNodes) {
             if (root.equals(treeNode.getParentId())) {

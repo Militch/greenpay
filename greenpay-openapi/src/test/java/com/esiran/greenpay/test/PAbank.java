@@ -2,10 +2,14 @@ package com.esiran.greenpay.test;
 
 
 import com.esiran.greenpay.bank.pingan.entity.PATradeCode;
+import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.sign.Md5SignType;
 import com.esiran.greenpay.common.util.Map2Xml;
 import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
+import com.esiran.greenpay.pay.entity.WxMyConfig;
+import com.github.wxpay.sdk.WXPay;
+import com.github.wxpay.sdk.WXPayUtil;
 import com.google.gson.Gson;
 import okhttp3.*;
 
@@ -13,12 +17,11 @@ import org.junit.Test;
 
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class PAbank {
 
@@ -283,6 +286,57 @@ public class PAbank {
         Response response = okHttpClient.newCall(request).execute();
         String s = response.body().string();
         System.out.println(s);
+    }
+    @Test
+    public void test11() throws Exception {
+        WxMyConfig wxMyConfig = new WxMyConfig("appId"
+                , "mchId"
+                , "mchKey");
+        WXPay wxPay = new WXPay(wxMyConfig);
+        Map<String, String> data = new HashMap<>();
+        data.put("appid", wxMyConfig.getAppID());
+        data.put("mch_id", wxMyConfig.getMchID());
+        data.put("nonce_str", WXPayUtil.generateNonceStr());
+        data.put("body","");
+        data.put("out_trade_no", "");//订单号
+        data.put("total_fee", "");//支付金额
+        data.put("spbill_create_ip", "127.0.0.1"); //自己的服务器IP地址
+        data.put("notify_url", "www.baidu.com");//异步通知地址（请注意必须是外网）
+        data.put("trade_type", "APP");//交易类型
+        String s = WXPayUtil.generateSignature(data,wxMyConfig.getMchKey());  //签名
+        data.put("sign", s);//签名
+        try {
+            //使用官方API请求预付订单
+            Map<String, String> response = wxPay.unifiedOrder(data);
+            System.out.println(response);
+            String returnCode = response.get("return_code");//获取返回码
+            //若返回码为SUCCESS，则会返回一个result_code,再对该result_code进行判断
+            if (returnCode.equals("SUCCESS") && response.get("result_code").equals("SUCCESS")) {
+                Map<String,String> parameterMap = new HashMap<>();
+                parameterMap.put("appid",response.get("appid"));
+                parameterMap.put("partnerid",response.get("partnerid"));
+                parameterMap.put("prepayid",response.get("prepayid"));
+                parameterMap.put("package",response.get("Sign=WXPay"));
+                parameterMap.put("noncestr",response.get("nonce_str"));
+                parameterMap.put("timestamp",String.valueOf(System.currentTimeMillis()).toString().substring(0, 10));
+                String signature = WXPayUtil.generateSignature(parameterMap, wxMyConfig.getMchKey());
+                parameterMap.put("sign",signature);
+                System.out.println(parameterMap);
+            } else {
+                throw new APIException("","");
+            }
+        } catch (Exception e) {
+            throw new APIException(e.getMessage(),"");
+        }
+    }
+
+    @Test
+    public void test99(){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH,2);
+        String format = dateFormat.format(calendar.getTime());
+        System.out.println(format);
     }
 
 }
