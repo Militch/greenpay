@@ -43,7 +43,7 @@
         <gson.version>2.8.6</gson.version>
         <okhttp.version>4.1.0</okhttp.version>
         <weixin-java.version>3.5.0</weixin-java.version>
-        <shiro.version>1.5.1</shiro.version>
+        <shiro.version>1.7.1</shiro.version>
         <modelmapper.version>2.3.0</modelmapper.version>
         <junit.version>4.12</junit.version>
         <swagger2.version>2.9.2</swagger2.version>
