@@ -151,14 +151,13 @@
             }
             ,cols: [[ //表头
                 {type: 'checkbox', fixed: 'left'}
-                ,{field: 'id', title: 'ID',width:'5%', unresize:true}
-                ,{field: 'typeCode', title: '支付类型编码', width:'10%', unresize:true}
-                ,{field: 'typeName', title: '支付类型名称', width:'35%', unresize:true}
-                ,{field: 'type', title: '类别', width:'5%', unresize:true, templet: '#typeTemplate'}
-                ,{field: 'status', title: '状态', width:'5%', unresize:true, templet:'#statusTemplate'}
-                ,{field: 'createdAt', title: '创建时间', width:'10%', unresize:true}
-                ,{field: 'updatedAt', title: '更新时间', width:'10%', unresize:true}
-                ,{title: '操作', align: 'left', width:'15%', toolbar: '#barDemo', unresize:true}
+                ,{field: 'id', title: 'ID',width:'60', unresize:true}
+                ,{field: 'typeCode', title: '支付类型编码', width:'200', unresize:true}
+                ,{field: 'typeName', title: '支付类型名称', width:'200', unresize:true}
+                ,{field: 'type', title: '类别', width:'100', unresize:true, templet: '#typeTemplate'}
+                ,{field: 'status', title: '状态', width:'60', unresize:true, templet:'#statusTemplate'}
+                ,{field: 'createdAt', title: '创建时间', width:'200', unresize:true}
+                ,{title: '操作', align: 'left', width:0, toolbar: '#barDemo', unresize:true}
             ]]
         });
 

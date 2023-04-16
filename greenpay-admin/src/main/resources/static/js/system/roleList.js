@@ -32,11 +32,10 @@ let $ = layui.jquery
             }
             ,cols: [[ //表头
                 {type:'checkbox'}//{type: 'checkbox', fixed: 'left'}
-                ,{field: 'id', title: 'ID',width:'5%', unresize:true , sort: true}
-                ,{field: 'name', title: '角色名称', width:'35%', unresize:true}
-                ,{field: 'roleCode', title: '角色编码', width:'15%', unresize:true}
-                ,{field: 'createdAt', title: '创建时间', width:'15%', unresize:true}
-                ,{field: 'updatedAt', title: '更新时间', width:'15%', unresize:true}
+                ,{field: 'id', title: 'ID',width:'60', unresize:true , sort: true}
+                ,{field: 'name', title: '角色名称', width:'120', unresize:true}
+                ,{field: 'roleCode', title: '角色编码', width:'120', unresize:true}
+                ,{field: 'createdAt', title: '创建时间', width:'200', unresize:true}
                 ,{title: '操作', align: 'left', width:0, toolbar: '#barDemo', unresize:true}
             ]]
         });
