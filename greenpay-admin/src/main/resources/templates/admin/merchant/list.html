@@ -111,15 +111,14 @@
             }
             ,cols: [[ //表头
                 {type: 'checkbox', fixed: 'left'}
-                ,{field: 'id', title: 'ID',width:'5%', unresize:true}
-                ,{field: 'username', title: '用户名', width:'10%', unresize:true}
-                ,{field: 'name', title: '商户名称', width:'15%', unresize:true}
-                ,{field: 'email', title: '电子邮箱', width:'15%', unresize:true}
-                ,{field: 'balance',align:'right', title: '可用余额（元）', width:'10%', unresize:true, templet:'#balanceTemplate'}
-                ,{field: 'status', title: '状态', width:'5%', unresize:true, templet:'#statusTemplate'}
-                ,{field: 'createdAt', title: '创建时间', width:'10%', unresize:true}
-                ,{field: 'updatedAt', title: '更新时间', width:'10%', unresize:true}
-                ,{title: '操作', align: 'left', width:'16%', toolbar: '#barDemo', unresize:true}
+                ,{field: 'id', title: 'ID',width:'60', unresize:true}
+                ,{field: 'username', title: '用户名',width:'120', unresize:true}
+                ,{field: 'name', title: '商户名称',width: '200', unresize:true}
+                ,{field: 'email', title: '电子邮箱',width: '200', unresize:true}
+                ,{field: 'balance',align:'right', title: '可用余额', width:'120', unresize:true, templet:'#balanceTemplate'}
+                ,{field: 'status', title: '状态', unresize:true, width: '80',templet:'#statusTemplate'}
+                ,{field: 'createdAt', title: '创建时间',width:'200', unresize:true}
+                ,{title: '操作', align: 'left', toolbar: '#barDemo', width: '260', unresize:true}
             ]]
         });
 
