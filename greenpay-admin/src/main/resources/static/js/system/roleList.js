@@ -36,7 +36,7 @@ let $ = layui.jquery
                 ,{field: 'name', title: '角色名称', width:'120', unresize:true}
                 ,{field: 'roleCode', title: '角色编码', width:'120', unresize:true}
                 ,{field: 'createdAt', title: '创建时间', width:'200', unresize:true}
-                ,{title: '操作', align: 'left', width:0, toolbar: '#barDemo', unresize:true}
+                ,{title: '操作', align: 'left', width:240, toolbar: '#barDemo', unresize:true}
             ]]
         });
         table.on('checkbox(demo)', function(obj){
