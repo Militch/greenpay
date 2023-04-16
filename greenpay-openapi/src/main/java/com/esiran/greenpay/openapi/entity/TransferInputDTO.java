@@ -13,7 +13,7 @@ public class TransferInputDTO {
     @NotNull(message = "订单号不能为空")
     private String outOrderNo;
     @NotNull(message = "订单金额不能为空")
-    @Min(value = 1, message = "订单金额不能小于1元")
+    @Min(value = 1, message = "订单金额不能小于1")
     private Integer amount;
     @NotNull(message = "账户类型不能为空")
     private Integer accountType;

@@ -108,10 +108,10 @@ public class TransferService implements ITransferService {
         PassageRisk passageRisk = passageRiskService.getByPassageId(payPassage.getId());
         if (passageRisk != null && passageRisk.getStatus() == 1){
             if (agentPayOrder.getAmount() < passageRisk.getAmountMin()){
-                throw new APIException(String.format("订单金额不得低于%s元",NumberUtil.amountFen2Yuan(passageRisk.getAmountMin())),"PASSAGE_RISK");
+                throw new APIException(String.format("订单金额不得低于%s",NumberUtil.amountFen2Yuan(passageRisk.getAmountMin())),"PASSAGE_RISK");
             }
             if (agentPayOrder.getAmount() > passageRisk.getAmountMax()){
-                throw new APIException(String.format("订单金额不得高于%s元",NumberUtil.amountFen2Yuan(passageRisk.getAmountMax())),"PASSAGE_RISK");
+                throw new APIException(String.format("订单金额不得高于%s",NumberUtil.amountFen2Yuan(passageRisk.getAmountMax())),"PASSAGE_RISK");
             }
         }
 
