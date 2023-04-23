@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.io.Serializable;
 
 import com.esiran.greenpay.common.entity.BaseMapperEntity;
-import io.swagger.models.auth.In;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

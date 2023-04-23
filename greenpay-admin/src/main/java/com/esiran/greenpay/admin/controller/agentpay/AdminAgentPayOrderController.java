@@ -10,7 +10,6 @@ import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
 import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
-import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.esiran.greenpay.pay.entity.OrderQueryDTO;
 import com.esiran.greenpay.system.entity.User;
 import com.esiran.greenpay.system.service.IUserService;
@@ -30,13 +29,11 @@ public class AdminAgentPayOrderController extends CURDBaseController {
     private static final Gson g = new Gson();
    private final IAgentPayOrderService agentPayOrderService;
     private final IPrepaidAccountService prepaidAccountService;
-    private final RedisDelayQueueClient redisDelayQueueClient;
     private final IUserService userService;
 
-    public AdminAgentPayOrderController(IAgentPayOrderService agentPayOrderService, IPrepaidAccountService prepaidAccountService, RedisDelayQueueClient redisDelayQueueClient, IUserService userService) {
+    public AdminAgentPayOrderController(IAgentPayOrderService agentPayOrderService, IPrepaidAccountService prepaidAccountService, IUserService userService){
         this.agentPayOrderService = agentPayOrderService;
         this.prepaidAccountService = prepaidAccountService;
-        this.redisDelayQueueClient = redisDelayQueueClient;
         this.userService = userService;
     }
 
@@ -100,7 +97,7 @@ public class AdminAgentPayOrderController extends CURDBaseController {
                 queryMap.put("orderNo", agentPayOrder.getOrderNo());
                 queryMap.put("count", "1");
                 String queryMsg = g.toJson(queryMap);
-                redisDelayQueueClient.sendDelayMessage("supplement:query", queryMsg, 0);
+                //redisDelayQueueClient.sendDelayMessage("supplement:query", queryMsg, 0);
             }
         } catch (APIException e) {
            throw new PostResourceException(e.getMessage());

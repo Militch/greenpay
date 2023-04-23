@@ -17,7 +17,6 @@ import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.pay.entity.Interface;
 import com.esiran.greenpay.pay.service.IInterfaceService;
-import org.apache.kafka.common.errors.ApiException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;

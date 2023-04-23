@@ -10,7 +10,6 @@ import com.esiran.greenpay.common.entity.APIException;
 
 import com.esiran.greenpay.common.exception.PostResourceException;
 import com.esiran.greenpay.framework.annotation.PageViewHandleError;
-import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.esiran.greenpay.pay.entity.OrderQueryDTO;
 import com.google.gson.Gson;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +25,9 @@ public class APIAdminAgentPayOrderController {
 
     private static final Gson g = new Gson();
     private final IAgentPayOrderService agentPayOrderService;
-    private final RedisDelayQueueClient redisDelayQueueClient;
-    public APIAdminAgentPayOrderController(IAgentPayOrderService agentPayOrderService, RedisDelayQueueClient redisDelayQueueClient) {
+    public APIAdminAgentPayOrderController(IAgentPayOrderService agentPayOrderService) {
+    //RedisDelayQueueClient redisDelayQueueClient) {
         this.agentPayOrderService = agentPayOrderService;
-        this.redisDelayQueueClient = redisDelayQueueClient;
     }
 
     @GetMapping

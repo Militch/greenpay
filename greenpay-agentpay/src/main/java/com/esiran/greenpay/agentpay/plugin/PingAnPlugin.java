@@ -13,7 +13,6 @@ import com.esiran.greenpay.bank.pingan.entity.QueryOnceAgentPay;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.util.MapUtil;
 import com.esiran.greenpay.common.util.NumberUtil;
-import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;

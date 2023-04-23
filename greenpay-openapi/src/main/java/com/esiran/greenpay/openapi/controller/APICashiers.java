@@ -12,7 +12,6 @@ import com.esiran.greenpay.common.util.UrlSafeB64;
 import com.esiran.greenpay.merchant.entity.ApiConfig;
 import com.esiran.greenpay.merchant.entity.Merchant;
 import com.esiran.greenpay.merchant.service.IApiConfigService;
-import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.esiran.greenpay.openapi.entity.CashierInputDTO;
 import com.esiran.greenpay.openapi.entity.Invoice;
 import com.esiran.greenpay.openapi.entity.QueryDTO;
@@ -64,7 +63,6 @@ public class APICashiers {
     private final IProductService productService;
     private final IInterfaceService interfaceService;
     private final PluginLoader pluginLoader;
-    private final RedisDelayQueueClient redisDelayQueueClient;
     private static final Gson gson = new GsonBuilder().create();
     @Value("${greenpay.web.hostname:http://localhost}")
     private String webHostname;
@@ -75,8 +73,8 @@ public class APICashiers {
             IOrderService orderService,
             IOrderDetailService orderDetailService,
             IProductService productService, IInterfaceService interfaceService,
-            PluginLoader pluginLoader,
-            RedisDelayQueueClient redisDelayQueueClient) {
+            PluginLoader pluginLoader
+    ) {
         this.cashierService = cashierService;
         this.apiConfigService = apiConfigService;
         this.orderService = orderService;
@@ -84,7 +82,6 @@ public class APICashiers {
         this.productService = productService;
         this.interfaceService = interfaceService;
         this.pluginLoader = pluginLoader;
-        this.redisDelayQueueClient = redisDelayQueueClient;
     }
     @RequestMapping("/qr/orders")
     public String createQrPage(@Valid CashierInputDTO inputDTO) throws Exception {

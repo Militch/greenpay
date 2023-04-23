@@ -37,16 +37,6 @@
             <version>4.2.1</version>
         </dependency>
         <dependency>
-            <groupId>com.esiran</groupId>
-            <artifactId>greenpay-message</artifactId>
-        </dependency>
-        <!-- 支付接口配置 -->
-<!--        <dependency>-->
-<!--            <groupId>com.alipay.sdk</groupId>-->
-<!--            <artifactId>alipay-sdk-java</artifactId>-->
-<!--            <version>4.10.0.ALL</version>-->
-<!--        </dependency>-->
-        <dependency>
             <groupId>com.alipay.sdk</groupId>
             <artifactId>alipay-sdk-java</artifactId>
             <version>3.4.49.ALL</version>

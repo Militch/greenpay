@@ -9,7 +9,6 @@ import com.esiran.greenpay.actuator.entity.Task;
 import com.esiran.greenpay.common.entity.APIException;
 import com.esiran.greenpay.common.sign.Md5SignType;
 import com.esiran.greenpay.common.util.MapUtil;
-import com.esiran.greenpay.message.delayqueue.impl.RedisDelayQueueClient;
 import com.esiran.greenpay.pay.entity.Order;
 import com.esiran.greenpay.pay.entity.OrderDetail;
 import com.esiran.greenpay.pay.entity.PayOrder;
@@ -32,7 +31,6 @@ import java.util.Map;
 public class ACPayPlugin implements Plugin<PayOrder> {
     private static final Gson g = new Gson();
     private static final OkHttpClient okHttpClient;
-    private static RedisDelayQueueClient redisDelayQueueClient;
     private static IOrderService orderService;
     private static final Logger logger = LoggerFactory.getLogger(ACPayPlugin.class);
     static {
@@ -43,8 +41,7 @@ public class ACPayPlugin implements Plugin<PayOrder> {
                 .callTimeout(Duration.ofSeconds(180))
                 .build();
     }
-    public ACPayPlugin(RedisDelayQueueClient redisDelayQueueClient, IOrderService orderService) {
-        this.redisDelayQueueClient = redisDelayQueueClient;
+    public ACPayPlugin(IOrderService orderService) {
         this.orderService = orderService;
     }
 
@@ -113,7 +110,7 @@ public class ACPayPlugin implements Plugin<PayOrder> {
                     Map<String,String> messagePayload = new HashMap<>();
                     messagePayload.put("orderNo", order.getOrderNo());
                     messagePayload.put("count", "1");
-                    redisDelayQueueClient.sendDelayMessage("order:acpay",g.toJson(messagePayload),5*1000);
+                    //redisDelayQueueClient.sendDelayMessage("order:acpay",g.toJson(messagePayload),5*1000);
                 }else if (result.equals("success")){
                     LambdaUpdateWrapper<Order> wrapper = new LambdaUpdateWrapper<>();
                     wrapper.set(Order::getStatus,2)
@@ -124,7 +121,7 @@ public class ACPayPlugin implements Plugin<PayOrder> {
                     messagePayload.put("orderNo", order.getOrderNo());
                     messagePayload.put("mchId", String.valueOf(order.getMchId()));
                     messagePayload.put("count", "1");
-                    redisDelayQueueClient.sendDelayMessage("order:notify",g.toJson(messagePayload),0);
+                    //redisDelayQueueClient.sendDelayMessage("order:notify",g.toJson(messagePayload),0);
                 }else if (result.equals("fail")){
                     throw new APIException(msg,"CHANNEL_REQUEST_ERROR");
                 }

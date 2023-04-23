@@ -2,7 +2,6 @@ package com.esiran.greenpay.merchant.mapper;
 
 import com.esiran.greenpay.merchant.entity.PayAccount;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 

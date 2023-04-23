@@ -5,27 +5,4 @@ logging:
   level:
     com.github.binarywang.wxpay: fatal
     me.chanjar.weixin: fatal
-    com.esiran.greenpay.common.sign: debug
-
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${MYSQL_HOST}/${MYSQL_DB}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
-    username: ${MYSQL_USER}
-    password: ${MYSQL_PASS}
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
-    consumer:
-      group-id: 0
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    listener:
-      missing-topics-fatal: false
-  redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
-  resources:
-    chain:
-      strategy:
-        content:
-          enabled: true
+    com.esiran.greenpay.common.sign: fatal

@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.esiran.greenpay.common.entity.BaseMapperEntity;
 import com.esiran.greenpay.common.util.NumberUtil;
 import com.esiran.greenpay.pay.service.impl.OrderServiceImpl;
-import io.swagger.models.auth.In;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

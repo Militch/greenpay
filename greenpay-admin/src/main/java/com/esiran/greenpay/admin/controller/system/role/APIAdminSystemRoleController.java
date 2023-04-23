@@ -18,10 +18,6 @@ import com.esiran.greenpay.system.entity.vo.RoleVo;
 import com.esiran.greenpay.system.service.IMenuService;
 import com.esiran.greenpay.system.service.IRoleMenuService;
 import com.esiran.greenpay.system.service.IRoleService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.apache.http.util.TextUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +40,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/api/v1/system/roles")
-@Api(tags = "角色管理")
 public class APIAdminSystemRoleController extends CURDBaseController {
     private static ModelMapper modelMapper = new ModelMapper();
 
@@ -60,11 +55,6 @@ public class APIAdminSystemRoleController extends CURDBaseController {
         this.menuService = menuService;
     }
 
-    @ApiOperation("查询所有的用户角色")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "current",value = "当前页码",defaultValue = "1"),
-            @ApiImplicitParam(name = "size",value = "每页个数",defaultValue = "10")
-    })
 
     @GetMapping
     public IPage<Role> list(
@@ -77,7 +67,6 @@ public class APIAdminSystemRoleController extends CURDBaseController {
         return roleService.page(new Page<>(current,size),lambdaQueryWrapper);
     }
 
-    @ApiOperation("更新用户角色")
     @PutMapping
 
     public boolean upRole(@Valid UserRoleInputDto userRoleDto) throws ApiException {
@@ -96,7 +85,6 @@ public class APIAdminSystemRoleController extends CURDBaseController {
     }
 
 
-    @ApiOperation("获取指定ID用户角色")
     @GetMapping("/{id}")
     public UserRoleInputDto get(@PathVariable("id") Integer userId) throws Exception{
         Role role = roleService.selectById(userId);
@@ -104,7 +92,6 @@ public class APIAdminSystemRoleController extends CURDBaseController {
         return roleDto;
     }
 
-    @ApiOperation("删除指定ID用户角色")
     @DeleteMapping("/del")
 
     public boolean del(@RequestParam Integer id) throws PostResourceException {

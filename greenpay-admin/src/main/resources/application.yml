@@ -1,25 +1,23 @@
 server:
   port: 8081
 
-logging:
-  level:
-    com.github.binarywang.wxpay: error
-    me.chanjar.weixin: error
-    com.esiran.greenpay.common.sign: debug
-
 spring:
-  profiles:
-    active: dev
   mvc:
     static-path-pattern: /**
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: 0
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    listener:
-      missing-topics-fatal: false
+  resources:
+    chain:
+      strategy:
+        content:
+          enabled: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}/${MYSQL_DB}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASS}
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+
 delay_queue:
   redis:
     default_key: 'greenpay:delay_queue'

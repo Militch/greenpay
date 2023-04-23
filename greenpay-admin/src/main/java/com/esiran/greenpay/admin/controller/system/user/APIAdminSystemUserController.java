@@ -18,10 +18,6 @@ import com.esiran.greenpay.system.service.IMenuService;
 import com.esiran.greenpay.system.service.IRoleService;
 import com.esiran.greenpay.system.service.IUserRoleService;
 import com.esiran.greenpay.system.service.IUserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.apache.http.util.TextUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -38,7 +34,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin/api/v1/system/users")
-@Api(tags = "用户管理")
 public class APIAdminSystemUserController extends CURDBaseController {
 
     private static ModelMapper modelMapper = new ModelMapper();
@@ -108,12 +103,6 @@ public class APIAdminSystemUserController extends CURDBaseController {
 
         return true;
     }
-
-    @ApiOperation("查询所有用户列表")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "current", value = "当前页码", defaultValue = "1"),
-            @ApiImplicitParam(name = "size", value = "每页个数", defaultValue = "10")
-    })
 
     @GetMapping
     public IPage<UserDTO> list(

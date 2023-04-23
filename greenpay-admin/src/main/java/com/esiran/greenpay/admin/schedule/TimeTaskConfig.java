@@ -21,7 +21,7 @@ public class TimeTaskConfig implements SchedulingConfigurer {
      */
     @Override
     public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
-        scheduledTaskRegistrar.setScheduler(Executors.newScheduledThreadPool(10));
+        //scheduledTaskRegistrar.setScheduler(Executors.newScheduledThreadPool(10));
     }
 
 //    @Scheduled(cron = "0 0 0 * * ?")

@@ -1,8 +1,5 @@
 package com.esiran.greenpay.system.entity.dot;
 
-import com.esiran.greenpay.common.entity.BaseMapperEntity;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -13,7 +10,6 @@ import java.time.LocalDateTime;
  * @author han
  */
 @Data
-@ApiModel("menuDto")
 public class MenuDTO {
 
     private Integer id;

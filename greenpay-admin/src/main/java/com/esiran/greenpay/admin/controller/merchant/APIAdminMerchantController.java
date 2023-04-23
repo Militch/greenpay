@@ -19,10 +19,6 @@ import com.esiran.greenpay.merchant.service.IMerchantService;
 import com.esiran.greenpay.merchant.service.IPrepaidAccountService;
 import com.esiran.greenpay.system.entity.User;
 import com.esiran.greenpay.system.service.IUserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,7 +26,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/merchants")
-@Api(tags = "商户管理")
 public class APIAdminMerchantController extends CURDBaseController {
     private final IMerchantService merchantService;
     private final IAgentPayOrderService agentPayOrderService;
@@ -45,11 +40,6 @@ public class APIAdminMerchantController extends CURDBaseController {
         this.apiConfigService = apiConfigService;
     }
 
-    @ApiOperation("查询所有商户列表")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="current",value="当前页码",defaultValue = "1"),
-            @ApiImplicitParam(name="size",value="每页个数",defaultValue = "10"),
-    })
     @GetMapping
     public IPage<MerchantDTO> list(
             @RequestParam(required = false,defaultValue = "1") Integer current,
@@ -58,16 +48,12 @@ public class APIAdminMerchantController extends CURDBaseController {
     }
 
 
-    @ApiOperation("查询指定商户的支付产品列表")
-    @ApiImplicitParam(name="mchId", value="商户ID", dataType="int", required=true, paramType="path")
     @GetMapping("/{mchId}/products")
     public List<MerchantProductDTO> product(@PathVariable Integer mchId) throws APIException, ResourceNotFoundException {
         return merchantService.selectMchProductById(mchId);
     }
 
 
-    @ApiOperation("查询指定商户的代付通道列表")
-    @ApiImplicitParam(name="mchId", value="商户ID", dataType="int", required=true, paramType="path")
     @GetMapping("/{mchId}/agent_pay_passages")
     public List<MerchantAgentPayPassageDTO> agentPayPassage(@PathVariable Integer mchId) throws APIException, ResourceNotFoundException {
         Merchant mch = merchantService.getById(mchId);
@@ -76,49 +62,27 @@ public class APIAdminMerchantController extends CURDBaseController {
     }
 
 
-    @ApiOperation("修改商户的支付产品")
-    @ApiImplicitParam(name="mchId", value="商户ID", dataType="int", required=true, paramType="path")
     @PostMapping(value = "/{mchId}/products")
     public void updateProduct(@PathVariable String mchId, @Valid MerchantProductInputDTO dto) throws Exception {
         merchantService.updateMerchantProduct(dto,Integer.valueOf(mchId));
     }
 
-    @ApiOperation("修改商户信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="mchId",value="商户ID",required = true),
-    })
     @PostMapping(value = "/{mchId}")
     public void updateUserInfo(@PathVariable String mchId, @Valid MerchantUpdateDTO merchantDTO) throws Exception {
         merchantService.updateMerchantInfoById(merchantDTO,Integer.valueOf(mchId));
     }
 
-    @ApiOperation("修改商户安全信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="mchId",value="商户ID",required = true),
-            @ApiImplicitParam(name="password",value="重置密码",required = true),
-    })
     @PostMapping(value = "/{mchId}/security")
     public void updateSecurity(@PathVariable String mchId, @RequestParam String password) throws Exception {
         merchantService.updatePasswordById(password,Integer.valueOf(mchId));
     }
 
 
-    @ApiOperation("商户结算信息设置")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="mchId",value="商户ID",required = true),
-    })
     @PostMapping(value = "/{mchId}/settle")
     public void updateSettleInfo(@PathVariable String mchId, SettleAccountDTO settleAccountDTO) throws Exception {
         merchantService.updateSettleById(settleAccountDTO,Integer.valueOf(mchId));
     }
 
-    @ApiOperation("修改支付账户")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="mchId",value="商户ID",required = true),
-            @ApiImplicitParam(name="action",value="变更方式",required = true),
-            @ApiImplicitParam(name="type",value="变更类型",required = true),
-            @ApiImplicitParam(name="amount",value="变更金额",required = true),
-    })
     @PostMapping(value = "/{mchId}/pay/account")
     public void payAccount(@PathVariable String mchId,
                            @RequestParam Integer action,
@@ -126,13 +90,6 @@ public class APIAdminMerchantController extends CURDBaseController {
                            @RequestParam Double amount) throws Exception {
         merchantService.updateAccountBalance(1,Integer.valueOf(mchId),amount,type,action);
     }
-    @ApiOperation("修改预付款账户")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="mchId",value="商户ID",required = true),
-            @ApiImplicitParam(name="action",value="变更方式",required = true),
-            @ApiImplicitParam(name="type",value="变更类型",required = true),
-            @ApiImplicitParam(name="amount",value="变更金额",required = true),
-    })
     @PostMapping(value = "/{mchId}/prepaid/account")
     public void prepaidAccount(@PathVariable String mchId,
                            @RequestParam Integer action,
@@ -143,10 +100,6 @@ public class APIAdminMerchantController extends CURDBaseController {
 
 
     @PostMapping(value = "/{mchId}/mch_pub_key",produces = "text/plain")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="mchId",value="商户ID",required = true),
-    })
-    @ApiOperation("上传商户公钥")
     public void publicKey(@PathVariable String mchId, @RequestBody String content) throws Exception {
         LambdaQueryWrapper<ApiConfig> queryWrapper = new QueryWrapper<ApiConfig>()
                 .lambda().eq(ApiConfig::getMchId,mchId);

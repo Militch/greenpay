@@ -8,12 +8,6 @@ import com.esiran.greenpay.system.entity.Menu;
 import com.esiran.greenpay.system.entity.vo.MenuInputVo;
 import com.esiran.greenpay.system.entity.vo.MenuTreeVo;
 import com.esiran.greenpay.system.service.IMenuService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +25,6 @@ import java.util.List;
 /**
  * @author han
  */
-@Api(tags = "菜单管理")
 @RestController
 @RequestMapping("/admin/api/v1/system/menus")
 public class ApiAdminSystemMenuController {
@@ -43,11 +36,6 @@ public class ApiAdminSystemMenuController {
         this.iMenuService = iMenuService;
     }
 
-    @ApiOperation("查询所有菜单")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "current", value = "当前页码", defaultValue = "1"),
-            @ApiImplicitParam(name = "size",value = "每页个数 ",defaultValue = "10")
-    })
     @GetMapping
     public  ResponseEntity<List<MenuTreeVo>> list() {
 
