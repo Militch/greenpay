@@ -47,7 +47,7 @@
         <junit.version>4.12</junit.version>
         <swagger2.version>2.9.2</swagger2.version>
         <shiro.version>1.5.2</shiro.version>
-        <guava.version>29.0-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <spring-kafka.version>2.3.8.RELEASE</spring-kafka.version>
 <!--        <spring-kafka.version>2.1.1.RELEASE</spring-kafka.version>-->
     </properties>
