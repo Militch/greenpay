@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.esiran.greenpay.system.mapper.MenuMapper">
+    <resultMap id="menuVo" type="com.esiran.greenpay.system.entity.vo.MenuVo">
+        <id property="id" column="userId"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <collection property="menus" javaType="list" ofType="com.esiran.greenpay.system.entity.Menu">
+            <id property="id" column="id"/>
+            <result property="title" column="title"/>
+            <result property="mark" column="mark"/>
+            <result property="type" column="type"/>
+            <result property="icon" column="icon"/>
+            <result property="path" column="path"/>
+            <result property="parentId" column="parent_Id"/>
+        </collection>
+    </resultMap>
+    <select id="selectMenu" resultMap="menuVo">
+
+SELECT system_user.id AS userId,
+				system_user.username AS username,
+				system_user.email AS email,
+				system_role.name,
+				system_role.role_code,
+				system_menu.id,
+				system_menu.title,
+				system_menu.mark ,
+				system_menu.type ,
+				system_menu.icon,
+				system_menu.path,
+				system_menu.parent_id
+				FROM system_user
+				LEFT JOIN system_user_role ON system_user.id = system_user_role.user_id
+				LEFT JOIN system_role	ON system_user_role.role_id = system_role.id
+				LEFT JOIN system_role_menu ON system_role.id = system_role_menu.role_id
+				LEFT JOIN system_menu	ON system_menu.id = system_role_menu.menu_id
+				      ${ew.customSqlSegment}
+    </select>
+
+	<select id="selectMenuByRoleId" resultType="com.esiran.greenpay.system.entity.Menu">
+		SELECT * FROM system_menu LEFT JOIN system_role_menu ON system_menu.id = system_role_menu.menu_id
+		 WHERE role_id = #{roleId} ORDER BY sorts
+		   ${ew.customSqlSegment}
+	</select>
+
+	<select id="selectMenusByUserId" resultType="com.esiran.greenpay.system.entity.Menu">
+		SELECT * FROM system_user
+		LEFT JOIN system_user_role ON system_user.id = system_user_role.user_id
+		LEFT JOIN system_role_menu ON system_role_menu.role_id = system_user_role.id
+		LEFT JOIN system_menu ON system_role_menu.menu_id = system_menu.id
+		WHERE system_user.id = #{userId}
+		ORDER BY sorts
+		 ${ew.customSqlSegment}
+	</select>
+
+</mapper>

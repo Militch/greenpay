@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>支付类型 - GreenPay</title>
+    <th:block th:replace="admin/header::stylesheet" />
+</head>
+<body class="layui-layout-body">
+<form class="layui-form" action="">
+    <div class="layui-row layui-form-item">
+        <label for="payTypeCode" class="layui-form-label">类型编码：</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input"
+                   name="payTypeCode" id="payTypeCode"
+                   autocomplete="off"
+                   placeholder="请输入类型编码">
+        </div>
+    </div>
+    <div class="layui-row layui-form-item">
+        <label for="payTypeName" class="layui-form-label">类型名称：</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input"
+                   name="payTypeName" id="payTypeName"
+                   autocomplete="off"
+                   placeholder="请输入类型名称">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="type" class="layui-form-label">类别：</label>
+        <div class="layui-input-block">
+            <input id="type" type="radio" name="type" value="1" title="支付" checked>
+            <input type="radio" name="type" value="2" title="代付">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="status" class="layui-form-label">状态：</label>
+        <div class="layui-input-block">
+            <input id="status" type="radio" name="status" value="0" title="关闭" checked>
+            <input type="radio" name="status" value="2" title="开启">
+        </div>
+    </div>
+</form>
+<th:block th:replace="admin/footer::script"/>
+<script th:inline="none">
+    !function(){
+        let layer = layui.layer
+            ,table = layui.table;
+    }();
+</script>
+</body>
+</html>

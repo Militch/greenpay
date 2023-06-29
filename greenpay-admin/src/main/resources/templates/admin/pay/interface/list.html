@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>支付接口 - GreenPay</title>
+    <th:block th:replace="admin/header::stylesheet" />
+</head>
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="admin/header::nav"></div>
+        <div th:replace="admin/side::menu"></div>
+        <div class="layui-body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <div th:replace="admin/compose::layui-breadcrumb('支付配置','支付接口')"></div>
+                <div class="layui-card error-card" th:style="${_errors==null}?'display:none;':''">
+                    <div class="layui-card-body">
+                        <blockquote class="layui-elem-quote" th:each="error:${_errors}" th:text="${error}"></blockquote>
+                    </div>
+                </div>
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-card-header">支付接口</div>
+                        <div class="layui-card-body" style="padding: 0">
+                            <div class="admin-table_header">
+                                <div class="admin-table_header_left">
+                                    <a th:href="@{'/pay/interface/list/add'}" class="layui-btn">新增</a>
+                                    <button type="button" class="layui-btn">删除选中</button>
+                                </div>
+                                <div class="admin-table_header_right">
+                                    <form class="layui-form" action="">
+                                        <div class="layui-form-item">
+                                            <div class="layui-inline">
+                                                <label for="queryData">
+                                                    <input type="text" class="layui-input"
+                                                           id="queryData"
+                                                           name="queryData"
+                                                           placeholder="请输入接口ID或名称"
+                                                           autocomplete="false"
+                                                           th:value="${#httpServletRequest.getParameter('payTypeCode')}">
+                                                </label>
+                                            </div>
+                                            <button type="submit" class="layui-btn">搜索</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <table id="demo" lay-filter="test"></table>
+                            <script type="text/html" id="statusTemplate">
+                                {{# if(d.status) { }}
+                                <span class="layui-badge-dot layui-bg-green"></span>
+                                <span>正常</span>
+                                {{# } else { }}
+                                <span class="layui-badge-dot layui-bg-orange"></span>
+                                <span>禁用</span>
+                                {{# } }}
+                            </script>
+                            <script type="text/html" id="barDemo">
+                                <a th:href="@{'/pay/interface/list/{{d.id}}/edit'}" class="layui-btn layui-btn-xs">编辑</a>
+                                <a href="javascript:;" class="layui-btn layui-btn-danger layui-btn-xs"
+                                   onclick="checkDynamicPWD('{{d.id}}')">
+<!--                                   onclick="document.getElementById('_del_[{{d.id}}]').submit();">-->
+
+                                    删除
+                                </a>
+                                <form style="display: none" id="del_{{d.id}}" method="post" action="">
+                                    <input type="hidden" name="action" value="del">
+                                    <input type="hidden" name="ids" value="[{{d.id}}]">
+                                    <input type="hidden" name="supplyPass">
+                                </form>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+<th:block th:replace="admin/footer::script"/>
+<script th:inline="javascript">
+    let qs = [[${qs}]];
+</script>
+<script th:inline="none">
+
+    function checkDynamicPWD(id) {
+        let $ = layui.$;
+        layer.prompt({
+            title: '请输入动态密码',
+            formType :0,
+            maxlength:6,
+            move : false
+        },function (pass,index) {
+            if (pass.length<6){
+                alert("最少输入6位密码")
+                return false;
+            }
+            $('input[name="supplyPass"]').val(pass);
+            $(`#del_${id}`).submit();
+            layer.close(index);
+        });
+    }
+    !function(){
+        let layer = layui.layer
+            ,table = layui.table;
+        //第一个实例
+        table.render({
+            elem: '#demo'
+            ,url: function () {
+                if (qs) {
+                    return `/api/v1/pay/interfaces?${qs}`
+                }
+                return '/api/v1/pay/interfaces';
+            }()
+            ,page: true //开启分页
+            ,parseData: function(res){ //res 即为原始返回的数据
+                return {
+                    "code": 0,
+                    "msg": res.message,
+                    "count": res.total,
+                    "data": res.records
+                };
+            }
+            ,request: {
+                pageName: 'current'
+                ,limitName: 'size'
+            }
+            ,cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'}
+                ,{field: 'id', title: 'ID',width:'60', unresize:true}
+                ,{field: 'payTypeCode', title: '支付类型编码', width:'200', unresize:true}
+                ,{field: 'interfaceCode', title: '接口编码', width:'200', unresize:true}
+                ,{field: 'interfaceName', title: '接口名称', width:'200', unresize:true}
+                ,{field: 'status', title: '状态', width:'120', unresize:true, templet:'#statusTemplate'}
+                ,{field: 'createdAt', title: '创建时间', width:'200', unresize:true}
+                ,{title: '操作', align: 'left', width:200, toolbar: '#barDemo', unresize:true}
+            ]]
+        });
+    }();
+</script>
+
+</body>
+</html>

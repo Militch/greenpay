@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>用户管理 - GreenPay</title>
+    <th:block th:replace="admin/header::stylesheet" />
+</head>
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="admin/header::nav"></div>
+        <div th:replace="admin/side::menu"></div>
+        <div class="layui-body">
+
+            <div class="layadmin-tabsbody-item layui-show">
+                <div th:replace="admin/compose::layui-breadcrumb('系统管理','用户管理')"></div>
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-card-header">用户管理</div>
+                        <div class="layui-card-body" style="padding: 0">
+                            <div class="admin-table_header ">
+                                <button class="layui-btn " onclick="addUser(0)">新增</button>
+                                <div class="layui-btn-group demoTable2">
+                                    <button class="layui-btn layui-btn-danger"  data-type="getCheckData">删除选中</button>
+                                </div>
+
+                                <div class="admin-table_header_right">
+                                    <div class="demoTable">
+                                        <div class="layui-inline">
+                                        <input class="layui-input" name="Name" id="Name" placeholder="用户名" autocomplete="off">
+                                         </div>
+                                        <button class="layui-btn" data-type="reload">搜索</button>
+                                    </div>
+                                </div>
+                                <div style="clear:both;"></div>
+                            </div>
+                           <table id="uesrList" class="layui-hide" lay-filter="userTable"></table>
+                            <script type="text/html" id="optBar">
+                                <a  onclick="editUser('{{d.id}}')"  class="layui-btn layui-btn-xs">编辑</a>
+                                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+
+<!--添加或编辑用户-->
+<div id="setUser" class="site-text" style="wmargin: 5%;display:none;">
+    <form id="userForm" class="layui-form" method="post" action="" style="margin-top: 20px; margin-right: 20px;">
+        <input id="pageNum" type="hidden" name="pageNum"/>
+        <input id="roleIds" type="hidden" name="roleIds"/>
+        <input id="password" type="hidden" name="password">
+        <input id="id" type="hidden" name="id"/>
+        <input id="changeType" type="hidden" name="changeType"/>
+        <input id="version" type="hidden" name="version"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名：</label>
+            <div class="layui-input-block">
+                <input id="username" name="username" lay-verify="required"
+                       autocomplete="off" class="layui-input" type="text"
+                        placeholder="请输入用户名"/>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">电子邮箱：</label>
+            <div class="layui-input-block">
+                <input id="email" name="email" lay-verify="required | email"
+                       autocomplete="off" class="layui-input" type="text"
+                        placeholder="请输入电子邮箱"/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">登录密码：</label>
+            <div class="layui-input-block">
+                <input id="userPassword" name="userPassword" autocomplete="off" class="layui-input"
+                       type="password" placeholder="请输入用户登录密码"/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">确认密码：</label>
+            <div class="layui-input-block">
+                <input id="verifyPassword" name="verifyPassword" autocomplete="off"
+                       class="layui-input" type="password"  placeholder="请再次确认输入登录密码"/>
+            </div>
+
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">所属角色：</label>
+            <div class="layui-input-block" id="roleDiv">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn"  lay-submit="" lay-filter="userSubmit">提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<th:block th:replace="admin/footer::script"/>
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.13.0/js/md5.min.js"></script>
+<script src="/js/system/userList.js"></script>
+
+</body>
+</html>

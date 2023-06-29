@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.esiran.greenpay.pay.mapper.OrderMapper">
+
+    <!--    //设计要求当天订单总数-->
+    <select id="findIntradayOrder" resultType="com.esiran.greenpay.pay.entity.Order">
+        SELECT 	* FROM pay_order WHERE DATEDIFF(now(),created_at)=0
+        ${ew.customSqlSegment}
+    </select>
+
+
+</mapper>

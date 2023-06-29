@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>代付列表 - GreenPay</title>
+    <th:block th:replace="merchant/header::stylesheet"/>
+</head>
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="merchant/header::nav"></div>
+        <div th:replace="merchant/side::menu"></div>
+        <div class="layui-body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-tab layui-tab-brief">
+                            <ul class="layui-tab-title">
+                                <li class="layui-this">批量管理</li>
+                            </ul>
+                            <div class="layui-tab-content">
+                                <div class="layui-tab-item layui-show">
+                                    <div class="layui-row">
+                                        <div class="layui-form" style="float:right; margin-bottom: 10px;" lay-filter="component-form-group" id="search_submits" onsubmit="return false" >
+                                            <div class="layui-form-item" style="margin:0;">
+
+
+                                                <div class="layui-input-inline">
+                                                    <input type="text" name="createTimeStart" id="createTimeStart"
+                                                           autocomplete="off" placeholder="开始时间" class="layui-input"
+                                                           lay-key="9">
+                                                </div>
+                                                <div class="layui-input-inline">
+                                                    <input type="text" name="createTimeEnd" id="createTimeEnd"
+                                                           autocomplete="off" placeholder="结束时间" class="layui-input"
+                                                           lay-key="10">
+                                                </div>
+                                                <div class="layui-input-inline">
+                                                    <input type="text" name="batchNo" id="batchNo"
+                                                           placeholder="交易批次号" autocomplete="off" class="layui-input">
+                                                </div>
+                                                <div class="layui-input-inline">
+                                                    <input type="text" name="outBatchNo" id="outBatchNo"
+                                                           placeholder="商户交易批次号" autocomplete="off" class="layui-input">
+                                                </div>
+                                                <div class="layui-input-inline">
+                                                    <div class="layui-input-block">
+                                                        <select name="status" id="status" lay-verify="required">
+                                                            <option value="0">状态</option>
+                                                            <option value="1">待处理</option>
+                                                            <option value="2">处理中</option>
+                                                            <option value="3">处理成功</option>
+                                                            <option value="-1">处理失败</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <button id="search" class="layui-btn" data-type="reload" >搜索</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <table id="replaceList" lay-filter="replace"></table>
+                                        <script type="text/html" id="statusTpl">
+                                            {{#  if(d.status == 1){ }}
+                                            <button class="layui-btn layui-btn-warm layui-btn-xs">待处理</button>
+                                            {{#  } if(d.status == 2) { }}
+                                            <button class="layui-btn layui-btn-xs">处理中</button>
+                                            {{#  } if(d.status == 3) { }}
+                                            <button class="layui-btn layui-btn-normal layui-btn-xs">处理成功</button>
+                                            {{#  } if(d.status == -1){ }}
+                                            <button class="layui-btn layui-btn-warm layui-btn-xs">处理失败</button>
+                                            {{#  } }}
+                                        </script>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+<th:block th:replace="merchant/footer::script"/>
+<script th:inline="none">
+
+    !function(){
+        let layer = layui.layer
+            ,table = layui.table
+            ,laydate = layui.laydate
+            ,$ = layui.$;
+        /**
+         * 获取当前月的总天数
+         */
+        function getD(sDate, endDate) {
+            var sDate = new Date(sDate);
+            var eDate = new Date(endDate);
+
+            if (eDate.getFullYear() - sDate.getFullYear() > 1) {//先比较年
+                return true;
+            } else if (eDate.getMonth() - sDate.getMonth() > 1) {//再比较月
+                return true;
+            } else if (eDate.getMonth() - sDate.getMonth() == 1) {
+                if (eDate.getDate() - sDate.getDate() >= 1) {
+                    return true;
+                }
+            }
+            else if (eDate.getFullYear() - sDate.getFullYear() == 1) {
+                if (eDate.getMonth()+12 - sDate.getMonth() > 1) {
+                    return true;
+                }
+                else if (eDate.getDate() - sDate.getDate() >= 1) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        //列表搜索
+        let active = {
+            reload : function () {
+                let batchNo =  $('#batchNo');
+                let outBatchNo =  $('#outBatchNo');
+                let status = $('#status');
+                let startTime = $('#createTimeStart');
+                let endTime = $('#createTimeEnd');
+
+                //是否超过1个月
+                if (getD(startTime.val(), endTime.val())) {
+                    layer.alert("只能查询近一个月数据");
+                    return false;
+                }
+                //执行重载
+                table.reload('loadDatas',{
+                    page: {
+                        current:1 //重新从第1页开始
+                    },
+                    where: {
+                        // key: {
+                        //
+                        // }
+                        batchNo : batchNo.val(),
+                        outBatchNo : outBatchNo.val(),
+                        status : status.val(),
+                        startTime : startTime.val(),
+                        endTime : endTime.val()
+
+                    }
+                },'data');
+            }
+        };
+        $('.layui-form-item .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+        //第一个实例
+        table.render({
+            id:   'loadDatas',
+            elem: '#replaceList',
+            url: '/api/v1/agentpay/batch', //数据接口
+            page: true,//开启分页
+            parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": 0,
+                    "msg": res.message,
+                    "count": res.total,
+                    "data": res
+                };
+            }
+            , request: {
+                pageName: 'current',
+                limitName: 'size'
+            }
+            , cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'}
+                // , {field: 'mchId', title: '商户ID', width: "10%",align:'center'}
+                , {field: 'createdAt', title: '创建时间', width: "10%",align:'left'}
+                , {field: 'batchNo', title: '交易批次号', width: "15%",align:'left'}
+                , {field: 'outBatchNo', title: '商户交易批次号', width: "15%",align:'left'}
+                , {field: 'totalAmountDisplay', title: '订单金额（单位：元）', width: "15%",align:'right'}
+                , {field: 'totalCount', title: '总笔数', width: "10%",align:'right'}
+                , {field: 'status', title: '订单状态', width: "10%",templet: "#statusTpl",align:'center'}
+
+
+            ]]
+        });
+        laydate.render({
+            elem: '#createTimeStart'
+        });
+        laydate.render({
+            elem: '#createTimeEnd'
+        });
+    }();
+</script>
+</body>
+</html>

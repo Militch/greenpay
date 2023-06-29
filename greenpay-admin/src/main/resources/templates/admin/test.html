@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Test</title>
+    <th:block th:replace="admin/header::stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <style>
+    </style>
+</head>
+<body>
+<div class="layadmin-tabspage-none">
+
+</div>
+<th:block th:replace="admin/footer::script"/>
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.13.0/js/md5.min.js"></script>
+<script th:inline="javascript">
+    !function(){
+        let layer = layui.layer
+            ,$ = layui.jquery
+            ,form = layui.form;
+    }();
+</script>
+</body>
+</html>

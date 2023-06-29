@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, minimum-scale=1, user-scale=no">
+    <title>收银台</title>
+    <link rel="stylesheet" th:href="@{/css/cashier.css}">
+</head>
+<body>
+<div class="time">
+    <p class="link">
+        <span id="shopName" th:text="${order.subject}"></span>
+    </p>
+    <p id="money" th:text="${orderAmountDisplay}"></p>
+    <p class="tips"><span id="surplusTime"></span></p>
+    <div class="oddNumbers">
+        <p>
+            <span style="color: rgba(0,0,0,.85);">
+                交易流水号
+            </span>
+            <span style="color: rgba(0,0,0,.45);" th:text="${order.orderNo}">
+            </span>
+        </p>
+        <p>
+            <span style="color: rgba(0,0,0,.85);">
+                交易订单号
+            </span>
+            <span style="color: rgba(0,0,0,.45);" th:text="${order.outOrderNo}">
+            </span>
+        </p>
+    </div>
+</div>
+<span id="payBtn">确认支付</span>
+<div class="mongolia">
+    <img th:src="@{/img/loading.png}" alt="加载中">
+</div>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript" th:inline="javascript">
+    $(document).ready(function () {
+        !function (wxConfig,payAttr) {
+            function doPay(){
+                wx.chooseWXPay({
+                    timestamp: payAttr.timestamp,
+                    nonceStr: payAttr.nonceStr,
+                    package: payAttr.packageStr,
+                    signType: payAttr.signType,
+                    paySign: payAttr.paySign,
+                    success: function (res) {
+                        wx.closeWindow();
+                    }
+                });
+            }
+            wx.config({
+                debug: false,
+                appId: wxConfig.appId,
+                timestamp: wxConfig.timestamp,
+                nonceStr: wxConfig.nonceStr,
+                signature: wxConfig.signature,
+                jsApiList: ['chooseWXPay']
+            });
+            wx.ready(function(){
+                doPay();
+            });
+            $(document).on('click','#payBtn',function () {
+                doPay();
+            })
+        }(function () {
+            return {
+                appId: [[${wxConfig.appId}]],
+                timestamp: [[${wxConfig.timestamp}]],
+                nonceStr: [[${wxConfig.nonceStr}]],
+                signature: [[${wxConfig.signature}]]
+            };
+        }(),function () {
+            return {
+                timestamp: [[${payAttr.timestamp}]],
+                nonceStr: [[${payAttr.nonceStr}]],
+                packageStr: [[${payAttr.packageStr}]],
+                signType: [[${payAttr.signType}]],
+                paySign: [[${payAttr.paySign}]]
+            };
+        }());
+    });
+</script>
+</body>
+</html>

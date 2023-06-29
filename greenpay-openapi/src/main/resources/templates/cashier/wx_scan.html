@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>收银台</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" th:href="@{/css/success.css}">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qs@6.9.4/dist/qs.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- logo -->
+        <div class="logo">
+            <img src="/img/logo.png" alt="">
+        </div>
+        <!-- 内容 -->
+        <div class="content">
+            <div class="left-cont">
+                <img th:src="@{/img/wechat.png}" alt="微信" v-show="iconActive=='wechat'">
+                <img th:src="@{/img/alipay.png}" alt="支付宝" v-show="iconActive=='alipay'">
+            </div>
+            <div class="right-cont">
+                <h2>支付收银台</h2>
+                <el-form
+                    :rules="rules"
+                    ref="payOrderForm"
+                    :model="form"
+                    action=""
+                    target="_blank"
+                    method="post"
+                    label-width="100px">
+                <ul class="counter-msg">
+                    <li>
+                        <p>商品名称：</p>
+                        <p :title="form.subject" class="productName">{{form.subject}}</p>
+                    </li>
+                    <li>
+                        <p>交易订单编号：</p>
+                        <p>{{form.outOrderNo}}</p>
+                    </li>
+                    <li>
+                        <p>交易流水号：</p>
+                        <p>{{form.orderNo}}</p>
+                    </li>
+                    <li>
+                        <p>付款金额：</p>
+                        <p class="pay-money">{{form.amount}}元</p>
+                    </li>
+                    <li class="dashed">
+                        <span></span>
+                    </li>
+                    <li class="payment">
+                        <el-form-item
+                            label="付款码："
+                            prop="authCode">
+                            <el-input
+                                v-model="form.authCode"
+                                placeholder="请输入付款码">
+                            </el-input>
+                        </el-form-item>
+                    </li>
+
+                    <li class="paytype">
+                        <p></p>
+                        <div class="pay-type">
+                            <span @mouseover="iconActive='wechat'" :class="iconActive=='wechat'?'iconActive':''">
+                                <img src="/img/wechat-icon.png" alt="">
+                            </span>
+                            <span @mouseover="iconActive='alipay'" :class="iconActive=='alipay'?'iconActive':''">
+                                <img src="/img/alipay-icon.png" alt="">
+                            </span>
+                            <p style="color: brown">(微信付款码或支付宝付款码均可支付)</p>
+                        </div>
+                    </li>
+                    <li>
+                        <p></p>
+                        <p>
+                            <button
+                                    v-loading.fullscreen.lock="fullscreenLoading"
+                                    @click="doPay">确认支付</button>
+                        </p>
+                    </li>
+                </ul>
+            </el-form>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+    let orderNo = [[${order.orderNo}]];
+    let amount = [[${order.amountDisplay}]];
+    let outOrderNo = [[${order.outOrderNo}]];
+    let subject = [[${order.subject}]];
+    </script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    fullscreenLoading: false,
+                    form: {
+                        authCode: '',
+                        amount: amount,
+                        orderNo: orderNo,
+                        subject: subject,
+                        outOrderNo: outOrderNo,
+                    },
+                    count: 0,
+                    loadShow: false,//加载转圈
+                    caveatMsg: '',//input错误警告
+                    iconActive:'wechat',
+                    isDoPay: false,
+                    rules: {
+                        authCode: [
+                            {
+                                required: true,
+                                message: '请输入付款码',
+                                trigger: 'blur'
+                            }, {
+                                validator: function (rule, value, callback) {
+                                    const reg = /^\d{18}$/;
+                                    if (!reg.test(value)) {
+                                        callback(new Error('付款码格式有误'));
+                                    } else {
+                                        callback();
+                                    }
+                                },
+                                trigger: 'blur'
+                            }
+                        ]
+                    }
+                }
+            },
+            mounted: function () {
+                this.queryOrderStatus(orderNo);
+            },
+            methods: {
+                doPay(e) {
+                    this.$refs['payOrderForm'].validate((valid) => {
+                        if (valid) {
+                            this.fullscreenLoading = true;
+                            const then = this;
+                            let channelExtra = {
+                                'authCode': this.form.authCode
+                            };
+                            axios.post('/v1/cashiers/pages', {
+                                orderNo: orderNo,
+                                channelExtra: JSON.stringify(channelExtra)
+                            }, {
+                                transformRequest: [function (data) {
+                                    return Qs.stringify(data);
+                                }],
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                }
+                            }).then(function (response) {
+                                then.isDoPay = true;
+                                then.count = 0;
+
+                            }).catch(function (error) {
+                                then.fullscreenLoading = false;
+                                const response = error.response;
+                                const { code, message } = response.data;
+                                then.$message({
+                                    type: 'error',
+                                    message: `${message}`
+                                });
+                            });
+                        }
+                        e.preventDefault();
+                    });
+                },
+                queryOrderStatus(orderNo) {
+                    // this.fullscreenLoading = true;
+                    let then = this;
+                    let timer = setInterval(() => {
+                        if (then.count++ >= 180 && then.isDoPay) {
+                            this.fullscreenLoading = false;
+                            alert("查询结果超时");
+                            clearInterval(timer);
+                            window.close();
+                            return;
+                        }
+                        axios.get("/v1/cashiers/flow", {
+                            //参数列表
+                            params: {
+                                orderNo: orderNo
+                            },
+                            //请求头配置
+                            // headers:{ token: token }
+                        }).then((res) => {
+                            console.log(res);
+                            if (res.data === "") {
+                                window.close();
+                            }
+                            this.fullscreenLoading = false;
+                            clearInterval(timer);
+                            location.replace(res.data);
+                            // console.log(res)
+                        })
+                    }, 1000)
+                },
+            }
+        })
+    </script>
+</body>
+
+</html>

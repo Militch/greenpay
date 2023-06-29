@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>结算设置 - GreenPay</title>
+    <th:block th:replace="admin/header::stylesheet" />
+    <style rel="stylesheet">
+        .layui-form-label {
+            width: 8.7%;
+        }
+        .layui-input-block {
+            margin-left: 10.55%;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="admin/header::nav"></div>
+        <div th:replace="admin/side::menu"></div>
+        <div class="layui-body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <div th:replace="admin/compose::layui-breadcrumb('个人中心','结算设置')"></div>
+                <div class="layui-card error-card" th:style="${_errors==null}?'display:none;':''">
+                    <div class="layui-card-body">
+                        <blockquote class="layui-elem-quote" th:each="error:${_errors}" th:text="${error}"></blockquote>
+                    </div>
+                </div>
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-card-header">结算设置</div>
+                        <div class="layui-card-body">
+                            <div class="layui-row">
+                                <div class="layui-col-md12">
+                                    <form class="layui-form" action="" method="post" novalidate>
+                                        <div class="layui-form-item">
+                                            <label for="status" class="layui-form-label">启用结算：</label>
+                                            <div class="layui-input-block">
+                                                <input id="status" type="radio" name="status"
+                                                       value="0" title="关闭"
+                                                       th:field="${data.status}">
+                                                <input type="radio" name="status" value="1" title="开启"
+                                                       th:field="${data.status}">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label for="auditStatus" class="layui-form-label">启用审核：</label>
+                                            <div class="layui-input-block">
+                                                <input id="auditStatus" type="radio" name="auditStatus"
+                                                       value="0" title="关闭"
+                                                       th:field="${data.auditStatus}">
+                                                <input type="radio" name="auditStatus" value="1" title="开启"
+                                                       th:field="${data.auditStatus}">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label for="settleType" class="layui-form-label">结算类型：</label>
+                                            <div class="layui-input-block">
+                                                <input id="settleType" type="radio" name="settleType"
+                                                       value="1" title="人工结算"
+                                                       th:field="${data.settleType}">
+                                                <input type="radio" name="auditStatus" value="2" title="自动结算"
+                                                       th:field="${data.settleType}">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label for="amountLimitMin" class="layui-form-label">
+                                                单笔金额最小值（元）：
+                                            </label>
+                                            <div class="layui-input-block">
+                                                <input type="text" class="layui-input"
+                                                       name="amountLimitMin" id="amountLimitMin"
+                                                       autocomplete="off"
+                                                       th:value="${data.amountLimitMin}"
+                                                       placeholder="单笔金额最小值（单位：分）">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label for="amountLimitMax" class="layui-form-label">
+                                                单笔金额最大值（元）：
+                                            </label>
+                                            <div class="layui-input-block">
+                                                <input type="text" class="layui-input"
+                                                       name="amountLimitMax" id="amountLimitMax"
+                                                       autocomplete="off"
+                                                       th:value="${data.amountLimitMax}"
+                                                       placeholder="单笔金额最大值（单位：元）">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label for="dayAmountLimitMax" class="layui-form-label">
+                                                每日金额限制（元）：
+                                            </label>
+                                            <div class="layui-input-block">
+                                                <input type="text" class="layui-input"
+                                                       name="dayAmountLimitMax" id="dayAmountLimitMax"
+                                                       autocomplete="off"
+                                                       th:value="${data.dayAmountLimitMax}"
+                                                       placeholder="每日金额限制（单位：分）">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label for="settleFeeType" class="layui-form-label">
+                                                结算费率类型：
+                                            </label>
+                                            <div class="layui-input-block">
+                                                <input id="settleFeeType" type="radio" name="settleFeeType"
+                                                       value="1" title="比例收费"
+                                                       th:field="*{data.settleFeeType}">
+                                                <input type="radio" name="settleFeeType"
+                                                       value="2" title="固定收费"
+                                                       th:field="*{data.settleFeeType}">
+                                                <input type="radio" name="settleFeeType"
+                                                       value="3" title="比例+固定收费"
+                                                       th:field="*{data.settleFeeType}">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label for="settleRate" class="layui-form-label">
+                                                结算比例（%）：
+                                            </label>
+                                            <div class="layui-input-block">
+                                                <input type="text" class="layui-input"
+                                                       name="settleRate" id="settleRate"
+                                                       autocomplete="off"
+                                                       th:value="${data.settleRate}"
+                                                       placeholder="结算比例，保留两位小数">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <label for="settleFee" class="layui-form-label">固定收费（元）：</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" class="layui-input"
+                                                       name="settleFee" id="settleFee"
+                                                       autocomplete="off"
+                                                       th:value="${data.settleFee}"
+                                                       placeholder="固定收费，保留两位小数">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <div class="layui-input-block">
+                                                <button type="submit" class="layui-btn">保存修改</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+<th:block th:replace="admin/footer::script"/>
+<script th:inline="none">
+    !function(){
+        let layer = layui.layer
+            ,table = layui.table;
+    }();
+</script>
+
+</body>
+</html>

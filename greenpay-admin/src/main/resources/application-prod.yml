@@ -1,0 +1,8 @@
+server:
+  port: 8081
+
+logging:
+  level:
+    com.github.binarywang.wxpay: fatal
+    me.chanjar.weixin: fatal
+    com.esiran.greenpay.common.sign: fatal

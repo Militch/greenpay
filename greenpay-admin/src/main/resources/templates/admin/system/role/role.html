@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head >
+    <title>添加角色 - GreenPay</title>
+    <th:block th:replace="admin/header::stylesheet" />
+
+</head>
+
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="admin/header::nav"></div>
+        <div th:replace="admin/side::menu"></div>
+        <div class="layui-body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <div th:replace="admin/compose::layui-breadcrumb('系统管理','角色管理')"></div>
+                <div class="layui-card error-card" th:style="${errors==null}?'display:none;':''">
+                    <div class="layui-card-body">
+                        <blockquote class="layui-elem-quote" th:each="error:${errors}" th:text="${error.message}"></blockquote>
+                    </div>
+                </div>
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-card-header">添加角色</div>
+                        <div class="layui-card-body">
+                            <div class="layui-row">
+                        <div th:fragment="role">
+
+                            <form id="roleForm" class="layui-form" action="=" method="post">
+                                <input type="hidden" id="permIds" name="permIds"/>
+
+                                <div class="layui-form-item">
+                                    <div class="layui-inline">
+                                        <label class="layui-form-label">角色名称：</label>
+                                        <div class="layui-input-inline">
+                                            <input type="text" name="name" lay-verify="required" autocomplete="off" class="layui-input"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div  class="layui-form-item">
+                                    <div class="layui-inline">
+                                        <label class="layui-form-label">角色编码：</label>
+                                        <div class="layui-input-inline">
+                                            <input type="text" name="roleCode" lay-verify="required" autocomplete="off" class="layui-input"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">权限：</label>
+                                    <div class="layui-input-block">
+                                        <ul id="perm"></ul>
+                                    </div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block">
+                                        <button class="layui-btn" lay-submit="" lay-filter="roleSubmit">立即提交</button>
+                                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                    </div>
+                                </div>
+                            </form>
+
+
+                        </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layadmin-body-shade" layadmin-event="shade"></div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="admin/footer::script"/>
+<script src="/js/system/role.js" th:inline="none"></script>
+
+</body>
+
+</html>

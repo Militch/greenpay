@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  admin_web:
+    image: greenpay-admin-web
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.admin_web
+    env_file:
+      - database.env
+      - cache.env
+    ports:
+      - 8081:8081
+
+  merchant_web:
+    image: greenpay-merchant-web
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.merchant_web
+    env_file:
+      - database.env
+      - cache.env
+    ports:
+      - 8082:8081
+
+  openapi:
+    image: greenpay-openapi
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.openapi
+    env_file:
+      - database.env
+      - cache.env
+    ports:
+      - 8083:8081

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>安全设置 - GreenPay</title>
+    <th:block th:replace="admin/header::stylesheet" />
+</head>
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="admin/header::nav"></div>
+        <div th:replace="admin/side::menu"></div>
+        <div class="layui-body">
+            <div class="layadmin-tabsbody-item layui-show">
+
+                <div th:replace="admin/compose::layui-breadcrumb('个人中心','安全设置')"></div>
+                <div class="layui-card error-card" th:style="${_errors==null}?'display:none;':''">
+                    <div class="layui-card-body">
+                        <blockquote class="layui-elem-quote" th:each="error:${_errors}" th:text="${error}"></blockquote>
+                    </div>
+                </div>
+                <div class="layui-fluid">
+
+                    <div class="layui-row layui-col-space10">
+                        <div class="layui-col-md6">
+                            <div class="layui-card">
+                                <div class="layui-card-header">修改密码</div>
+                                <div class="layui-card-body">
+                                    <div class="layui-row">
+                                        <div class="layui-col-md12">
+                                            <form class="layui-form" action="" method="post" novalidate>
+                                                <input type="hidden" name="oldPassword" >
+                                                <input type="hidden" name="newPassword" >
+                                                <input type="hidden" name="confirmPassword" >
+                                                <input type="hidden" name="action" value="restPassword">
+                                                <div class="layui-row layui-form-item">
+                                                    <label for="oldPassword" class="layui-form-label">原密码：</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="password" class="layui-input"
+                                                               id="oldPassword"
+                                                               lay-verify="required"
+                                                               autocomplete="off"
+                                                               placeholder="请输入原密码">
+                                                    </div>
+                                                </div>
+                                                <div class="layui-form-item">
+                                                    <label for="newPassword" class="layui-form-label">新密码：</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="password" class="layui-input"
+                                                               id="newPassword"
+                                                               lay-verify="required"
+                                                               autocomplete="off"
+                                                               placeholder="请输入新密码">
+                                                    </div>
+                                                </div>
+                                                <div class="layui-form-item">
+                                                    <label for="confirmPassword" class="layui-form-label">确认密码：</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="password" class="layui-input"
+                                                               id="confirmPassword"
+                                                               lay-verify="required"
+                                                               autocomplete="off"
+                                                               placeholder="请再次确认密码">
+                                                    </div>
+                                                </div>
+                                                <div class="layui-form-item">
+                                                    <div class="layui-input-block">
+                                                        <button type="submit"  class="layui-btn " lay-submit="" lay-filter="update">更新密码</button>
+                                                        <!--                                                <button type="submit" class="layui-btn" lay-filter="update">提交修改</button>-->
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md6">
+                            <div class="layui-card">
+                                <div class="layui-card-header">两步验证</div>
+                                <div class="layui-card-body">
+                                    <div class="layui-row">
+                                        <div class="layui-col-md12">
+                                            <form id="totpVerify" class="layui-form" action="" method="post">
+                                                <div class="layui-form-item">
+                                                    <label for="totpSecretKey" class="layui-form-label">安全码：</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="text" class="layui-input"
+                                                               id="totpSecretKey" readonly
+                                                               th:value="${totpSecretKey}"
+                                                               th:placeholder="${totpVerified != null && totpVerified?'已校验，无法查看':'暂未设置，请重置'}"
+                                                               autocomplete="off">
+                                                    </div>
+                                                </div>
+                                                <div class="layui-form-item" th:if="${gaUri != null}">
+                                                    <label for="totpSecretKey" class="layui-form-label"></label>
+                                                    <div class="layui-input-block">
+                                                        <img th:src="@{'http://qr.topscan.com/api.php?text='+ ${gaUri}}" alt="GA二维码">
+                                                    </div>
+                                                </div>
+                                                <div class="layui-form-item">
+                                                    <div class="layui-input-block">
+                                                        <input id="totpAction" type="hidden" name="action" value="restTOTPSecretKey">
+                                                        <input type="hidden" name="totpCode">
+                                                        <button type="button" th:if="${totpVerified == null || !totpVerified}"
+                                                                class="layui-btn"
+                                                                onclick="showCheckCode()">
+                                                            校验
+                                                        </button>
+                                                        <button type="submit"  class="layui-btn">重置</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+<th:block th:replace="admin/footer::script"/>
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.13.0/js/md5.min.js"></script>
+<script th:inline="none">
+    let layer = layui.layer,
+        $ = layui.$;
+    function showCheckCode() {
+        layer.prompt({
+                title: '请输入动态密码',
+                formType: 0,
+                maxlength: 6,
+                move: false,
+            },
+            function(pass, index){
+                let actionEl = $('#totpAction');
+                actionEl.val('checkTOTPCode');
+                $('input[name="totpCode"]').val(pass);
+                $(`#totpVerify`).submit();
+                actionEl.val('restTOTPSecretKey');
+                layer.close(index);
+            });
+    }
+</script>
+<script th:inline="none">
+    !function(){
+        let $ = layui.jquery
+            ,form = layui.form;
+        form.on('submit(update)',function (data) {
+            let oldPassword = $("#oldPassword").val();
+            let newPassword = $("#newPassword").val();
+            let confirmPassword = $("#confirmPassword").val();
+            if (newPassword !== confirmPassword) {
+                layer.alert("两次输入的密码不一致");
+                return false;
+            }
+            if (oldPassword.length !== 0){
+                $("input[name='oldPassword']").val(md5(oldPassword));
+            }
+            if (newPassword.length !== 0){
+                $("input[name='newPassword']").val(md5(newPassword));
+            }
+            if (confirmPassword.length !== 0){
+                $("input[name='confirmPassword']").val(md5(confirmPassword));
+            }
+            return true;
+        });
+    }();
+</script>
+
+</body>
+</html>

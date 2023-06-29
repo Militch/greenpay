@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>编辑菜单 - GreenPay</title>
+    <th:block th:replace="admin/header::stylesheet" />
+</head>
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="admin/header::nav"></div>
+        <div th:replace="admin/side::menu"></div>
+        <div class="layui-body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <div th:replace="admin/compose::layui-breadcrumb('系统管理','菜单管理')"></div>
+                <div class="layui-card error-card" th:style="${errors==null}?'display:none;':''">
+                    <div class="layui-card-body">
+                        <blockquote class="layui-elem-quote" th:each="error:${errors}" th:text="${error.message}"></blockquote>
+                    </div>
+                </div>
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-card-header">编辑菜单</div>
+                        <div class="layui-card-body">
+                            <form class="layui-form"  action="" method="post" novalidate>
+                                <div class="layui-row layui-form-item">
+                                    <label for="title" class="layui-form-label">菜单名：</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" class="layui-input"
+                                               name="title" id="title"
+                                               th:value="${menu.title}"
+                                               autocomplete="off"
+                                               placeholder="请输入菜单名">
+                                    </div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <label for="mark" class="layui-form-label">标识：</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" class="layui-input"
+                                               name="mark" id="mark"
+                                               th:value="${menu.mark}"
+                                               autocomplete="off"
+                                               placeholder="请输入菜单标识">
+                                    </div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <label for="type" class="layui-form-label">类型：</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" class="layui-input"
+                                               name="type" id="type"
+                                               th:value="${menu.type}"
+                                               autocomplete="off"
+                                               placeholder="请输菜单类型">
+                                    </div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <label for="icon" class="layui-form-label">图标：</label>
+                                    <div class="layui-input-block">
+                                        <input type="file" class="layui-input"
+                                               name="icon" id="icon"
+                                               th:value="${menu.icon}"
+                                               autocomplete="off"
+                                               placeholder="请选择图标">
+                                    </div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <label for="path" class="layui-form-label">菜单路由：</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" class="layui-input"
+                                               name="path" id="path"
+                                               th:value="${menu.path}"
+                                               autocomplete="off"
+                                               placeholder="请输菜单路由">
+                                    </div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <label for="parent_id" class="layui-form-label">父级ID：</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" class="layui-input"
+                                               name="parent_id" id="parent_id"
+                                               th:value="${menu.parentId}"
+                                               autocomplete="off"
+                                               placeholder="请输父级ID">
+                                    </div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <label for="sorts" class="layui-form-label">排序权重：</label>
+                                    <div class="layui-input-block">
+                                        <input type="text" class="layui-input"
+                                               name="sorts" id="sorts"
+                                               th:value="${menu.sorts}"
+                                               autocomplete="off"
+                                               placeholder="请输排序权重">
+                                    </div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block">
+                                        <button type="submit" class="layui-btn">保存修改</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+<th:block th:replace="admin/footer::script"/>
+<script th:inline="none">
+    !function(){
+        let layer = layui.layer
+            ,table = layui.table;
+    }();
+</script>
+
+</body>
+</html>

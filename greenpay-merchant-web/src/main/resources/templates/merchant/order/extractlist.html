@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>应付结算 - GreenPay</title>
+    <th:block th:replace="merchant/header::stylesheet" />
+</head>
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="merchant/header::nav"></div>
+        <div th:replace="merchant/side::menu"></div>
+        <div class="layui-body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-card-header">提现记录</div>
+                        <div class="demoTable">
+                            <div class="layui-inline">
+                                <input type="text" class="layui-input"name="startTime" id="startTime" placeholder="开始时间" autocomplete="off">
+                            </div>
+                            <div class="layui-inline">
+                                <input type="text" class="layui-input"name="endTime" id="endTime" placeholder="结束时间" autocomplete="off">
+                            </div>
+                            <div class="layui-inline">
+                                <input class="layui-input" name="orderNo" id="orderNo" placeholder="请输入交易订单号" autocomplete="off">
+                            </div>
+                            <div class="layui-inline">
+                                <input class="layui-input" name="accountName" id="accountName" placeholder="请输入结算账户名" autocomplete="off">
+                            </div>
+                            <button class="layui-btn" data-type="reload">搜索</button>
+                        </div>
+                        <div class="layui-card-body" style="padding: 0">
+                            <table id="demo" lay-filter="test"></table>
+                            <script type="text/html" id="statusTemplate">
+                                {{# if(d.status == 1) { }}
+                                <span class="layui-badge-dot layui-bg-orange"></span>
+                                <span>待审核</span>
+                                {{# } else if(d.status == 2) { }}
+                                <span class="layui-badge-dot layui-bg-orange"></span>
+                                <span>待处理</span>
+                                {{# } else if(d.status == 3) { }}
+                                <span class="layui-badge-dot layui-bg-orange"></span>
+                                <span>处理中</span>
+                                {{# } else if(d.status == 4) { }}
+                                <span class="layui-badge-dot layui-bg-green"></span>
+                                <span>已结算</span>
+                                {{# } else if(d.status == -1) { }}
+                                <span class="layui-badge-dot"></span>
+                                <span>已驳回</span>
+                                {{# } else if(d.status == -2) { }}
+                                <span class="layui-badge-dot"></span>
+                                <span>结算失败</span>
+                                {{# } else { }}
+                                <span class="layui-badge-dot"></span>
+                                <span>未知</span>
+                                {{# } }}
+                            </script>
+                            <script type="text/html" id="amountTemplate">
+                                ￥ {{ d.amountDisplay }}
+                            </script>
+                            <script type="text/html" id="feeTemplate">
+                                ￥ {{ d.feeDisplay }}
+                            </script>
+                            <script type="text/html" id="settleAmountTemplate">
+                                ￥ {{ d.settleAmountDisplay }}
+                            </script>
+                            <script type="text/html" id="subjectTemplate">
+                                <span>{{ d.subject }}</span>
+                            </script>
+<!--                            <script type="text/html" id="barDemo">-->
+<!--                                <a th:href="@{'/admin/settle/payable/{{d.orderNo}}/detail'}"-->
+<!--                                   class="layui-btn layui-btn-xs layui-btn-primary">查看</a>-->
+<!--                                <a th:href="@{'/admin/settle/list/{{d.orderNo}}/settlement'}"-->
+<!--                                   class="layui-btn layui-btn-xs layui-btn-primary">结算</a>-->
+<!--                                <a href="javascript:;" class="layui-btn layui-btn-xs layui-btn-primary"-->
+<!--                                   onclick="document.getElementById('mark_{{d.id}}').submit()">标记结算</a>-->
+<!--                                <form style="display: none" id="mark_{{d.id}}" method="post" action="">-->
+<!--                                    <input type="hidden" name="action" value="settlement">-->
+<!--                                    <input type="hidden" name="orderNo" value="{{d.orderNo}}" >-->
+<!--                                </form>-->
+<!--                            </script>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+<th:block th:replace="merchant/footer::script"/>
+<script th:inline="none">
+    !function(){
+        let layer = layui.layer
+            ,table = layui.table
+            ,laydate = layui.laydate;
+
+        laydate.render({
+            elem: '#startTime' //指定元素
+        });
+        laydate.render({
+            elem: '#endTime' //指定元素
+        });
+        //第一个实例
+        table.render({
+            elem: '#demo'
+            ,url: '/api/v1/extracts' //数据接口
+            ,page: true //开启分页
+            ,id: 'testReload'
+            ,parseData: function(res){ //res 即为原始返回的数据
+                return {
+                    "code": 0,
+                    "msg": res.message,
+                    "count": res.total,
+                    "data": res.records
+                };
+            }
+            ,request: {
+                pageName: 'current'
+                ,limitName: 'size'
+            }
+            ,cols: [[ //表头
+                {field: 'createdAt', title: '创建时间',width:'200', unresize:true}
+                ,{field: 'orderNo', title: '交易订单号', width:'200', unresize:true}
+                ,{field: 'mchId', title: '商户ID', width:'100', unresize:true}
+                ,{field: 'accountName', title: '结算账户名', width:'200', unresize:true}
+                ,{title: '订单金额（元）',align:'right', width:'100', unresize:true,templet: '#amountTemplate'}
+                ,{title: '手续费（元）',align:'right', width:'100', unresize:true,templet: '#feeTemplate'}
+                ,{title: '结算金额（元）',align:'right', width: '100', unresize:true,templet: '#settleAmountTemplate'}
+                ,{field: 'status', title: '状态', width:'120', unresize: true, templet:'#statusTemplate'}
+                // ,{title: '操作', align: 'left', width:'12%', toolbar: '#barDemo', unresize:true}
+            ]]
+        });
+        var $ = layui.$, active = {
+            reload: function(){
+                var orderNo = $('#orderNo');
+                var accountName = $('#accountName');
+                var status = $('#status');
+                var startTime = $('#startTime');
+                var endTime = $('#endTime');
+
+                //执行重载
+                table.reload('testReload', {
+                    url: '/api/v1/query/extracts',
+                    method: 'post',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        orderNo: orderNo.val(),
+                        accountName: accountName.val(),
+                        status: status.val(),
+                        startTime: startTime.val(),
+                        endTime: endTime.val()
+                    }
+                }, 'data');
+            }
+        };
+        $('.demoTable .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    }();
+</script>
+
+</body>
+</html>

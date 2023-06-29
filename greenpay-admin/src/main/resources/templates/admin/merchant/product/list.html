@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>商户产品配置 - GreenPay</title>
+    <th:block th:replace="admin/header::stylesheet" />
+</head>
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="admin/header::nav"></div>
+        <div th:replace="admin/side::menu"></div>
+        <div class="layui-body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <div th:replace="admin/compose::layui-breadcrumb('商户管理','商户产品配置')"></div>
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-card-header">商户产品配置</div>
+                        <div class="layui-card-body" style="padding: 0">
+                            <table id="demo" lay-filter="test"></table>
+                            <script type="text/html" id="productTypeTemplate">
+                                {{# if(d.productType == 1) { }}
+                                <span>收款</span>
+                                {{# } else if(d.productType == 2) { }}
+                                <span>充值</span>
+                                {{# } }}
+                            </script>
+                            <script type="text/html" id="rateTemplate">
+                                {{# if(d.rateDisplay) { }}
+                                <span>{{ d.rateDisplay }}</span>
+                                {{# } else { }}
+                                <span>未配置</span>
+                                {{# } }}
+                            </script>
+                            <script type="text/html" id="interfaceModeTemplate">
+                                {{# if(d.interfaceMode == 1) { }}
+                                <span>单独</span>
+                                {{# } else if(d.interfaceMode == 2) { }}
+                                <span>轮询</span>
+                                {{# } }}
+                            </script>
+                            <script type="text/html" id="statusTemplate">
+                                {{# if(d.status) { }}
+                                <span class="layui-badge layui-bg-green">开启</span>
+                                {{# } else { }}
+                                <span class="layui-badge layui-bg-orange">关闭</span>
+                                {{# } }}
+                            </script>
+
+                            <script type="text/html" id="barDemo">
+                                <a th:href="@{'/merchant/list/{{d.merchantId}}/product/list/{{d.productId}}/edit'}"
+                                   class="layui-btn layui-btn-xs">
+                                    配置
+                                </a>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+<th:block th:replace="admin/footer::script"/>
+<script th:inline="javascript">
+    let mchId = [[${mchId}]];
+</script>
+<script th:inline="none">
+    !function(){
+        let layer = layui.layer
+            ,table = layui.table,
+            $ = layui.jquery;
+        //第一个实例
+        table.render({
+            elem: '#demo'
+            ,url: `/api/v1/merchants/${mchId}/products` //数据接口
+            ,parseData: function(res){ //res 即为原始返回的数据
+                return {
+                    "code": 0,
+                    "msg": res.message,
+                    "count": res.total,
+                    "data": res
+                };
+            }
+            ,cols: [[
+                {field: 'productId', title: '产品ID', width:'100', unresize:true}
+                ,{field: 'productCode', title: '产品编码', width:'200', unresize:true}
+                ,{field: 'productName', title: '产品名称', width:'200', unresize:true}
+                ,{field: 'productType', title: '产品类型', width:'120', unresize:true, templet:'#productTypeTemplate'}
+                ,{field: 'rateDisplay', align:'right', title: '费率（%）', width:'120', unresize:true, templet:'#rateTemplate'}
+                ,{field: 'interfaceMode', title: '接口模式', width:'120', unresize:true, templet:'#interfaceModeTemplate'}
+                ,{field: 'status', title: '状态', width:'120', unresize:true, templet:'#statusTemplate'}
+                ,{title: '操作', width:260, align: 'left', toolbar: '#barDemo',unresize:true}
+            ]]
+        });
+    }();
+</script>
+
+</body>
+</html>

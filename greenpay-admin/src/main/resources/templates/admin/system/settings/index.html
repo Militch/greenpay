@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>系统配置 - GreenPay</title>
+    <th:block th:replace="admin/header::stylesheet" />
+</head>
+<body class="layui-layout-body">
+<div class="layadmin-tabspage-none">
+    <div class="layui-layout layui-layout-admin">
+        <div th:replace="admin/header::nav"></div>
+        <div th:replace="admin/side::menu"></div>
+        <div class="layui-body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <div th:replace="admin/compose::layui-breadcrumb('系统管理','系统配置')"></div>
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-card-header">系统配置</div>
+                        <div class="layui-card-body">
+                            <form class="layui-form" action="">
+                                <div class="layui-form-item">
+                                    <label for="productTitle" class="layui-form-label">商品标题</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" class="layui-input"
+                                               name="productTitle" id="productTitle"
+                                               lay-verify="title" autocomplete="off"
+                                               placeholder="请输入商品标题">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label for="price" class="layui-form-label">商品售价</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" class="layui-input"
+                                               name="price" id="price"
+                                               lay-verify="title" autocomplete="off"
+                                               placeholder="商品售价">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block">
+                                        <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+<th:block th:replace="admin/footer::script"/>
+<script th:inline="none">
+    !function(){
+        let layer = layui.layer
+            ,table = layui.table;
+        //第一个实例
+        table.render({
+            elem: '#demo'
+            ,url: '/api/products' //数据接口
+            ,page: true //开启分页
+            ,parseData: function(res){ //res 即为原始返回的数据
+                return {
+                    "code": 0,
+                    "msg": res.message,
+                    "count": res.total,
+                    "data": res.records
+                };
+            }
+            ,request: {
+                pageName: 'current'
+                ,limitName: 'size'
+            }
+            ,cols: [[ //表头
+                {type: 'checkbox', fixed: 'left'}
+                ,{field: 'id', title: 'ID',width:100, unresize:true}
+                ,{field: 'productTitle', title: '产品标题', width:250, unresize:true}
+                ,{align: 'right', field: 'costPriceVal', title: '成本价/美元', width:150, unresize:true}
+                ,{align: 'right', field: 'priceVal', title: '售价/美元', width:150, unresize:true}
+                ,{field: 'countryName', title: '国家', width:250, unresize:true}
+                ,{field: 'providerName', title: '提供商', width:250, unresize:true}
+                ,{field: 'createdAt', title: '创建时间', width:180, unresize:true}
+                ,{fixed:'right',align: 'center', toolbar: '#barDemo', width:120}
+            ]]
+        });
+    }();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div class="layui-card layadmin-header" th:fragment="layui-breadcrumb(moduleName,pathName)">
+    <div class="layui-breadcrumb" style="visibility: visible;">
+        <a th:href="@{/admin}">首页</a>
+        <span lay-separator="">/</span>
+        <a th:text="${moduleName}"></a>
+        <span lay-separator="">/</span>
+        <a><cite th:text="${pathName}"></cite></a>
+    </div>
+</div>
+<div class="admin-table_header_left" th:fragment="admin-table_header_left">
+    <button type="button" class="layui-btn">新增</button>
+    <button type="button" class="layui-btn">删除选中</button>
+</div>
+<div class="admin-table_header_right" th:fragment="admin-table_header_right(tips)">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label th:for="search">
+                    <input type="text" class="layui-input"
+                           name="search" required
+                           th:placeholder="${tips}"
+                           autocomplete="off">
+                </label>
+            </div>
+            <button type="button" class="layui-btn">搜索</button>
+        </div>
+    </form>
+</div>
+<div class="layui-card error-card" th:fragment="admin-error_view(errors)">
+    <div class="layui-card-body">
+        <!--/*@thymesVar id="message" type="com.esiran.greenpay.common.entity.APIError"*/-->
+        <blockquote class="layui-elem-quote" th:each="error:${errors}" th:text="${error.message}"></blockquote>
+    </div>
+</div>
+<div th:fragment="login-error_view">
+    <div class="error-card" th:style="${_errors==null}?'display:none;':'margin-bottom: 15px;'">
+        <div>
+            <blockquote class="layui-elem-quote"
+                        style="color: #b30000; padding: 0; padding-left: 15px;"
+                        th:each="error:${_errors}"
+                        th:text="${error}">
+            </blockquote>
+        </div>
+    </div>
+</div>
+<footer class="admin-footer" th:fragment="admin-footer">
+    <div class="admin-footer_content">
+        <div class="admin-footer_copyright">
+            Copyright © 2020 <a href="/">greenpay.com</a>
+        </div>
+    </div>
+</footer>
+</html>

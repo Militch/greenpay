@@ -1,0 +1,37 @@
+server:
+  port: 8081
+
+logging:
+  level:
+    com.github.binarywang.wxpay: fatal
+    me.chanjar.weixin: fatal
+    com.esiran.greenpay.common.sign: debug
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}/${MYSQL_DB}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASS}
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  resources:
+    chain:
+      strategy:
+        content:
+          enabled: true
+
+greenpay:
+  web:
+    hostname: ${GRENNPAY_WEB_HOST:http://localhost}
+  openapi:
+    security:
+      sign:
+        enabled: true
+        allow_types: rsa

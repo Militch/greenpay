@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>商户登录 - GreenPay</title>
+    <th:block th:replace="merchant/header::stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+<body>
+<div class="layadmin-tabspage-none">
+    <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login">
+
+        <div class="layadmin-user-login-main">
+            <div class="layadmin-user-login-box layadmin-user-login-header">
+                <h2>GreenPay 商户登录</h2>
+            </div>
+            <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+                <div class="layui-form-item">
+                    <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-username"></label>
+                    <input type="text" name="username" id="LAY-user-login-username" lay-verify="required" placeholder="用户名" class="layui-input">
+                </div>
+                <div class="layui-form-item">
+                    <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
+                    <input type="password" name="password" id="LAY-user-login-password" lay-verify="required" placeholder="密码" class="layui-input">
+                </div>
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-fluid" lay-submit="" lay-filter="login">登 入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="merchant/footer::script"/>
+<script th:inline="none">
+   !function () {
+       let layer = layui.layer,
+           form = layui.form,
+           $ = layui.jquery;
+        //提交
+        form.on('submit(login)', function(data){
+
+            //请求登入接口
+            $.ajax({
+                url:'/login',
+                method:'post',
+                data:data.field,
+                dataType:'JSON',
+                error:function () {
+                    layer.msg("账号或密码错误");
+                }
+            })
+        });
+   }();
+</script>
+</body>
+</html>
